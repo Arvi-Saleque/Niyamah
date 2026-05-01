@@ -408,3 +408,54 @@ Audit of phases 0–3 surfaced 5 gaps. All fixed below.
 - [ ] BD district / area picker data set
 - [ ] Customer account dashboard, order tracking, profile
 
+
+## Phase 6 — Customer Experience
+
+**Commit:** `feat(backend/phase-6): customer experience — wishlist, reviews + moderation, profile, BD locations picker, public order tracking`
+
+### Validation + Data
+
+| File | What was done |
+|---|---|
+| `src/lib/validations/customer.ts` | NEW. Zod schemas: `wishlistAddSchema`, `reviewCreateSchema` (rating 1-5, body 5-4000 chars, up to 5 image URLs), `reviewModerateSchema`, `profileUpdateSchema` (name/phone/avatar), `passwordChangeSchema` |
+| `src/lib/bd/districts.ts` | NEW. Embedded BD geographic dataset — 8 divisions, 64 districts with Bangla names + sample upazilas/areas. Helpers: `getDistrictsByDivision`, `getAreasForDistrict` |
+
+### Customer Module
+
+| File | What was done |
+|---|---|
+| `src/modules/customer/infrastructure/wishlist.repository.ts` | NEW. `getOrCreate / list / add / remove / has` plus `userBoughtProduct` (used to flag verified-purchase reviews). Returns hydrated list with primary image |
+| `src/modules/customer/infrastructure/review.repository.ts` | NEW. `listForProduct` (paginated, APPROVED-only by default), `statsForProduct` (total + average + 1-5 distribution), `create` (transactional with `review_images`, status=PENDING, verifiedPurchase auto-detected), `listForModeration` (admin), `moderate`, `remove` |
+| `src/modules/customer/infrastructure/profile.repository.ts` | NEW. `getProfile / updateProfile / changePassword` (bcrypt verify + rehash cost 12). Throws typed `IncorrectPasswordError` |
+
+### API Routes
+
+| File | What was done |
+|---|---|
+| `src/app/api/v1/wishlist/route.ts` | `GET` (requireUser) hydrated list, `POST` add (idempotent — returns `added: false` on duplicate) |
+| `src/app/api/v1/wishlist/[productId]/route.ts` | `DELETE` remove by productId |
+| `src/app/api/v1/products/[productId]/reviews/route.ts` | `GET` public paginated list + stats (rating distribution); `POST` (requireUser, 5/min/IP) creates review (auto-flags verifiedPurchase if user has a delivered order containing the product) |
+| `src/app/api/v1/admin/reviews/route.ts` | Admin `GET` moderation queue with `?status=PENDING\|APPROVED\|REJECTED` |
+| `src/app/api/v1/admin/reviews/[id]/route.ts` | Admin `PATCH` set status, `DELETE` remove |
+| `src/app/api/v1/me/route.ts` | `GET` (requireUser) full profile, `PATCH` dual-mode: profile fields OR password change (detected via payload shape) |
+| `src/app/api/v1/bd/locations/route.ts` | Public `GET` — divisions list, or `?division=` returns districts, `?district=` returns areas, `?all=true` returns full dataset |
+| `src/app/api/v1/track/route.ts` | Public `GET` order tracking — verifies ownership via `orderId + phone` (or `+ email`); returns status timeline + items only — no PII leak |
+
+### Pending in Later Phases
+
+- BD picker UI components (Phase 8)
+- Wishlist + reviews UI wiring (Phase 8)
+- Customer dashboard pages (Phase 8)
+
+---
+
+## Next Up — Phase 7: Marketing & SEO
+
+- [ ] Coupons admin UI (backend ready in P5)
+- [ ] Campaigns module + auto-generated landing pages
+- [ ] GA4 + GTM + Meta Pixel client; Meta CAPI server-side
+- [ ] JSON-LD schemas (Product, Breadcrumb, Review, FAQ)
+- [ ] sitemap.xml + robots.txt
+- [ ] Blog module (TipTap content stored as JSON/HTML)
+- [ ] Newsletter signup + Resend list
+- [ ] Inngest abandoned-cart job (24h after last update)
