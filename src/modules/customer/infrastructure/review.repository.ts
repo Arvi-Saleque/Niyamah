@@ -132,6 +132,33 @@ export const reviewRepository = {
     });
   },
 
+  async listForUser(
+    userId: string,
+    opts: { page?: number; limit?: number } = {},
+  ) {
+    const page = opts.page ?? 1;
+    const limit = opts.limit ?? 20;
+    const offset = (page - 1) * limit;
+    const where = [
+      eq(reviews.storeId, DEFAULT_STORE_ID),
+      eq(reviews.userId, userId),
+    ];
+    const [items, [{ total }]] = await Promise.all([
+      db
+        .select()
+        .from(reviews)
+        .where(and(...where))
+        .orderBy(desc(reviews.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ total: count() })
+        .from(reviews)
+        .where(and(...where)),
+    ]);
+    return { items, total: total ?? 0, page, limit };
+  },
+
   async listForModeration(opts: { status?: "PENDING" | "APPROVED" | "REJECTED"; page?: number; limit?: number } = {}) {
     const page = opts.page ?? 1;
     const limit = opts.limit ?? 20;

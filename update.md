@@ -689,3 +689,18 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | `src/app/(storefront)/checkout/success/page.tsx` | New: server component, reads `?orderId`, renders `OrderConfirmation` |
 | `src/app/(storefront)/cart/page.tsx` | Bug fix: `s.subtotal()` → `s.totalPrice()` (matched cart-store API) |
 
+
+
+---
+
+## Phase 12 — Account Pages (Order Detail, Addresses, Profile, Reviews)
+
+| File | What was done |
+|------|---------------|
+| `src/app/(storefront)/account/orders/[id]/page.tsx` | New: server component, ownership-checked via `orderRepository.findByIdForUser`, renders items + status timeline + payment info + financial breakdown |
+| `src/app/(storefront)/account/addresses/page.tsx` | New: client list/CRUD using `/api/v1/addresses` and `AddressForm`, `ConfirmDialog` for delete, edit-in-place pattern |
+| `src/app/(storefront)/account/profile/page.tsx` | New: react-hook-form for personal info (name/phone) + change password, both posting to `PATCH /api/v1/me` |
+| `src/app/(storefront)/account/reviews/page.tsx` | New: server component listing all reviews by current user with rating + status badge |
+| `src/modules/customer/infrastructure/review.repository.ts` | Added: `listForUser(userId, opts)` for the My Reviews page |
+| `src/app/(storefront)/account/layout.tsx` | Added `My Reviews` link to the sidebar nav |
+
