@@ -252,3 +252,74 @@ Audit of phases 0–3 surfaced 5 gaps. All fixed below.
 - [ ] `src/app/api/v1/media/upload/route.ts` — image upload endpoint
 - [ ] Auth middleware guard for all admin-only routes
 - [ ] Seed script — default store row (id: 1) + admin user
+
+---
+
+## Phase 4 — Core Catalog
+
+**Commit:** `feat(backend/phase-4): core catalog (cloudinary uploads, categories/brands/products CRUD, PostgreSQL FTS search, seed script)`
+
+### Infrastructure
+
+| File | What was done |
+|---|---|
+| `src/lib/cloudinary/index.ts` | NEW. `uploadToCloudinary(file, opts)` + `deleteFromCloudinary(publicId)` using the official `cloudinary` SDK. Reads `CLOUDINARY_CLOUD_NAME / API_KEY / API_SECRET`; throws if not configured |
+| `src/lib/utils/slug.ts` | NEW. `toSlug()` (ASCII, strict) + `uniqueSlug(base, existsCheck)` for collision-free URL generation |
+| `src/lib/auth/guards.ts` | NEW. `getCurrentUser()`, `requireAdmin()`, `requireUser()` — server-side route guards returning `{ ctx } | { error: Response }`. Admin tier = superadmin/admin/manager/staff |
+| `src/lib/constants/store.ts` | NEW. `DEFAULT_STORE_ID = 1` for the single-tenant Niyamah deployment (multi-tenant resolution lands in Phase 9) |
+
+### Validation
+
+| File | What was done |
+|---|---|
+| `src/lib/validations/catalog.ts` | NEW. Zod schemas: `categoryCreate/Update`, `brandCreate/Update`, `productCreate/Update` (with nested `images[]` + `variants[]` + per-variant `options[]` + `initialStock`), `listQuery` (page/limit/q/categoryId/brandId/status/featured/sort) |
+
+### Catalog Module (Repository Pattern)
+
+| File | What was done |
+|---|---|
+| `src/modules/catalog/infrastructure/category.repository.ts` | NEW. `list / findById / findBySlug / create / update / remove / tree` with auto-slug + uniqueness, parentId chains, sort order |
+| `src/modules/catalog/infrastructure/brand.repository.ts` | NEW. Full CRUD with auto-slug + featured flag |
+| `src/modules/catalog/infrastructure/product.repository.ts` | NEW. Transactional `create()` inserts product + images + variants + per-variant inventory rows + variant option types/values; `findById/findBySlug` hydrates images + variants; `update()` replaces images when provided; supports paginated list with q/category/brand/status/featured filters and 6 sort modes |
+
+### Search Module (PostgreSQL FTS — swappable)
+
+| File | What was done |
+|---|---|
+| `src/modules/search/infrastructure/product-search.repository.ts` | NEW. PostgreSQL full-text search using weighted `setweight + to_tsvector` over name/short_description/description, `plainto_tsquery`, ranked by `ts_rank_cd`. Returns hits with primary image and pagination. Isolated module so future swap to Meilisearch/Algolia touches only this file |
+
+### API Routes
+
+| File | What was done |
+|---|---|
+| `src/app/api/v1/categories/route.ts` | `GET` (public list) + `POST` (admin create). Uses `listQuerySchema` |
+| `src/app/api/v1/categories/[id]/route.ts` | `GET / PATCH (admin) / DELETE (admin)` |
+| `src/app/api/v1/brands/route.ts` | `GET` + `POST (admin)` |
+| `src/app/api/v1/brands/[id]/route.ts` | `GET / PATCH (admin) / DELETE (admin)` |
+| `src/app/api/v1/products/route.ts` | `GET` (public list, paginated meta) + `POST (admin)` |
+| `src/app/api/v1/products/[id]/route.ts` | `GET / PATCH (admin) / DELETE (admin)` |
+| `src/app/api/v1/products/slug/[slug]/route.ts` | Public `GET` by slug — hydrates images + variants for PDP |
+| `src/app/api/v1/admin/media/upload/route.ts` | Admin-only multipart upload to Cloudinary. Limits: 8 MB / image+video MIME allowlist / 30 uploads per 10 min per IP |
+| `src/app/api/v1/search/route.ts` | Public `GET /api/v1/search?q=…&page=&limit=&categoryId=&brandId=` — 60 req/min/IP, returns ranked hits with full pagination meta |
+
+### Seed
+
+| File | What was done |
+|---|---|
+| `src/lib/db/seed.ts` | NEW. `npm run db:seed` — idempotent: creates store id=1 `Niyamah` (with settings + theme), superadmin `admin@niyamah.com.bd` (bcrypt cost 12), 2 brands (Niyamah, Heritage), 3 root categories (Apparel, Accessories, Home & Living) |
+| `package.json` | Added scripts: `db:seed` → `tsx --env-file=.env.local src/lib/db/seed.ts`; added deps `cloudinary`, `slugify`, `tsx` (dev) |
+
+### Verified
+
+- `npm run db:seed` ran successfully against Neon — store, admin user, brands, categories all created.
+
+---
+
+## Next Up — Phase 5: Commerce Engine
+
+- [ ] Cart module (server-side carts, merge guest→user on login)
+- [ ] Transactional checkout (inventory reservation, idempotency-key)
+- [ ] Orders + status history + COD payment flow
+- [ ] Shipping zones + rates calculation (BD districts)
+- [ ] Resend email integration (order confirmation, status updates)
+- [ ] Inngest job: release reserved stock after 30 min if unpaid
