@@ -80,6 +80,28 @@ export async function POST(req: NextRequest) {
         .catch((err) =>
           console.error("[checkout] inngest dispatch failed", err),
         );
+
+      // Server-side analytics: Meta CAPI (no-op if META env not set)
+      const recipientPhone = fullOrder.guestPhone ?? null;
+      inngest
+        .send({
+          name: "commerce/order.created",
+          data: {
+            orderId: result.orderId,
+            total: Number(fullOrder.total),
+            currency: "BDT",
+            ...(recipient && { email: recipient }),
+            ...(recipientPhone && { phone: recipientPhone }),
+            items: fullOrder.items.map((i) => ({
+              id: i.variantId ?? 0,
+              quantity: i.quantity,
+              price: Number(i.unitPrice),
+            })),
+          },
+        })
+        .catch((err) =>
+          console.error("[checkout] order.created dispatch failed", err),
+        );
     }
 
     return apiSuccess(result, 201);

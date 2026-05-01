@@ -459,3 +459,90 @@ Audit of phases 0–3 surfaced 5 gaps. All fixed below.
 - [ ] Blog module (TipTap content stored as JSON/HTML)
 - [ ] Newsletter signup + Resend list
 - [ ] Inngest abandoned-cart job (24h after last update)
+
+## Phase 7 — Marketing & SEO
+
+**Commit:** `feat(backend/phase-7): marketing & SEO — campaigns, blog, newsletter, sitemap, JSON-LD, analytics + Meta CAPI, abandoned-cart job`
+
+> **DB migration required:** new `newsletter_subscribers` table. Run `npm run db:push` before deploying.
+
+### Validation + Libraries
+
+| File | What was done |
+|---|---|
+| `src/lib/validations/marketing.ts` | NEW. Zod schemas: `campaignCreateSchema`, `campaignUpdateSchema`, `blogCategoryCreateSchema`, `blogTagCreateSchema`, `blogPostCreateSchema`, `blogPostUpdateSchema`, `newsletterSubscribeSchema`, `bannerCreateSchema`. Slug regex enforced |
+| `src/lib/marketing/json-ld.ts` | NEW. schema.org generators: `organizationLd`, `breadcrumbLd`, `productLd` (with offer + aggregateRating), `reviewLd`, `faqLd`, `articleLd` |
+| `src/lib/marketing/analytics.ts` | NEW. Client-side helpers for GA4 / GTM dataLayer + Meta Pixel `fbq`. Reads NEXT_PUBLIC_* env at runtime; safe no-op when not configured. `analytics.viewItem / addToCart / beginCheckout / purchase` cover the standard funnel |
+| `src/lib/db/schema/index.ts` | + `newsletterSubscribers` table (storeId, email unique-per-store, name, source, subscribed flag, unsubscribedAt) |
+| `src/lib/resend/index.ts` | + `sendGenericEmail({to, subject, html})` no-op-on-missing-key helper |
+
+### Modules
+
+| File | What was done |
+|---|---|
+| `src/modules/marketing/infrastructure/campaign.repository.ts` | NEW. `list / findBySlug / findById / findBySlugWithProducts` (hydrates products + primary image + linked coupon), `create` transactional with `campaignProducts` link table, `update` (partial + replace product list), `remove`. Throws typed `CampaignError` |
+| `src/modules/marketing/infrastructure/newsletter.repository.ts` | NEW. `subscribe` (idempotent — re-activates if previously unsubscribed), `unsubscribe`, `list` admin. Email lowercased + trimmed |
+| `src/modules/blog/infrastructure/blog.repository.ts` | NEW. Categories/Tags CRUD, Posts `listPosts` (paginated, status/category/tag filters), `findPostBySlug` (joins author + category + tags), `createPost` (transactional with tag links, auto-sets publishedAt on publish), `updatePost` (partial), `deletePost`, `listPublishedSlugs` for sitemap |
+
+### API Routes
+
+| File | What was done |
+|---|---|
+| `src/app/api/v1/admin/campaigns/route.ts` | Admin `GET` paginated list + filter, `POST` create |
+| `src/app/api/v1/admin/campaigns/[id]/route.ts` | Admin `GET` / `PATCH` / `DELETE` |
+| `src/app/api/v1/campaigns/[slug]/route.ts` | Public `GET` — returns hydrated campaign only when `status` ∈ active/ended (hides drafts & scheduled) |
+| `src/app/api/v1/admin/blog/posts/route.ts` | Admin paginated `GET` + `POST` create |
+| `src/app/api/v1/admin/blog/posts/[id]/route.ts` | Admin `GET` / `PATCH` / `DELETE` |
+| `src/app/api/v1/blog/categories/route.ts` | Public `GET` list, admin-guarded `POST` |
+| `src/app/api/v1/blog/tags/route.ts` | Public `GET` list, admin-guarded `POST` |
+| `src/app/api/v1/blog/posts/route.ts` | Public `GET` paginated published posts; `?category=` and `?tag=` filters |
+| `src/app/api/v1/blog/posts/[slug]/route.ts` | Public `GET` — published only |
+| `src/app/api/v1/newsletter/subscribe/route.ts` | Public `POST` — rate-limited 5/min/IP via `rateLimit()` |
+| `src/app/api/v1/newsletter/unsubscribe/route.ts` | Public `POST` |
+
+### SEO Routes
+
+| File | What was done |
+|---|---|
+| `src/app/sitemap.ts` | Next.js metadata route — emits static + dynamic URLs (published products / categories / brands / blog posts) batched via Promise.all |
+| `src/app/robots.ts` | Disallows `/admin`, `/api/`, `/account/`, `/checkout/`, `/auth/`. References sitemap |
+
+### Background Jobs (Inngest)
+
+| File | What was done |
+|---|---|
+| `src/inngest/functions/abandoned-cart.ts` | NEW. Triggers on `cart/updated`; sleeps 24h; if cart still has items AND `updatedAt` unchanged, sends email reminder via `sendGenericEmail`. Debounce 1h per cartId. Skips guest carts |
+| `src/inngest/functions/meta-capi.ts` | NEW. Triggers on `commerce/order.created`; SHA-256 hashes email/phone; POSTs `Purchase` event to Meta Graph API. No-op when META_ACCESS_TOKEN / META_PIXEL_ID not set |
+| `src/app/api/inngest/route.ts` | Registered both new functions alongside existing `releaseReservedStock` |
+
+### Event Wiring
+
+| File | What was done |
+|---|---|
+| `src/app/api/v1/cart/route.ts` | `POST` now dispatches `cart/updated` event after add (best-effort) |
+| `src/app/api/v1/checkout/route.ts` | After order creation now dispatches `commerce/order.created` event with hashed PII inputs for Meta CAPI (best-effort) |
+
+### Env Vars Used (all optional / no-op when absent)
+
+- `NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_GTM_ID`, `NEXT_PUBLIC_META_PIXEL_ID`
+- `META_ACCESS_TOKEN`, `META_PIXEL_ID`
+- `NEXT_PUBLIC_SITE_URL`
+- `RESEND_API_KEY` (existing)
+
+### Pending in Later Phases
+
+- Coupon admin CRUD UI (Phase 8)
+- Campaign product picker UI (Phase 8)
+- TipTap blog editor + admin pages (Phase 8)
+- `<JsonLd>` component to inject scripts on PDP / blog pages (Phase 8)
+- Analytics `<Provider>` script tags in root layout (Phase 8)
+- Newsletter signup form component (Phase 8)
+- Banner/slider admin (Phase 9)
+
+---
+
+## Next Up — Phase 8: Frontend Wiring
+
+- [ ] Storefront pages: home, /products, /category/[slug], /brand/[slug], /products/[slug], /cart, /checkout, /account/*, /blog, /campaigns/[slug]
+- [ ] Admin pages: dashboard (Recharts), products, categories, orders, coupons, reviews, blog, customers, shipping, banners
+- [ ] Wire 88 prebuilt components into pages, connect to Phase 1-7 APIs

@@ -113,3 +113,21 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+
+/**
+ * Generic Resend send. No-op if RESEND_API_KEY is not configured.
+ */
+export async function sendGenericEmail(opts: {
+  to: string;
+  subject: string;
+  html: string;
+}) {
+  const resend = getResend();
+  if (!resend) return null;
+  return resend.emails.send({
+    from: FROM_EMAIL,
+    to: opts.to,
+    subject: opts.subject,
+    html: opts.html,
+  });
+}

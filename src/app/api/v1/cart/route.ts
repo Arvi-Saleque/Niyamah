@@ -4,6 +4,7 @@ import { cartAddItemSchema } from "@/lib/validations/commerce";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import { getCurrentUser } from "@/lib/auth/guards";
 import { getOrCreateSessionId } from "@/lib/session/guest";
+import { inngest } from "@/lib/inngest/client";
 
 /**
  * GET /api/v1/cart
@@ -49,6 +50,16 @@ export async function POST(req: NextRequest) {
       parsed.data.variantId,
       parsed.data.quantity,
     );
+    // Best-effort fire abandoned-cart trigger event (24h delayed reminder)
+    inngest
+      .send({
+        name: "cart/updated",
+        data: {
+          cartId: cart.id,
+          updatedAt: new Date().toISOString(),
+        },
+      })
+      .catch((err) => console.error("inngest cart/updated dispatch failed", err));
     return apiSuccess(updated, 201);
   } catch (err) {
     return apiError(

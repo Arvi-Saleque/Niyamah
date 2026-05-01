@@ -998,6 +998,30 @@ export const notifications = pgTable(
 );
 
 // ─────────────────────────────────────────────
+// Newsletter
+// ─────────────────────────────────────────────
+
+export const newsletterSubscribers = pgTable(
+  "newsletter_subscribers",
+  {
+    id: serial("id").primaryKey(),
+    storeId: integer("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    email: varchar("email", { length: 255 }).notNull(),
+    name: varchar("name", { length: 255 }),
+    source: varchar("source", { length: 100 }),
+    subscribed: boolean("subscribed").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    unsubscribedAt: timestamp("unsubscribed_at"),
+  },
+  (table) => [
+    uniqueIndex("newsletter_store_email_idx").on(table.storeId, table.email),
+    index("newsletter_store_idx").on(table.storeId),
+  ],
+);
+
+// ─────────────────────────────────────────────
 // Relations
 // ─────────────────────────────────────────────
 
