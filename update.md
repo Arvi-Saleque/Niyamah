@@ -649,3 +649,15 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 - Multi-tenant **middleware** that injects `x-store-id` based on host â€” helper is now in place; middleware lands when first multi-tenant deployment is provisioned
 - Audit log invocation from every admin write (helper now in place; callers will be wired alongside the admin form pages)
 
+
+---
+
+## Hotfix — Dynamic Route Param Name Conflict
+
+**Commit:** `b7a22f9`
+
+| File | What was done |
+|------|---------------|
+| `src/app/api/v1/products/[id]/reviews/route.ts` | Renamed from `[productId]/reviews/route.ts` ? `[id]/reviews/route.ts`; updated `params` type and destructuring from `{ productId }` to `{ id }` to resolve Next.js App Router error: *"You cannot use different slug names for the same dynamic path (`id` !== `productId`)"* |
+
+
