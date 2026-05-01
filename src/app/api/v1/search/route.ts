@@ -36,8 +36,10 @@ export async function GET(req: NextRequest) {
   const result = await productSearchRepository.search(parsed.data.q, {
     page: parsed.data.page,
     limit: parsed.data.limit,
-    categoryId: parsed.data.categoryId,
-    brandId: parsed.data.brandId,
+    ...(parsed.data.categoryId !== undefined && {
+      categoryId: parsed.data.categoryId,
+    }),
+    ...(parsed.data.brandId !== undefined && { brandId: parsed.data.brandId }),
   });
 
   return apiSuccess(result, 200, {

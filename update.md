@@ -315,11 +315,96 @@ Audit of phases 0–3 surfaced 5 gaps. All fixed below.
 
 ---
 
-## Next Up — Phase 5: Commerce Engine
+## Phase 5 — Commerce Engine
 
-- [ ] Cart module (server-side carts, merge guest→user on login)
-- [ ] Transactional checkout (inventory reservation, idempotency-key)
-- [ ] Orders + status history + COD payment flow
-- [ ] Shipping zones + rates calculation (BD districts)
-- [ ] Resend email integration (order confirmation, status updates)
-- [ ] Inngest job: release reserved stock after 30 min if unpaid
+**Commit:** `feat(backend/phase-5): commerce engine — cart, addresses, shipping, coupons, transactional checkout (COD), Resend emails, Inngest 30-min stock release`
+
+### Validation
+
+| File | What was done |
+|---|---|
+| `src/lib/validations/commerce.ts` | NEW. Zod schemas: `addressCreate/Update`, `cartAddItemSchema`, `cartUpdateItemSchema`, `checkoutSchema` (cartId / guestEmail / addressId or inline shippingAddress / shippingRateId / paymentMethod default COD / couponCode / idempotencyKey min 8), `couponCreate/Update`, `couponApplySchema`, `shippingZoneCreate`, `shippingRateCreate`, `orderStatusUpdateSchema`. All matching exported types |
+
+### Cart Module
+
+| File | What was done |
+|---|---|
+| `src/modules/commerce/infrastructure/cart.repository.ts` | NEW. `findOrCreate({userId, sessionId})`, `addItem`, `updateItem` (qty 0 deletes), `removeItem`, `clear`, `mergeGuestIntoUser`, exported `load`. Effective price chain: `salePriceOverride > priceOverride > salePrice > basePrice`; persists into `cart_items.priceSnapshot`. Returns hydrated `CartView` with subtotal + line totals + primary image |
+| `src/lib/session/guest.ts` | NEW. `getOrCreateSessionId()` mints/reads `niyamah_sid` http-only cookie (nanoid 24, 1-yr, sameSite lax, secure in prod) for guest cart tracking |
+| `src/app/api/v1/cart/route.ts` | `GET` returns/creates cart for current user/session. `POST` adds an item |
+| `src/app/api/v1/cart/items/[itemId]/route.ts` | `PATCH` updates quantity (0 deletes), `DELETE` removes |
+| `src/app/api/v1/cart/merge/route.ts` | `POST` (requireUser) — merges the guest cart into the signed-in user's cart on login |
+
+### Address Module
+
+| File | What was done |
+|---|---|
+| `src/modules/commerce/infrastructure/address.repository.ts` | NEW. `listForUser`, `findForUser`, `create / update / remove`. Toggling `isDefault: true` first clears default flag on user's other addresses |
+| `src/app/api/v1/addresses/route.ts` | `GET` (requireUser) lists, `POST` (requireUser) creates |
+| `src/app/api/v1/addresses/[id]/route.ts` | `GET / PATCH / DELETE` scoped to current user |
+
+### Shipping Module
+
+| File | What was done |
+|---|---|
+| `src/modules/commerce/infrastructure/shipping.repository.ts` | NEW. `listZones / createZone`, `listRates(zoneId?) / createRate`, `findRate`, `findZoneForDistrict`, `computePrice(rate, subtotal)` honouring `freeAboveAmount` |
+| `src/app/api/v1/shipping/zones/route.ts` | Public `GET` lists zones (needed at checkout); admin `POST` creates |
+| `src/app/api/v1/shipping/rates/route.ts` | Public `GET ?zoneId=` lists rates; admin `POST` creates |
+
+### Coupon Module
+
+| File | What was done |
+|---|---|
+| `src/modules/commerce/infrastructure/coupon.repository.ts` | NEW. `list / findByCode / create / remove`, `validateForCart({code, subtotal, userId})` returning `{amount, freeShipping, couponId, code}` — enforces status, date window, min order, total usage limit, per-user limit (joined via `couponUsage`); supports PERCENTAGE (with maxDiscount cap), FLAT, FREE_SHIPPING. `recordUsage()` writes `coupon_usage` + increments `coupons.usageCount`. Throws typed `CouponError` |
+| `src/app/api/v1/admin/coupons/route.ts` | Admin `GET` list + `POST` create |
+| `src/app/api/v1/coupons/apply/route.ts` | Public `POST` — preview discount against a cart (rate-limited 20/min/IP). Read-only |
+
+### Checkout — Transactional (the heart of the engine)
+
+| File | What was done |
+|---|---|
+| `src/modules/commerce/application/place-order.usecase.ts` | NEW. Full transactional checkout. Steps: (1) idempotency check on `orders.idempotencyKey`; (2) load + validate cart; (3) resolve shipping address (existing addressId for users, or inline `shippingAddress`); (4) resolve shipping rate; (5) validate + apply coupon if any; (6) `db.transaction`: SELECT inventory FOR UPDATE → verify stock → reserve (`stockReserved += qty`, `stockAvailable -= qty`) → insert order → insert order_items (snapshot productName / sku / unitPrice / totalPrice / primary imageUrl) → insert payment row (COD = PENDING, others UNPAID) → insert order_status_history (PENDING) → clear cart_items; (7) record coupon usage post-commit; (8) returns `{orderId, status, total, paymentMethod, paymentStatus}`. Throws typed `CheckoutError` |
+| `src/app/api/v1/checkout/route.ts` | `POST` rate-limited 5/min/IP, validates `checkoutSchema`, resolves user-or-guest cart, requires `guestEmail` for guests. Calls `placeOrderUseCase`. On success, hydrates the order and dispatches (best-effort) the Resend confirmation email and the Inngest `checkout/inventory.reserved` event |
+
+### Orders Module
+
+| File | What was done |
+|---|---|
+| `src/modules/commerce/infrastructure/order.repository.ts` | NEW. `listForUser(userId, page, limit)`, `listAdmin({page,limit,status})`, `findByIdForUser`, `findByIdAdmin`, `findByIdempotencyKey`, `hydrate()` (joins items + status history + payments). `updateStatus(id, {status, note}, actorId)` runs in a tx and writes an audit-trail row to `order_status_history` |
+| `src/app/api/v1/orders/route.ts` | `GET` (requireUser) — paginated list of the current user's orders |
+| `src/app/api/v1/orders/[id]/route.ts` | `GET` (requireUser) — admin sees any order; customer sees their own. Returns hydrated order |
+| `src/app/api/v1/admin/orders/route.ts` | Admin `GET` — paginated list with optional `?status=` filter |
+| `src/app/api/v1/admin/orders/[id]/status/route.ts` | Admin `PATCH` — transitions status, writes `order_status_history`, fires best-effort Resend status email |
+
+### Email + Background Jobs
+
+| File | What was done |
+|---|---|
+| `src/lib/resend/index.ts` | NEW. Lazy-cached Resend client (returns null + warns when `RESEND_API_KEY` absent so dev never fails). `sendOrderConfirmationEmail({to, order})` and `sendOrderStatusEmail({to, orderId, newStatus, note})` with branded HTML (Playfair heading, accent #C9A96E, BDT pricing). HTML-escapes all interpolated values (XSS-safe) |
+| `src/lib/inngest/client.ts` | NEW. Single `inngest` client (id `niyamah`) + typed `InngestEvents` registry covering `checkout/inventory.reserved`, `marketing/cart.abandoned`, `marketing/newsletter.subscribed` |
+| `src/inngest/functions/release-reserved-stock.ts` | NEW. Inngest function listening on `checkout/inventory.reserved`. Sleeps 30 min, then if order still PENDING and (non-COD) UNPAID: in a tx restores `stockAvailable` / decrements `stockReserved` for each line and marks the order CANCELLED. COD orders are skipped (admin confirms manually) |
+| `src/app/api/inngest/route.ts` | NEW. Mounts the Inngest serve handler at `/api/inngest` (GET/POST/PUT) registering `releaseReservedStock` |
+
+### Schema Notes Used
+
+- `orders.idempotencyKey` unique index enforces idempotent checkout retries.
+- `inventory.stockReserved` + `stockAvailable` columns drive the reserve/release flow.
+- `order_status_history` provides the full audit trail (fromStatus → toStatus, note, actorId).
+- `payments` row is created at checkout (COD = `PENDING`); future gateway callbacks flip to `PAID` / `FAILED`.
+
+### Pending in Later Phases
+
+- Cart merge UI hook on login (server endpoint shipped here; client wiring in Phase 8)
+- Coupon admin UI (Phase 7) — backend CRUD ready
+- Shipping admin UI (Phase 9) — backend CRUD ready
+- Mock gateways (bKash / SSLCommerz) — schema + payment_method enum already in place
+
+---
+
+## Next Up — Phase 6: Customer Experience
+
+- [ ] Wishlist module + API
+- [ ] Reviews module with admin moderation queue
+- [ ] BD district / area picker data set
+- [ ] Customer account dashboard, order tracking, profile
+
