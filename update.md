@@ -763,3 +763,16 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | `src/app/(admin)/admin/campaigns/page.tsx` | Rewrote: full CRUD with `CampaignForm` dialog, datetime inputs, status select |
 | `src/components/admin/campaign-form.tsx` | New: RHF + Zod form (name/slug/description/banner/start/end/status) |
 
+
+
+---
+
+## Phase 18 — Admin Blog Editor
+
+| File | What was done |
+|------|---------------|
+| `src/components/admin/blog-post-form.tsx` | New: RHF + Zod editor for blog posts (title/slug/excerpt/content/featuredImage/SEO/status). Plain markdown/HTML textarea (no TipTap dependency added) |
+| `src/app/(admin)/admin/blog/page.tsx` | Rewrote: list + 'New post' button + clickable rows |
+| `src/app/(admin)/admin/blog/new/page.tsx` | New: client page POST `/api/v1/admin/blog/posts` |
+| `src/app/(admin)/admin/blog/[id]/page.tsx` | New: client edit page, GETs full post, PATCH on save, DELETE via ConfirmDialog |
+
