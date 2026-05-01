@@ -3,6 +3,10 @@ import { forgotPasswordSchema } from "@/lib/validations/auth";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import { rateLimit } from "@/lib/redis/rate-limit";
 import { userRepository } from "@/modules/auth/infrastructure/user.repository";
+import {
+  generateResetToken,
+  storeResetToken,
+} from "@/lib/auth/password-reset";
 
 /**
  * POST /api/v1/auth/forgot-password
@@ -37,10 +41,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Lookup is a no-op for now; just don't leak whether the email exists.
-  await userRepository.findByEmail(parsed.data.email);
+  // Lookup user — never reveal whether the email exists.
+  const user = await userRepository.findByEmail(parsed.data.email);
 
-  // TODO(Phase 5): generate signed reset token, persist, send via Resend.
+  if (user) {
+    const token = generateResetToken();
+    await storeResetToken(token, user.id);
+    // TODO(Phase 22): enqueue Resend email with link to /reset-password?token=...
+    // For now, the token is only stored in Redis; client must use the link
+    // delivered by the email job (or by direct admin lookup in dev).
+  }
 
   return apiSuccess({
     message:

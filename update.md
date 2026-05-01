@@ -661,3 +661,19 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | `src/app/api/v1/products/[id]/reviews/route.ts` | Renamed from `[productId]/reviews/route.ts` ? `[id]/reviews/route.ts`; updated `params` type and destructuring from `{ productId }` to `{ id }` to resolve Next.js App Router error: *"You cannot use different slug names for the same dynamic path (`id` !== `productId`)"* |
 
 
+
+
+---
+
+## Phase 10 — Auth Reset Password Flow
+
+**Commit:** `
+
+| File | What was done |
+|------|---------------|
+| `src/lib/auth/password-reset.ts` | New: `generateResetToken()`, `storeResetToken()`, `consumeResetToken()` — single-use tokens via Upstash Redis with 30 min TTL |
+| `src/app/api/v1/auth/forgot-password/route.ts` | Now generates and stores a reset token when the user exists (still returns generic success to prevent email enumeration) |
+| `src/app/api/v1/auth/reset-password/route.ts` | New: validates token + new password, hashes with bcryptjs cost 12, calls `userRepository.updatePassword` |
+| `src/components/auth/reset-password-form.tsx` | New: react-hook-form + Zod, password strength validation, success state |
+| `src/app/(auth)/reset-password/page.tsx` | New: reads `?token=` query, posts to API, handles missing-token state |
+
