@@ -86,13 +86,73 @@ clear at a glance.
 
 ---
 
-## Next Up — Phase 1 Continued
+---
+
+## Phase 2 — Complete Reusable Component System
+
+**Commit:** `feat: reusable component system — 88 components across 8 phases`
+
+### Setup
+
+| File | What was done |
+|---|---|
+| `package.json` | Removed conflicting `overrides` block that broke shadcn init |
+| `components.json` | shadcn/ui v4.6 init — style: default, rsc: true, tsx: true, aliases set |
+| `src/app/globals.css` | Added `@import "tw-animate-css"`, `@import "shadcn/tailwind.css"`, `@custom-variant dark` |
+| `src/components/ui/` | All 34 shadcn primitives installed: button, input, label, textarea, select, checkbox, radio-group, switch, badge, avatar, separator, skeleton, dialog, sheet, drawer, dropdown-menu, tooltip, popover, alert-dialog, command, card, tabs, accordion, scroll-area, collapsible, navigation-menu, breadcrumb, pagination, form, slider, sonner, alert, progress, table |
+| `src/lib/utils.ts` | Extended with `formatCurrency(BDT)`, `discountPercent`, `truncate`, `slugify` |
+| `src/stores/cart-store.ts` | Zustand cart store with `persist` middleware — addItem, removeItem, updateQuantity, clearCart, openCart/closeCart, totalItems(), totalPrice() |
+| `src/stores/wishlist-store.ts` | Zustand wishlist store with `persist` middleware — addItem, removeItem, toggle, has() |
+
+### Phase 1 — Design System Primitives (21 components in `src/components/shared/`)
+
+container, section, typography (Heading + Text), logo, section-header, page-header, breadcrumbs, price-text, discount-badge, rating-stars, status-badge, stock-indicator, empty-state, error-state, skeleton-card, image-with-fallback, confirm-dialog, copy-button, quantity-stepper, countdown-timer, pagination-controls
+
+### Phase 2 — Layout Components (7 components)
+
+`src/components/storefront/`: top-bar, site-header, mega-menu, mobile-nav, site-footer  
+`src/components/admin/`: admin-sidebar, admin-topbar
+
+### Phase 3 — Product Components (14 components in `src/components/storefront/`)
+
+product-card, product-grid, product-list-view, product-gallery, product-info, product-variant-selector, add-to-cart-button, wishlist-button, product-quick-view, product-tabs, product-specs-table, related-products, product-review-card, product-review-form
+
+### Phase 4 — Catalog / Filter / Search (9 components in `src/components/storefront/`)
+
+category-card, category-grid, search-bar, search-suggestions, filter-sidebar, filter-drawer, active-filters, sort-dropdown, price-range-slider
+
+### Phase 5 — Cart (7 components in `src/components/storefront/`)
+
+mini-cart-button, cart-drawer, cart-item, cart-summary, coupon-box, free-shipping-progress, cart-empty-state
+
+### Phase 6 — Checkout + Auth (9 components)
+
+`src/components/storefront/`: checkout-steps, address-form, delivery-method-selector, payment-method-selector (COD v1), order-summary, order-confirmation  
+`src/components/auth/`: login-form, register-form, forgot-password-form
+
+### Phase 7 — Marketing / Homepage (9 components in `src/components/storefront/`)
+
+hero-slider, campaign-banner, flash-sale-section, featured-categories, trust-badges, testimonials-section, newsletter-box, best-seller-section, new-arrivals-section
+
+### Phase 8 — Admin Dashboard (11 components in `src/components/admin/`)
+
+stats-card, data-table, table-actions, product-form, product-image-uploader, category-form, order-status-updater, coupon-form, banner-manager, settings-form, notification-panel
+
+### Documentation
+
+| File | What was done |
+|---|---|
+| `components.md` | Full component registry — all 88 components with file path, phase, and description |
+| `goal.md` | Added Component-First Development Rule — always use components, never raw inline JSX |
+
+---
+
+## Next Up — Phase 3 Backend (Server-side)
 
 - [ ] `src/lib/db/schema/index.ts` — Drizzle schema (all tables from goal.md)
 - [ ] `src/lib/db/index.ts` — Neon PostgreSQL connection singleton
 - [ ] `src/lib/auth/index.ts` — Auth.js v5 config (credentials + Google provider)
 - [ ] `src/lib/redis/index.ts` — Upstash Redis client singleton
-- [ ] `src/lib/utils/index.ts` — `cn()` helper + formatCurrency (BDT)
 - [ ] Database migrations (drizzle-kit generate + push)
 - [ ] Auth routes: `/api/auth/[...nextauth]/route.ts`
-- [ ] Register / Login pages with react-hook-form + Zod validation
+- [ ] Module implementations: catalog, cart, checkout, orders

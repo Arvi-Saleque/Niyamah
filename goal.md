@@ -3,6 +3,18 @@
 
 ---
 
+## Component-First Development Rule
+
+> **Always use components. Never write raw inline JSX/HTML for any UI element that already has a component equivalent.**
+
+- Every UI element must be composed from `src/components/shared/`, `src/components/storefront/`, `src/components/admin/`, or `src/components/ui/` (shadcn).
+- This rule applies to all pages, layouts, and admin screens — no exceptions.
+- Benefits: clean codebase, enforced design consistency, easy theme-wide changes, no one-off styles.
+- Before writing any markup, check `components.md` to find the right component.
+- If a pattern is needed twice, it becomes a component before the second use.
+
+---
+
 ## Vision
 
 Build a complete, premium, uniquely designed e-commerce website as a general template.
