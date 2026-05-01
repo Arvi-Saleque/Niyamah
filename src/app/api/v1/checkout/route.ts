@@ -12,6 +12,7 @@ import { getOrCreateSessionId } from "@/lib/session/guest";
 import { sendOrderConfirmationEmail } from "@/lib/resend";
 import { inngest } from "@/lib/inngest/client";
 import { orderRepository } from "@/modules/commerce/infrastructure/order.repository";
+import { assessCodRisk } from "@/modules/commerce/application/cod-risk";
 
 export async function POST(req: NextRequest) {
   const limit = await rateLimit(req, "checkout", 5, 60);
@@ -80,6 +81,30 @@ export async function POST(req: NextRequest) {
         .catch((err) =>
           console.error("[checkout] inngest dispatch failed", err),
         );
+
+      // COD risk assessment — fire async high-risk event for admin review
+      const cod = await assessCodRisk({
+        userId: user?.userId ?? null,
+        paymentMethod: parsed.data.paymentMethod ?? "COD",
+        total: Number(fullOrder.total),
+        guestPhone: fullOrder.guestPhone ?? null,
+      }).catch(() => null);
+      if (cod?.isHighRisk) {
+        inngest
+          .send({
+            name: "commerce/order.high-risk",
+            data: {
+              orderId: result.orderId,
+              score: cod.score,
+              reasons: cod.reasons,
+              total: Number(fullOrder.total),
+              paymentMethod: parsed.data.paymentMethod ?? "COD",
+            },
+          })
+          .catch((err) =>
+            console.error("[checkout] high-risk dispatch failed", err),
+          );
+      }
 
       // Server-side analytics: Meta CAPI (no-op if META env not set)
       const recipientPhone = fullOrder.guestPhone ?? null;

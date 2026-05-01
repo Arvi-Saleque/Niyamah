@@ -3,7 +3,7 @@ import { orderRepository } from "@/modules/commerce/infrastructure/order.reposit
 import { orderStatusUpdateSchema } from "@/lib/validations/commerce";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import { requireAdmin } from "@/lib/auth/guards";
-import { sendOrderStatusEmail } from "@/lib/resend";
+import { inngest } from "@/lib/inngest/client";
 
 interface Ctx {
   params: Promise<{ id: string }>;
@@ -36,16 +36,38 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   );
   if (!updated) return apiError("NOT_FOUND", "Order not found.", 404);
 
-  // Best-effort status email
-  const recipient = updated.guestEmail ?? null;
-  // For registered users we'd need to join users table — skipping inline lookup.
+  // Best-effort status email — registered user OR guest
+  let recipient: string | null = updated.guestEmail ?? null;
+  if (!recipient && updated.userId) {
+    try {
+      const { db } = await import("@/lib/db");
+      const { users } = await import("@/lib/db/schema");
+      const { eq } = await import("drizzle-orm");
+      const [u] = await db
+        .select({ email: users.email })
+        .from(users)
+        .where(eq(users.id, updated.userId))
+        .limit(1);
+      recipient = u?.email ?? null;
+    } catch (err) {
+      console.error("[order.status] user lookup failed", err);
+    }
+  }
+
   if (recipient) {
-    sendOrderStatusEmail({
-      to: recipient,
-      orderId: updated.id,
-      newStatus: parsed.data.status,
-      note: parsed.data.note ?? null,
-    }).catch((err) => console.error("[order.status] email failed", err));
+    inngest
+      .send({
+        name: "commerce/order.status-changed",
+        data: {
+          orderId: updated.id,
+          newStatus: parsed.data.status,
+          ...(parsed.data.note && { note: parsed.data.note }),
+          recipientEmail: recipient,
+        },
+      })
+      .catch((err) =>
+        console.error("[order.status] inngest dispatch failed", err),
+      );
   }
 
   return apiSuccess(updated);

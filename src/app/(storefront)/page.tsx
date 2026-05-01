@@ -5,12 +5,40 @@ import { BestSellerSection } from "@/components/storefront/best-seller-section";
 import { TrustBadges } from "@/components/storefront/trust-badges";
 import { NewsletterSubscribe } from "@/components/storefront/newsletter-subscribe";
 import {
+  TestimonialsSection,
+  type Testimonial,
+} from "@/components/storefront/testimonials-section";
+import {
   getFeaturedCategories,
   getNewArrivals,
   getBestSellers,
 } from "@/modules/storefront/queries";
 
 export const revalidate = 300;
+
+const HOMEPAGE_TESTIMONIALS: Testimonial[] = [
+  {
+    id: "t1",
+    name: "Ayesha Rahman",
+    rating: 5,
+    body: "Beautiful packaging and the fabric quality is top-notch. Cash on delivery worked smoothly in Dhaka.",
+    location: "Dhaka",
+  },
+  {
+    id: "t2",
+    name: "Tanvir Hossain",
+    rating: 5,
+    body: "Niyamah's craftsmanship truly stands out. Will definitely order again.",
+    location: "Chattogram",
+  },
+  {
+    id: "t3",
+    name: "Sumaiya Islam",
+    rating: 4,
+    body: "Quick delivery and the product matched the photos exactly. Highly recommend.",
+    location: "Sylhet",
+  },
+];
 
 export default async function StorefrontHomePage() {
   const [categories, newArrivals, bestSellers] = await Promise.all([
@@ -55,6 +83,7 @@ export default async function StorefrontHomePage() {
         )}
         {newArrivals.length > 0 && <NewArrivalsSection products={newArrivals} />}
         {bestSellers.length > 0 && <BestSellerSection products={bestSellers} />}
+        <TestimonialsSection testimonials={HOMEPAGE_TESTIMONIALS} />
         <TrustBadges />
         <NewsletterSubscribe />
       </Container>

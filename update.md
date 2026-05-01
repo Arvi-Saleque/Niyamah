@@ -815,3 +815,24 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | src/app/(admin)/admin/analytics/page.tsx | New: 30-day revenue/orders, AOV, daily bar chart, top products, status breakdown |
 | src/components/admin/admin-sidebar.tsx | Added Analytics, Staff, Audit logs links |
 
+
+---
+
+## Phase 21 — Storefront polish + COD risk + Inngest emails
+| File | What was done |
+|------|---------------|
+| src/app/(storefront)/about/page.tsx | New: brand story page |
+| src/app/(storefront)/contact/page.tsx | New: contact form (mailto fallback) |
+| src/app/(storefront)/faq/page.tsx | New: FAQ accordion |
+| src/app/(storefront)/terms/page.tsx | New: terms of service |
+| src/app/(storefront)/privacy/page.tsx | New: privacy policy |
+| src/app/(storefront)/refund/page.tsx | New: refund/return policy |
+| src/lib/inngest/client.ts | Extended event registry (cart/updated, commerce/order.created, .high-risk, .status-changed) |
+| src/modules/commerce/application/cod-risk.ts | New: assessCodRisk heuristic scorer |
+| src/app/api/v1/checkout/route.ts | Wired COD risk + emits high-risk event |
+| src/inngest/functions/order-status-email.ts | New: handles commerce/order.status-changed |
+| src/inngest/functions/high-risk-order-alert.ts | New: ops alert for high-risk COD orders |
+| src/app/api/inngest/route.ts | Registered new functions |
+| src/app/api/v1/admin/orders/[id]/status/route.ts | Emits status-changed event (registered + guest) |
+| src/app/(storefront)/page.tsx | Mounted TestimonialsSection |
+

@@ -13,4 +13,32 @@ export type InngestEvents = {
   "checkout/inventory.reserved": { data: { orderId: number } };
   "marketing/cart.abandoned": { data: { cartId: number; userId: string | null } };
   "marketing/newsletter.subscribed": { data: { email: string } };
+  "cart/updated": { data: { cartId: number; userId: string | null } };
+  "commerce/order.created": {
+    data: {
+      orderId: number;
+      total: number;
+      currency: string;
+      email?: string;
+      phone?: string;
+      items?: Array<{ id: number; quantity: number; price: number }>;
+    };
+  };
+  "commerce/order.high-risk": {
+    data: {
+      orderId: number;
+      score: number;
+      reasons: string[];
+      total: number;
+      paymentMethod: string;
+    };
+  };
+  "commerce/order.status-changed": {
+    data: {
+      orderId: number;
+      newStatus: string;
+      note?: string | null;
+      recipientEmail?: string | null;
+    };
+  };
 };
