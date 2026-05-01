@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -10,18 +9,37 @@ interface LogoProps {
   imageSize?: number;
 }
 
+function LogoMark({ size }: { size: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 36 36"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect width="36" height="36" rx="8" fill="var(--color-accent)" />
+      <text
+        x="18"
+        y="25"
+        textAnchor="middle"
+        fontSize="20"
+        fontWeight="700"
+        fontFamily="Georgia, serif"
+        fill="#ffffff"
+      >
+        N
+      </text>
+    </svg>
+  );
+}
+
 export function Logo({ href = "/", className, variant = "both", imageSize = 36 }: LogoProps) {
   const content = (
     <span className={cn("inline-flex items-center gap-2", className)}>
       {(variant === "image" || variant === "both") && (
-        <Image
-          src="/logo.png"
-          alt="Niyamah"
-          width={imageSize}
-          height={imageSize}
-          className="object-contain"
-          priority
-        />
+        <LogoMark size={imageSize} />
       )}
       {(variant === "text" || variant === "both") && (
         <span
@@ -40,3 +58,4 @@ export function Logo({ href = "/", className, variant = "both", imageSize = 36 }
     </Link>
   );
 }
+
