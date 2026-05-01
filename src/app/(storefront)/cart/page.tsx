@@ -8,10 +8,17 @@ import { CartEmptyState } from "@/components/storefront/cart-empty-state";
 import { FreeShippingProgress } from "@/components/storefront/free-shipping-progress";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart-store";
+import { useEffect, useState } from "react";
 
 export default function CartPage() {
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.totalPrice());
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+
+  if (!hydrated) {
+    return <Container className="py-12" />;
+  }
 
   if (items.length === 0) {
     return (
@@ -36,7 +43,7 @@ export default function CartPage() {
           ))}
         </div>
         <div className="space-y-4">
-          <FreeShippingProgress subtotal={subtotal} threshold={2000} />
+          <FreeShippingProgress currentTotal={subtotal} threshold={2000} />
           <CartSummary subtotal={subtotal} total={subtotal} />
           <Button asChild size="lg" className="w-full">
             <Link href="/checkout">Proceed to Checkout</Link>

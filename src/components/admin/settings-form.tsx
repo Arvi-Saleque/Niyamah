@@ -25,7 +25,7 @@ export const settingsFormSchema = z.object({
 export type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
 interface SettingsFormProps {
-  defaultValues?: Partial<SettingsFormValues>;
+  defaultValues?: Partial<SettingsFormValues> | undefined;
   onSubmit: (values: SettingsFormValues) => Promise<void>;
   className?: string;
 }

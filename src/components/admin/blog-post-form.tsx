@@ -40,7 +40,7 @@ export const blogPostFormSchema = z.object({
 export type BlogPostFormValues = z.infer<typeof blogPostFormSchema>;
 
 interface BlogPostFormProps {
-  defaultValues?: Partial<BlogPostFormValues>;
+  defaultValues?: Partial<BlogPostFormValues> | undefined;
   onSubmit: (values: BlogPostFormValues) => Promise<void>;
   className?: string;
   submitLabel?: string;

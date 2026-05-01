@@ -100,7 +100,6 @@ export default async function ProductDetailPage({
       <div className="mt-12">
         <ProductTabs
           description={product.description ?? ""}
-          specs={[]}
         />
       </div>
 

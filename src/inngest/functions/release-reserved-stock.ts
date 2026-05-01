@@ -10,8 +10,11 @@ import { orders, orderItems, inventory, payments } from "@/lib/db/schema";
  * out-of-band via admin status update.
  */
 export const releaseReservedStock = inngest.createFunction(
-  { id: "release-reserved-stock", name: "Release reserved stock" },
-  { event: "checkout/inventory.reserved" },
+  {
+    id: "release-reserved-stock",
+    name: "Release reserved stock",
+    triggers: [{ event: "checkout/inventory.reserved" }],
+  },
   async ({ event, step }) => {
     await step.sleep("wait-30-minutes", "30m");
 

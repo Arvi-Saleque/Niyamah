@@ -28,7 +28,7 @@ export const brandFormSchema = z.object({
 export type BrandFormValues = z.infer<typeof brandFormSchema>;
 
 interface BrandFormProps {
-  defaultValues?: Partial<BrandFormValues>;
+  defaultValues?: Partial<BrandFormValues> | undefined;
   onSubmit: (values: BrandFormValues) => Promise<void>;
   className?: string;
 }

@@ -21,7 +21,7 @@ export const categoryFormSchema = z.object({
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
 interface CategoryFormProps {
-  defaultValues?: Partial<CategoryFormValues>;
+  defaultValues?: Partial<CategoryFormValues> | undefined;
   onSubmit: (values: CategoryFormValues) => Promise<void>;
   className?: string;
 }

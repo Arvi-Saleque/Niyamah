@@ -18,8 +18,8 @@ export const abandonedCartReminder = inngest.createFunction(
     name: "Abandoned cart reminder",
     // Debounce: at most one in-flight per cart at a time
     debounce: { key: "event.data.cartId", period: "1h" },
+    triggers: [{ event: "cart/updated" }],
   },
-  { event: "cart/updated" },
   async ({ event, step }) => {
     const cartId = event.data.cartId as number;
     const initialUpdatedAt = event.data.updatedAt as string;

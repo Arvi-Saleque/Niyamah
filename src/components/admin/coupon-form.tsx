@@ -27,7 +27,7 @@ export const couponFormSchema = z.object({
 export type CouponFormValues = z.infer<typeof couponFormSchema>;
 
 interface CouponFormProps {
-  defaultValues?: Partial<CouponFormValues>;
+  defaultValues?: Partial<CouponFormValues> | undefined;
   onSubmit: (values: CouponFormValues) => Promise<void>;
   className?: string;
 }

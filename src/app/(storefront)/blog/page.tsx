@@ -17,11 +17,11 @@ export default async function BlogIndexPage() {
         Stories, guides, and craftsmanship behind Niyamah.
       </Text>
 
-      {posts.length === 0 ? (
+      {posts.items.length === 0 ? (
         <Text variant="muted">No posts yet.</Text>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
+          {posts.items.map((post) => (
             <Link
               key={post.id}
               href={`/blog/${post.slug}`}

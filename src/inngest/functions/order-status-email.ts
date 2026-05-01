@@ -6,8 +6,11 @@ import { sendOrderStatusEmail } from "@/lib/resend";
  * Sends a notification email to the customer (best-effort).
  */
 export const orderStatusEmail = inngest.createFunction(
-  { id: "order-status-email", name: "Order status update email" },
-  { event: "commerce/order.status-changed" },
+  {
+    id: "order-status-email",
+    name: "Order status update email",
+    triggers: [{ event: "commerce/order.status-changed" }],
+  },
   async ({ event, step }) => {
     const { orderId, newStatus, note, recipientEmail } = event.data as {
       orderId: number;

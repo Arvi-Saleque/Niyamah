@@ -56,7 +56,7 @@ export default function FaqPage() {
         .
       </p>
 
-      <Accordion type="single" collapsible className="mt-8">
+      <Accordion className="mt-8">
         {FAQS.map((f, i) => (
           <AccordionItem key={i} value={`q-${i}`}>
             <AccordionTrigger>{f.q}</AccordionTrigger>

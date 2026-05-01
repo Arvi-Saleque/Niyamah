@@ -9,18 +9,18 @@ import { toast } from "sonner";
 
 interface AddToCartButtonProps {
   productId: string;
-  variantId?: string;
+  variantId?: string | undefined;
   name: string;
   slug: string;
   image: string;
   price: number;
-  originalPrice?: number;
-  options?: Record<string, string>;
-  inStock?: boolean;
-  quantity?: number;
-  size?: "sm" | "default" | "lg";
-  className?: string;
-  fullWidth?: boolean;
+  originalPrice?: number | undefined;
+  options?: Record<string, string> | undefined;
+  inStock?: boolean | undefined;
+  quantity?: number | undefined;
+  size?: "sm" | "default" | "lg" | undefined;
+  className?: string | undefined;
+  fullWidth?: boolean | undefined;
 }
 
 /** Add to cart button with loading state and toast notification. */

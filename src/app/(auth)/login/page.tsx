@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import { LoginForm } from "@/components/auth/login-form";
 
-export default function LoginPage() {
+function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/";
@@ -28,4 +29,12 @@ export default function LoginPage() {
   }
 
   return <LoginForm onSubmit={handleLogin} />;
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageInner />
+    </Suspense>
+  );
 }

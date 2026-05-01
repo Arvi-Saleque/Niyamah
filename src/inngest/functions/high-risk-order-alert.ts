@@ -6,8 +6,11 @@ import { sendGenericEmail } from "@/lib/resend";
  * No-op if HIGH_RISK_ALERT_EMAIL env var is not set.
  */
 export const highRiskOrderAlert = inngest.createFunction(
-  { id: "high-risk-order-alert", name: "High-risk order alert" },
-  { event: "commerce/order.high-risk" },
+  {
+    id: "high-risk-order-alert",
+    name: "High-risk order alert",
+    triggers: [{ event: "commerce/order.high-risk" }],
+  },
   async ({ event, step }) => {
     const to = process.env.HIGH_RISK_ALERT_EMAIL;
     if (!to) return { skipped: "no_alert_email_configured" };

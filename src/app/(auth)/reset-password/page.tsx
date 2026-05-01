@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageInner() {
   const params = useSearchParams();
   const token = params.get("token") ?? "";
 
@@ -51,4 +52,12 @@ export default function ResetPasswordPage() {
   }
 
   return <ResetPasswordForm token={token} onSubmit={handleReset} />;
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordPageInner />
+    </Suspense>
+  );
 }

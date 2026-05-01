@@ -12,7 +12,7 @@ const bannerSchema = z.object({
   imageUrl: z.string().url().max(500),
   linkUrl: z.string().url().max(500).optional().or(z.literal("")),
   position: z.string().max(100).optional(),
-  status: z.enum(["active", "inactive", "scheduled"]).default("active"),
+  status: z.enum(["active", "inactive"]).default("active"),
   sortOrder: z.number().int().min(0).default(0),
 });
 

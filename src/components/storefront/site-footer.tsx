@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Facebook, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
+import { Globe, Camera, Video, Mail, Phone, MapPin } from "lucide-react";
 import { Container } from "@/components/shared/container";
 import { Logo } from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
@@ -40,9 +40,9 @@ export function SiteFooter() {
             </p>
             <div className="mt-5 flex gap-3">
               {[
-                { icon: Facebook, href: "#", label: "Facebook" },
-                { icon: Instagram, href: "#", label: "Instagram" },
-                { icon: Youtube, href: "#", label: "YouTube" },
+                { icon: Globe, href: "#", label: "Facebook" },
+                { icon: Camera, href: "#", label: "Instagram" },
+                { icon: Video, href: "#", label: "YouTube" },
               ].map(({ icon: Icon, href, label }) => (
                 <a
                   key={label}

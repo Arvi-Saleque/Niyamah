@@ -27,7 +27,7 @@ export const productFormSchema = z.object({
 export type ProductFormValues = z.infer<typeof productFormSchema>;
 
 interface ProductFormProps {
-  defaultValues?: Partial<ProductFormValues>;
+  defaultValues?: Partial<ProductFormValues> | undefined;
   onSubmit: (values: ProductFormValues) => Promise<void>;
   className?: string;
 }

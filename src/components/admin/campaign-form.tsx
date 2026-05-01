@@ -39,7 +39,7 @@ export const campaignFormSchema = z.object({
 export type CampaignFormValues = z.infer<typeof campaignFormSchema>;
 
 interface CampaignFormProps {
-  defaultValues?: Partial<CampaignFormValues>;
+  defaultValues?: Partial<CampaignFormValues> | undefined;
   onSubmit: (values: CampaignFormValues) => Promise<void>;
   className?: string;
 }

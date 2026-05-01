@@ -15,7 +15,7 @@ const updateSchema = z.object({
   imageUrl: z.string().url().max(500).optional(),
   linkUrl: z.string().url().max(500).nullable().optional(),
   position: z.string().max(100).nullable().optional(),
-  status: z.enum(["active", "inactive", "scheduled"]).optional(),
+  status: z.enum(["active", "inactive"]).optional(),
   sortOrder: z.number().int().min(0).optional(),
 });
 

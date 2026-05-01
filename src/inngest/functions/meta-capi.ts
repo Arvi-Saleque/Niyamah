@@ -8,8 +8,11 @@ import { inngest } from "@/lib/inngest/client";
  * Improves attribution accuracy when client-side Pixel is blocked.
  */
 export const metaCapiPurchase = inngest.createFunction(
-  { id: "meta-capi-purchase", name: "Meta CAPI - Purchase event" },
-  { event: "commerce/order.created" },
+  {
+    id: "meta-capi-purchase",
+    name: "Meta CAPI - Purchase event",
+    triggers: [{ event: "commerce/order.created" }],
+  },
   async ({ event, step }) => {
     const accessToken = process.env.META_ACCESS_TOKEN;
     const pixelId = process.env.META_PIXEL_ID ?? process.env.NEXT_PUBLIC_META_PIXEL_ID;

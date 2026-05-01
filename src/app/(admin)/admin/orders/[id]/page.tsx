@@ -115,7 +115,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                     className="flex items-center justify-between rounded-lg border border-[var(--color-border)] p-3"
                   >
                     <span>
-                      {p.gateway} · {p.method ?? "—"}
+                      {p.method ?? "—"}
                     </span>
                     <span className="flex items-center gap-3">
                       <StatusBadge status={p.status} />
@@ -139,22 +139,16 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                 <dt className="text-[var(--color-text-muted)]">Subtotal</dt>
                 <dd>{formatCurrency(Number(order.subtotal))}</dd>
               </div>
-              {Number(order.discount) > 0 && (
+              {Number(order.discountAmount) > 0 && (
                 <div className="flex justify-between">
                   <dt className="text-[var(--color-text-muted)]">Discount</dt>
-                  <dd>−{formatCurrency(Number(order.discount))}</dd>
+                  <dd>−{formatCurrency(Number(order.discountAmount))}</dd>
                 </div>
               )}
               <div className="flex justify-between">
                 <dt className="text-[var(--color-text-muted)]">Shipping</dt>
-                <dd>{formatCurrency(Number(order.shippingCost))}</dd>
+                <dd>{formatCurrency(Number(order.shippingAmount))}</dd>
               </div>
-              {Number(order.tax) > 0 && (
-                <div className="flex justify-between">
-                  <dt className="text-[var(--color-text-muted)]">Tax</dt>
-                  <dd>{formatCurrency(Number(order.tax))}</dd>
-                </div>
-              )}
               <Separator className="my-2" />
               <div className="flex justify-between font-semibold">
                 <dt>Total</dt>
@@ -175,18 +169,18 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
             )}
           </section>
 
-          <section className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
-            <h2 className="mb-3 font-semibold">Shipping</h2>
-            <p className="text-sm">
-              {order.shippingMethod ?? "—"}
-            </p>
-            {order.shippingAddress &&
-              typeof order.shippingAddress === "object" && (
-                <pre className="mt-2 whitespace-pre-wrap break-words text-xs text-[var(--color-text-muted)]">
-                  {JSON.stringify(order.shippingAddress, null, 2)}
-                </pre>
-              )}
-          </section>
+          {order.couponCode && (
+            <section className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
+              <h2 className="mb-3 font-semibold">Coupon</h2>
+              <p className="text-sm font-mono">{order.couponCode}</p>
+            </section>
+          )}
+          {order.note && (
+            <section className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
+              <h2 className="mb-3 font-semibold">Note</h2>
+              <p className="text-sm whitespace-pre-wrap">{order.note}</p>
+            </section>
+          )}
         </aside>
       </div>
     </div>
