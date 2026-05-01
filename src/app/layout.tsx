@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display, Geist } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "./providers";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -69,7 +71,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn(inter.variable, playfair.variable, "font-sans", geist.variable)}>
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+        <Toaster richColors position="top-right" closeButton />
+      </body>
     </html>
   );
 }

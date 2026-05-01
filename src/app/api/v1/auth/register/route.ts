@@ -1,18 +1,26 @@
-import { NextRequest, NextResponse } from "next/server";
-import { hash } from "bcryptjs";
-import { nanoid } from "nanoid";
-import { eq } from "drizzle-orm";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
+import { NextRequest } from "next/server";
 import { registerSchema } from "@/lib/validations/auth";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import { rateLimit } from "@/lib/redis/rate-limit";
+import {
+  registerUserUseCase,
+  EmailAlreadyTakenError,
+} from "@/modules/auth/application/register-user.usecase";
 
+/**
+ * POST /api/v1/auth/register
+ *
+ * Body: { name, email, password, phone? }
+ * Rate limit: 5 requests per IP per hour
+ */
 export async function POST(req: NextRequest) {
-  // Rate limit: 5 registrations per IP per hour
-  const rateLimitResult = await rateLimit(req, "register", 5, 3600);
-  if (!rateLimitResult.success) {
-    return apiError("TOO_MANY_REQUESTS", "Too many registration attempts. Please try again later.", 429);
+  const limit = await rateLimit(req, "register", 5, 3600);
+  if (!limit.success) {
+    return apiError(
+      "TOO_MANY_REQUESTS",
+      "Too many registration attempts. Please try again later.",
+      429,
+    );
   }
 
   const body = await req.json().catch(() => null);
@@ -30,28 +38,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { name, email, password, phone } = parsed.data;
-
-  const existing = await db.query.users.findFirst({
-    where: eq(users.email, email),
-  });
-
-  if (existing) {
-    return apiError("EMAIL_TAKEN", "An account with this email already exists.", 409);
+  try {
+    const { userId } = await registerUserUseCase(parsed.data);
+    return apiSuccess(
+      { userId, message: "Account created successfully." },
+      201,
+    );
+  } catch (err) {
+    if (err instanceof EmailAlreadyTakenError) {
+      return apiError("EMAIL_TAKEN", err.message, 409);
+    }
+    console.error("[register] unexpected error:", err);
+    return apiError(
+      "INTERNAL_ERROR",
+      "Something went wrong. Please try again.",
+      500,
+    );
   }
-
-  const passwordHash = await hash(password, 12);
-  const userId = nanoid();
-
-  await db.insert(users).values({
-    id: userId,
-    name,
-    email,
-    passwordHash,
-    phone: phone ?? null,
-    role: "customer",
-    verified: false,
-  });
-
-  return apiSuccess({ message: "Account created successfully." }, 201);
 }
