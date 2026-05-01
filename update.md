@@ -776,3 +776,17 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | `src/app/(admin)/admin/blog/new/page.tsx` | New: client page POST `/api/v1/admin/blog/posts` |
 | `src/app/(admin)/admin/blog/[id]/page.tsx` | New: client edit page, GETs full post, PATCH on save, DELETE via ConfirmDialog |
 
+
+
+---
+
+## Phase 19 — Admin customer detail, reviews moderation, inventory
+| File | What was done |
+|------|---------------|
+| src/app/(admin)/admin/customers/page.tsx | Rewrote to query users (role=customer) with link to detail page |
+| src/app/(admin)/admin/customers/[id]/page.tsx | New: profile + order history with totals |
+| src/app/(admin)/admin/reviews/page.tsx | Rewrote as client w/ status tabs + approve/reject/reset/delete |
+| src/app/(admin)/admin/inventory/page.tsx | New: list inventory rows (low-stock first) |
+| src/components/admin/inventory-row.tsx | New: editable row with stock, threshold, tracked toggle, save |
+| src/app/api/v1/admin/inventory/[id]/route.ts | New: PATCH to update inventory; recomputes stockAvailable |
+
