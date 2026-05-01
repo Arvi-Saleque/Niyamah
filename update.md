@@ -714,3 +714,14 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 |------|---------------|
 | `src/app/(storefront)/search/page.tsx` | New: server component, accepts `?q=&page=`, calls `productSearchRepository.search()` (PostgreSQL FTS via `ts_rank_cd`), maps results to `ProductCardData` and renders `ProductGrid`. Includes search input form, result count, prev/next pagination, empty/no-query states |
 
+
+
+---
+
+## Phase 14 — Admin Product Create/Edit
+
+| File | What was done |
+|------|---------------|
+| `src/app/(admin)/admin/products/new/page.tsx` | New: client page using `ProductForm` + `ProductImageUploader`, posts to `POST /api/v1/products`, redirects to edit page on success |
+| `src/app/(admin)/admin/products/[id]/page.tsx` | New: client page that fetches via `GET /api/v1/products/[id]`, prefills form, `PATCH` on save, `DELETE` via `ConfirmDialog` |
+
