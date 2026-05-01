@@ -725,3 +725,17 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | `src/app/(admin)/admin/products/new/page.tsx` | New: client page using `ProductForm` + `ProductImageUploader`, posts to `POST /api/v1/products`, redirects to edit page on success |
 | `src/app/(admin)/admin/products/[id]/page.tsx` | New: client page that fetches via `GET /api/v1/products/[id]`, prefills form, `PATCH` on save, `DELETE` via `ConfirmDialog` |
 
+
+
+---
+
+## Phase 15 — Admin Categories & Brands CRUD + Sidebar
+
+| File | What was done |
+|------|---------------|
+| `src/app/(admin)/admin/categories/page.tsx` | Rewrote: full CRUD, dialog with `CategoryForm`, list with edit + delete actions |
+| `src/app/(admin)/admin/brands/page.tsx` | New: list + dialog using new `BrandForm`, full CRUD against `/api/v1/brands` |
+| `src/components/admin/brand-form.tsx` | New: RHF + Zod form for brand fields (name/slug/logo/description/featured) |
+| `src/components/admin/admin-sidebar.tsx` | Added Brands link to nav |
+| `src/app/(admin)/admin/layout.tsx` | Wired `AdminSidebar` into layout |
+

@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import {
-  CategoryForm,
-  type CategoryFormValues,
-} from "@/components/admin/category-form";
+import { BrandForm, type BrandFormValues } from "@/components/admin/brand-form";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
@@ -18,25 +15,25 @@ import {
 } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 
-interface Category {
+interface Brand {
   id: number;
   name: string;
   slug: string;
   description: string | null;
-  parentId: number | null;
-  sortOrder: number | null;
+  logo: string | null;
+  featured: boolean | null;
   status: boolean | null;
 }
 
-export default function AdminCategoriesPage() {
-  const [items, setItems] = useState<Category[]>([]);
+export default function AdminBrandsPage() {
+  const [items, setItems] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState<Category | null>(null);
+  const [editing, setEditing] = useState<Brand | null>(null);
   const [open, setOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const res = await fetch("/api/v1/categories?limit=100");
+    const res = await fetch("/api/v1/brands?limit=100");
     const json = await res.json();
     if (res.ok) setItems(json.data.items ?? json.data ?? []);
     setLoading(false);
@@ -46,16 +43,15 @@ export default function AdminCategoriesPage() {
     load();
   }, []);
 
-  const onSubmit = async (values: CategoryFormValues) => {
+  const onSubmit = async (values: BrandFormValues) => {
     const payload = {
       name: values.name,
       slug: values.slug,
       ...(values.description && { description: values.description }),
-      ...(values.parentId && { parentId: Number(values.parentId) }),
+      ...(values.logo && { logo: values.logo }),
+      featured: values.featured,
     };
-    const url = editing
-      ? `/api/v1/categories/${editing.id}`
-      : "/api/v1/categories";
+    const url = editing ? `/api/v1/brands/${editing.id}` : "/api/v1/brands";
     const res = await fetch(url, {
       method: editing ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -66,19 +62,19 @@ export default function AdminCategoriesPage() {
       toast.error(json?.error?.message ?? "Failed to save");
       return;
     }
-    toast.success(editing ? "Category updated" : "Category created");
+    toast.success(editing ? "Brand updated" : "Brand created");
     setOpen(false);
     setEditing(null);
     load();
   };
 
   const onDelete = async (id: number) => {
-    const res = await fetch(`/api/v1/categories/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/v1/brands/${id}`, { method: "DELETE" });
     if (!res.ok) {
       toast.error("Failed to delete");
       return;
     }
-    toast.success("Category deleted");
+    toast.success("Brand deleted");
     load();
   };
 
@@ -89,7 +85,7 @@ export default function AdminCategoriesPage() {
           className="text-2xl font-semibold"
           style={{ fontFamily: "var(--font-heading)" }}
         >
-          Categories
+          Brands
         </h1>
         <Dialog
           open={open}
@@ -100,25 +96,24 @@ export default function AdminCategoriesPage() {
         >
           <DialogTrigger asChild>
             <Button onClick={() => setEditing(null)}>
-              <Plus className="mr-1 h-4 w-4" /> New category
+              <Plus className="mr-1 h-4 w-4" /> New brand
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {editing ? "Edit category" : "New category"}
+                {editing ? "Edit brand" : "New brand"}
               </DialogTitle>
             </DialogHeader>
-            <CategoryForm
+            <BrandForm
               defaultValues={
                 editing
                   ? {
                       name: editing.name,
                       slug: editing.slug,
                       description: editing.description ?? "",
-                      ...(editing.parentId !== null && {
-                        parentId: String(editing.parentId),
-                      }),
+                      logo: editing.logo ?? "",
+                      featured: editing.featured ?? false,
                     }
                   : undefined
               }
@@ -134,8 +129,8 @@ export default function AdminCategoriesPage() {
         </div>
       ) : items.length === 0 ? (
         <EmptyState
-          title="No categories yet"
-          description="Create your first category to organize products."
+          title="No brands yet"
+          description="Create your first brand to associate with products."
         />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white">
@@ -144,24 +139,24 @@ export default function AdminCategoriesPage() {
               <tr>
                 <th className="px-4 py-3 font-medium">Name</th>
                 <th className="px-4 py-3 font-medium">Slug</th>
-                <th className="px-4 py-3 font-medium">Sort</th>
+                <th className="px-4 py-3 font-medium">Featured</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((c) => (
+              {items.map((b) => (
                 <tr
-                  key={c.id}
+                  key={b.id}
                   className="border-t border-[var(--color-border)]"
                 >
-                  <td className="px-4 py-3 font-medium">{c.name}</td>
+                  <td className="px-4 py-3 font-medium">{b.name}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {c.slug}
+                    {b.slug}
                   </td>
-                  <td className="px-4 py-3">{c.sortOrder ?? 0}</td>
+                  <td className="px-4 py-3">{b.featured ? "Yes" : "—"}</td>
                   <td className="px-4 py-3">
-                    {c.status ? "Active" : "Hidden"}
+                    {b.status ? "Active" : "Hidden"}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
@@ -169,7 +164,7 @@ export default function AdminCategoriesPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => {
-                          setEditing(c);
+                          setEditing(b);
                           setOpen(true);
                         }}
                       >
@@ -185,11 +180,11 @@ export default function AdminCategoriesPage() {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         }
-                        title="Delete category?"
-                        description={`Permanently remove "${c.name}".`}
+                        title="Delete brand?"
+                        description={`Permanently remove "${b.name}".`}
                         confirmLabel="Delete"
                         destructive
-                        onConfirm={() => onDelete(c.id)}
+                        onConfirm={() => onDelete(b.id)}
                       />
                     </div>
                   </td>

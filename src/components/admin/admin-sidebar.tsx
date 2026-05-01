@@ -29,6 +29,7 @@ const navItems = [
   { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { label: "Customers", href: "/admin/customers", icon: Users },
   { label: "Categories", href: "/admin/categories", icon: Tag },
+  { label: "Brands", href: "/admin/brands", icon: Store },
   { label: "Inventory", href: "/admin/inventory", icon: Store },
   { label: "Coupons", href: "/admin/coupons", icon: Percent },
   { label: "Campaigns", href: "/admin/campaigns", icon: Megaphone },
