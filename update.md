@@ -677,3 +677,15 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | `src/components/auth/reset-password-form.tsx` | New: react-hook-form + Zod, password strength validation, success state |
 | `src/app/(auth)/reset-password/page.tsx` | New: reads `?token=` query, posts to API, handles missing-token state |
 
+
+
+---
+
+## Phase 11 — Checkout Flow + Order Success
+
+| File | What was done |
+|------|---------------|
+| `src/app/(storefront)/checkout/page.tsx` | New: multi-step checkout (Address → Review), reuses `CheckoutSteps`, `AddressForm`, `DeliveryMethodSelector`, `PaymentMethodSelector`, `OrderSummary`. Loads shipping rates from `/api/v1/shipping/rates`, generates idempotency key, syncs client cart to server before placing order, posts to `/api/v1/checkout`, redirects to success page on 201, clears cart |
+| `src/app/(storefront)/checkout/success/page.tsx` | New: server component, reads `?orderId`, renders `OrderConfirmation` |
+| `src/app/(storefront)/cart/page.tsx` | Bug fix: `s.subtotal()` → `s.totalPrice()` (matched cart-store API) |
+

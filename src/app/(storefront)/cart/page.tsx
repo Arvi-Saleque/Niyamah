@@ -11,7 +11,7 @@ import { useCartStore } from "@/stores/cart-store";
 
 export default function CartPage() {
   const items = useCartStore((s) => s.items);
-  const subtotal = useCartStore((s) => s.subtotal());
+  const subtotal = useCartStore((s) => s.totalPrice());
 
   if (items.length === 0) {
     return (
