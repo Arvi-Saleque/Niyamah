@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display, Geist } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "./providers";
+import { AnalyticsProvider } from "@/components/shared/analytics-provider";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -74,6 +75,7 @@ export default function RootLayout({
       <body>
         <Providers>{children}</Providers>
         <Toaster richColors position="top-right" closeButton />
+        <AnalyticsProvider />
       </body>
     </html>
   );

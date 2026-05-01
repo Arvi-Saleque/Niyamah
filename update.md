@@ -610,3 +610,42 @@ Audit of phases 0–3 surfaced 5 gaps. All fixed below.
 - Multi-step checkout, profile/password forms, and address book reuse the existing API routes from Phase 5/6 — UI wiring is queued for Phase 9 polish along with admin CRUD forms.
 - Analytics provider script tags in root `app/layout.tsx` deferred to Phase 9.
 
+
+---
+
+## Phase 9 — Polish & SaaS Prep
+
+**Commit:** `feat(phase-9): audit log helper, multi-tenant store resolver, analytics provider script tags, brand landing page`
+
+### Cross-cutting helpers
+
+| File | What was done |
+|---|---|
+| `src/lib/audit/record.ts` | NEW. `recordAudit({actorId, action, entityType, entityId, before, after, ip, storeId})` — best-effort insert into `audit_logs`. Swallows errors so write paths are never blocked. To be invoked from admin route handlers on create/update/delete |
+| `src/lib/tenant/resolve-store.ts` | NEW. `resolveStoreId()` — reads `x-store-id` header (set by future middleware) or matches `host` against `stores.domain`. Falls back to `DEFAULT_STORE_ID`. Foundation for full multi-tenant resolution; current Phase 1-8 code still uses the constant directly |
+
+### Analytics wiring
+
+| File | What was done |
+|---|---|
+| `src/components/shared/analytics-provider.tsx` | NEW. Renders GTM, GA4, and Meta Pixel `<Script>` tags conditionally based on `analyticsConfig` env values. Uses `next/script` `afterInteractive` strategy |
+| `src/app/layout.tsx` | Mounts `<AnalyticsProvider />` after `<Toaster />` so script tags load on every route |
+
+### Storefront
+
+| File | What was done |
+|---|---|
+| `src/app/(storefront)/brand/[slug]/page.tsx` | NEW brand landing — direct `brands` query + `listProductsForGrid({brandSlug})` |
+
+### Deferred to follow-up work
+
+These items remain on the SaaS-prep backlog but are out of scope for this commit because they require additional schema or third-party UI work:
+
+- Banner / slider admin UI (table `banners` exists, repository + API + page TBD)
+- Shipping zones admin UI (table `shippingZones` exists, repository + API + page TBD)
+- Staff invitation flow (`storeUsers` invites + role management UI)
+- OpenAPI spec generation utility from existing Zod schemas
+- Lighthouse 90+ audit pass and full OWASP review (manual / tooling step)
+- Multi-tenant **middleware** that injects `x-store-id` based on host — helper is now in place; middleware lands when first multi-tenant deployment is provisioned
+- Audit log invocation from every admin write (helper now in place; callers will be wired alongside the admin form pages)
+
