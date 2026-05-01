@@ -704,3 +704,13 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | `src/modules/customer/infrastructure/review.repository.ts` | Added: `listForUser(userId, opts)` for the My Reviews page |
 | `src/app/(storefront)/account/layout.tsx` | Added `My Reviews` link to the sidebar nav |
 
+
+
+---
+
+## Phase 13 — Search Results Page
+
+| File | What was done |
+|------|---------------|
+| `src/app/(storefront)/search/page.tsx` | New: server component, accepts `?q=&page=`, calls `productSearchRepository.search()` (PostgreSQL FTS via `ts_rank_cd`), maps results to `ProductCardData` and renders `ProductGrid`. Includes search input form, result count, prev/next pagination, empty/no-query states |
+
