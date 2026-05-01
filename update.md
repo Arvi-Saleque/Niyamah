@@ -790,3 +790,28 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | src/components/admin/inventory-row.tsx | New: editable row with stock, threshold, tracked toggle, save |
 | src/app/api/v1/admin/inventory/[id]/route.ts | New: PATCH to update inventory; recomputes stockAvailable |
 
+
+
+---
+
+## Phase 20 — Admin shipping, settings, banners, audit, staff, analytics
+| File | What was done |
+|------|---------------|
+| src/app/(admin)/admin/page.tsx | Fixed dashboard (was importing non-existent customers); added recent orders panel |
+| src/app/(admin)/admin/settings/page.tsx | New: store settings form (uses SettingsForm) |
+| src/app/api/v1/admin/settings/route.ts | New: GET/PATCH store_settings (auto-creates row) |
+| src/app/(admin)/admin/media/page.tsx | New: banner manager UI (uses BannerManager) with diff-based save |
+| src/app/api/v1/admin/banners/route.ts | New: GET/POST banners |
+| src/app/api/v1/admin/banners/[id]/route.ts | New: PATCH/DELETE banner |
+| src/app/(admin)/admin/shipping/page.tsx | New: zones + rates CRUD with dialogs |
+| src/app/api/v1/admin/shipping/zones/route.ts | New: GET (zones+rates) / POST zone |
+| src/app/api/v1/admin/shipping/zones/[id]/route.ts | New: PATCH/DELETE zone |
+| src/app/api/v1/admin/shipping/rates/route.ts | New: POST rate |
+| src/app/api/v1/admin/shipping/rates/[id]/route.ts | New: DELETE rate |
+| src/app/(admin)/admin/audit/page.tsx | New: audit log viewer (paginated) |
+| src/app/(admin)/admin/staff/page.tsx | New: staff/role manager |
+| src/app/api/v1/admin/staff/[id]/route.ts | New: PATCH user role |
+| src/app/api/v1/admin/users/route.ts | New: GET admin user list |
+| src/app/(admin)/admin/analytics/page.tsx | New: 30-day revenue/orders, AOV, daily bar chart, top products, status breakdown |
+| src/components/admin/admin-sidebar.tsx | Added Analytics, Staff, Audit logs links |
+

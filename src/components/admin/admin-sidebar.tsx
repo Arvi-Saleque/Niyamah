@@ -37,6 +37,9 @@ const navItems = [
   { label: "Blog", href: "/admin/blog", icon: BookOpen },
   { label: "Shipping", href: "/admin/shipping", icon: Truck },
   { label: "Media", href: "/admin/media", icon: Image },
+  { label: "Analytics", href: "/admin/analytics", icon: LayoutDashboard },
+  { label: "Staff", href: "/admin/staff", icon: Users },
+  { label: "Audit logs", href: "/admin/audit", icon: BookOpen },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
