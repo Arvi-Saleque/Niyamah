@@ -739,3 +739,14 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | `src/components/admin/admin-sidebar.tsx` | Added Brands link to nav |
 | `src/app/(admin)/admin/layout.tsx` | Wired `AdminSidebar` into layout |
 
+
+
+---
+
+## Phase 16 — Admin Order Detail
+
+| File | What was done |
+|------|---------------|
+| `src/app/(admin)/admin/orders/[id]/page.tsx` | New: server component, hydrated order via `orderRepository.findByIdAdmin`, renders items + status history + payments + summary + customer/shipping aside |
+| `src/components/admin/admin-order-actions.tsx` | New: client wrapper around `OrderStatusUpdater` that maps lowercase UI status ↔ uppercase API enum and calls `PATCH /api/v1/admin/orders/[id]/status` |
+
