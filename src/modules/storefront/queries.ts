@@ -1,0 +1,167 @@
+import { asc, desc, eq, and, inArray } from "drizzle-orm";
+import { db } from "@/lib/db";
+import {
+  products,
+  productImages,
+  categories,
+  brands,
+} from "@/lib/db/schema";
+import { DEFAULT_STORE_ID } from "@/lib/constants/store";
+
+export interface StorefrontProductCard {
+  id: string;
+  slug: string;
+  name: string;
+  image: string;
+  price: number;
+  originalPrice?: number;
+  rating?: number;
+  reviewCount?: number;
+  isNew?: boolean;
+  inStock?: boolean;
+}
+
+const FALLBACK_IMAGE = "/placeholder.svg";
+
+async function attachPrimaryImages(productRows: Array<{ id: number }>) {
+  if (productRows.length === 0) return new Map<number, string>();
+  const ids = productRows.map((r) => r.id);
+  const imgs = await db
+    .select({
+      productId: productImages.productId,
+      url: productImages.url,
+      isPrimary: productImages.isPrimary,
+    })
+    .from(productImages)
+    .where(inArray(productImages.productId, ids));
+  const map = new Map<number, string>();
+  for (const img of imgs) {
+    if (img.isPrimary || !map.has(img.productId)) {
+      map.set(img.productId, img.url);
+    }
+  }
+  return map;
+}
+
+function toCard(p: typeof products.$inferSelect, image: string | undefined): StorefrontProductCard {
+  const price = Number(p.salePrice ?? p.price);
+  const orig = p.salePrice ? Number(p.price) : undefined;
+  const card: StorefrontProductCard = {
+    id: String(p.id),
+    slug: p.slug,
+    name: p.name,
+    image: image ?? FALLBACK_IMAGE,
+    price,
+    inStock: true,
+  };
+  if (orig !== undefined) card.originalPrice = orig;
+  return card;
+}
+
+export async function getNewArrivals(limit = 8): Promise<StorefrontProductCard[]> {
+  const rows = await db
+    .select()
+    .from(products)
+    .where(and(eq(products.storeId, DEFAULT_STORE_ID), eq(products.status, "published")))
+    .orderBy(desc(products.createdAt))
+    .limit(limit);
+  const imgMap = await attachPrimaryImages(rows);
+  return rows.map((p) => toCard(p, imgMap.get(p.id)));
+}
+
+export async function getBestSellers(limit = 8): Promise<StorefrontProductCard[]> {
+  const rows = await db
+    .select()
+    .from(products)
+    .where(
+      and(
+        eq(products.storeId, DEFAULT_STORE_ID),
+        eq(products.status, "published"),
+        eq(products.bestSeller, true),
+      ),
+    )
+    .orderBy(desc(products.createdAt))
+    .limit(limit);
+  // Fallback to newest if no flagged best sellers
+  const list = rows.length > 0 ? rows : await db
+    .select()
+    .from(products)
+    .where(and(eq(products.storeId, DEFAULT_STORE_ID), eq(products.status, "published")))
+    .orderBy(desc(products.createdAt))
+    .limit(limit);
+  const imgMap = await attachPrimaryImages(list);
+  return list.map((p) => toCard(p, imgMap.get(p.id)));
+}
+
+export async function getFeaturedCategories(limit = 6) {
+  const rows = await db
+    .select()
+    .from(categories)
+    .where(and(eq(categories.storeId, DEFAULT_STORE_ID), eq(categories.status, true)))
+    .orderBy(asc(categories.sortOrder), asc(categories.name))
+    .limit(limit);
+  return rows.map((c) => ({
+    id: String(c.id),
+    name: c.name,
+    slug: c.slug,
+    ...(c.image && { image: c.image }),
+  }));
+}
+
+export async function listAllBrands(limit = 50) {
+  return db
+    .select()
+    .from(brands)
+    .where(eq(brands.storeId, DEFAULT_STORE_ID))
+    .orderBy(asc(brands.name))
+    .limit(limit);
+}
+
+export async function listProductsForGrid(opts: {
+  page?: number;
+  limit?: number;
+  categorySlug?: string;
+  brandSlug?: string;
+  q?: string;
+}): Promise<{ items: StorefrontProductCard[]; total: number; page: number; limit: number }> {
+  const page = opts.page ?? 1;
+  const limit = opts.limit ?? 24;
+
+  const conds = [eq(products.storeId, DEFAULT_STORE_ID), eq(products.status, "published" as const)];
+
+  if (opts.categorySlug) {
+    const [cat] = await db
+      .select({ id: categories.id })
+      .from(categories)
+      .where(and(eq(categories.storeId, DEFAULT_STORE_ID), eq(categories.slug, opts.categorySlug)))
+      .limit(1);
+    if (!cat) return { items: [], total: 0, page, limit };
+    conds.push(eq(products.categoryId, cat.id));
+  }
+  if (opts.brandSlug) {
+    const [b] = await db
+      .select({ id: brands.id })
+      .from(brands)
+      .where(and(eq(brands.storeId, DEFAULT_STORE_ID), eq(brands.slug, opts.brandSlug)))
+      .limit(1);
+    if (!b) return { items: [], total: 0, page, limit };
+    conds.push(eq(products.brandId, b.id));
+  }
+
+  const rows = await db
+    .select()
+    .from(products)
+    .where(and(...conds))
+    .orderBy(desc(products.createdAt))
+    .limit(limit)
+    .offset((page - 1) * limit);
+
+  const imgMap = await attachPrimaryImages(rows);
+
+  return {
+    items: rows.map((p) => toCard(p, imgMap.get(p.id))),
+    total: rows.length, // approx; precise count expensive — switch to count() if pagination UI needed
+    page,
+    limit,
+  };
+}

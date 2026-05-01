@@ -1,13 +1,18 @@
+import { SiteHeader } from "@/components/storefront/site-header";
+import { SiteFooter } from "@/components/storefront/site-footer";
+import { TopBar } from "@/components/storefront/top-bar";
+
 export default function StorefrontLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header will be added in Phase 2 */}
+    <div className="flex min-h-screen flex-col bg-[var(--color-bg)] text-[var(--color-text)]">
+      <TopBar />
+      <SiteHeader />
       <main className="flex-1">{children}</main>
-      {/* Footer will be added in Phase 2 */}
+      <SiteFooter />
     </div>
   );
 }

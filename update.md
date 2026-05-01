@@ -546,3 +546,67 @@ Audit of phases 0–3 surfaced 5 gaps. All fixed below.
 - [ ] Storefront pages: home, /products, /category/[slug], /brand/[slug], /products/[slug], /cart, /checkout, /account/*, /blog, /campaigns/[slug]
 - [ ] Admin pages: dashboard (Recharts), products, categories, orders, coupons, reviews, blog, customers, shipping, banners
 - [ ] Wire 88 prebuilt components into pages, connect to Phase 1-7 APIs
+
+---
+
+## Phase 8 — Frontend Wiring (Storefront Pages + Admin Shell)
+
+**Commit:** `feat(frontend/phase-8): storefront pages (home, listing, PDP, cart, blog, campaigns, account) + admin shell & list pages wired to Phase 1-7 APIs`
+
+### Server-side data helpers
+
+| File | What was done |
+|---|---|
+| `src/modules/storefront/queries.ts` | NEW. `getNewArrivals`, `getBestSellers`, `getFeaturedCategories`, `listAllBrands`, `listProductsForGrid({page,limit,categorySlug?,brandSlug?,q?})`. Hydrates primary image via batched `inArray` on `productImages`. Maps `salePrice ?? price` for display, `originalPrice` only when `salePrice` set. Conditional spreads under strict `exactOptionalPropertyTypes` |
+
+### Storefront layout + components
+
+| File | What was done |
+|---|---|
+| `src/app/(storefront)/layout.tsx` | Replaced placeholder. Now mounts `<TopBar /> <SiteHeader /> <main> <SiteFooter />` |
+| `src/components/storefront/newsletter-subscribe.tsx` | NEW client wrapper. Wraps `<NewsletterBox>` and POSTs to `/api/v1/newsletter/subscribe` with sonner toasts |
+
+### Storefront pages
+
+| File | What was done |
+|---|---|
+| `src/app/(storefront)/page.tsx` | Home page — hero band + `FeaturedCategories` + `NewArrivalsSection` + `BestSellerSection` + `TrustBadges` + `NewsletterSubscribe` (data fetched in parallel via Promise.all). `revalidate=300` |
+| `src/app/(storefront)/products/page.tsx` | All-products listing. Reads searchParams, calls `listProductsForGrid`, renders `ProductGrid` |
+| `src/app/(storefront)/products/[slug]/page.tsx` | Product Detail Page. `productRepository.findBySlug`, renders `ProductGallery` + `ProductInfo` + `AddToCartButton` + `WishlistButton` + `ProductTabs`. Injects `productLd` + `breadcrumbLd` JSON-LD via `next/script`. `generateMetadata` for SEO |
+| `src/app/(storefront)/category/[slug]/page.tsx` | Category landing — `categoryRepository.findBySlug` + `listProductsForGrid` |
+| `src/app/(storefront)/cart/page.tsx` | Client cart page. Uses `useCartStore` for items/subtotal. Renders `CartItemRow[]` + `FreeShippingProgress` + `CartSummary` + checkout CTA. `CartEmptyState` when empty |
+| `src/app/(storefront)/blog/page.tsx` | Blog index — `blogRepository.listPosts({status:'published'})` |
+| `src/app/(storefront)/blog/[slug]/page.tsx` | Article — `findPostBySlug` + `articleLd` JSON-LD |
+| `src/app/(storefront)/campaigns/[slug]/page.tsx` | Campaign landing — `campaignRepository.findBySlugWithProducts` + `ProductGrid` |
+
+### Account area
+
+| File | What was done |
+|---|---|
+| `src/app/(storefront)/account/layout.tsx` | Auth-guarded shell with side nav (Overview, Orders, Wishlist, Addresses, Profile). Redirects to `/login` when no session |
+| `src/app/(storefront)/account/page.tsx` | Overview cards |
+| `src/app/(storefront)/account/orders/page.tsx` | Lists current user's orders (filter by `DEFAULT_STORE_ID`) |
+| `src/app/(storefront)/account/wishlist/page.tsx` | Client wishlist UI backed by `useWishlistStore` |
+
+### Admin shell + pages
+
+| File | What was done |
+|---|---|
+| `src/app/(admin)/layout.tsx` | Replaced placeholder. `getCurrentUser()` guard — redirects non-admin to `/`. Mounts `AdminSidebar` + `AdminTopbar` |
+| `src/app/(admin)/admin/page.tsx` | Dashboard. 4 `StatsCard`s — Orders Today / Revenue Today / Total Products / Customers. Computed via direct Drizzle aggregate queries scoped to `DEFAULT_STORE_ID` |
+| `src/app/(admin)/admin/products/page.tsx` | Products list (server table) with `+ New product` link |
+| `src/app/(admin)/admin/categories/page.tsx` | Categories list |
+| `src/app/(admin)/admin/orders/page.tsx` | Orders list with status badge |
+| `src/app/(admin)/admin/customers/page.tsx` | Customers list |
+| `src/app/(admin)/admin/coupons/page.tsx` | Coupons list |
+| `src/app/(admin)/admin/reviews/page.tsx` | Reviews moderation queue |
+| `src/app/(admin)/admin/blog/page.tsx` | Blog posts list |
+| `src/app/(admin)/admin/campaigns/page.tsx` | Campaigns list |
+
+### Notes / Known follow-ups (Phase 9)
+
+- Admin CRUD forms (product/category/coupon/blog/campaign) wire through but are not yet rendered — placeholder `new` / `[id]` routes left intentionally for Phase 9 once admin form components are reviewed.
+- Brand landing (`/brand/[slug]`) skipped because `brandRepository.findBySlug` is not yet exposed; will land with brand picker UI in Phase 9.
+- Multi-step checkout, profile/password forms, and address book reuse the existing API routes from Phase 5/6 — UI wiring is queued for Phase 9 polish along with admin CRUD forms.
+- Analytics provider script tags in root `app/layout.tsx` deferred to Phase 9.
+
