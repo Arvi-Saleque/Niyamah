@@ -750,3 +750,16 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | `src/app/(admin)/admin/orders/[id]/page.tsx` | New: server component, hydrated order via `orderRepository.findByIdAdmin`, renders items + status history + payments + summary + customer/shipping aside |
 | `src/components/admin/admin-order-actions.tsx` | New: client wrapper around `OrderStatusUpdater` that maps lowercase UI status ↔ uppercase API enum and calls `PATCH /api/v1/admin/orders/[id]/status` |
 
+
+
+---
+
+## Phase 17 — Admin Coupons & Campaigns CRUD
+
+| File | What was done |
+|------|---------------|
+| `src/app/(admin)/admin/coupons/page.tsx` | Rewrote: list + create dialog using `CouponForm`, delete via `ConfirmDialog`. UI `percentage|fixed` mapped to API `PERCENTAGE|FLAT` |
+| `src/app/api/v1/admin/coupons/[id]/route.ts` | New: `DELETE` endpoint using `couponRepository.remove` |
+| `src/app/(admin)/admin/campaigns/page.tsx` | Rewrote: full CRUD with `CampaignForm` dialog, datetime inputs, status select |
+| `src/components/admin/campaign-form.tsx` | New: RHF + Zod form (name/slug/description/banner/start/end/status) |
+
