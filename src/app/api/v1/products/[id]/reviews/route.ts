@@ -7,11 +7,11 @@ import { requireUser } from "@/lib/auth/guards";
 import { rateLimit } from "@/lib/redis/rate-limit";
 
 interface Ctx {
-  params: Promise<{ productId: string }>;
+  params: Promise<{ id: string }>;
 }
 
 export async function GET(req: NextRequest, { params }: Ctx) {
-  const { productId: raw } = await params;
+  const { id: raw } = await params;
   const productId = Number(raw);
   if (!Number.isInteger(productId) || productId <= 0)
     return apiError("INVALID_ID", "Invalid product id.", 400);
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const guard = await requireUser();
   if ("error" in guard) return guard.error;
 
-  const { productId: raw } = await params;
+  const { id: raw } = await params;
   const productId = Number(raw);
   if (!Number.isInteger(productId) || productId <= 0)
     return apiError("INVALID_ID", "Invalid product id.", 400);
