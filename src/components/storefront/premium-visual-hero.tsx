@@ -52,20 +52,20 @@ export function PremiumVisualHero({
   return (
     <section
       className={cn(
-        "relative overflow-hidden bg-[linear-gradient(135deg,#FAF7EE_0%,#EFE6D2_55%,#EAF4D5_100%)] pt-10 md:pt-14",
+        "relative overflow-hidden bg-[linear-gradient(135deg,#FAF7EE_0%,#EFE6D2_55%,#EAF6DD_100%)] pt-10 md:pt-14",
         className,
       )}
     >
       <div className="mx-auto grid min-h-[680px] max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr,1.1fr] lg:px-8">
         <div className="relative z-10 max-w-2xl py-10">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#e8d9be] bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#7d5b22] shadow-sm">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#DED6BF] bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#007A3D] shadow-sm">
             <Sparkles className="h-3.5 w-3.5" />
             Premium Islamic Essentials
           </div>
 
-          <h1 className="text-5xl font-semibold leading-[0.98] text-[#1c1710] md:text-6xl lg:text-7xl">
+          <h1 className="text-5xl font-semibold leading-[0.98] text-[#162018] md:text-6xl lg:text-7xl">
             Bring Barakah
-            <span className="block text-[#006B3A]">
+            <span className="block text-[#007A3D]">
               Into Daily Life
             </span>
           </h1>
@@ -79,14 +79,14 @@ export function PremiumVisualHero({
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/category/quran"
-              className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#006B3A] px-6 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[#043D25]"
+              className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#007A3D] px-6 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[#043D25]"
             >
               Shop Quran Collection
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               href="/category/gift-box"
-              className="inline-flex h-12 items-center justify-center rounded-full border border-[#006B3A] bg-white px-6 text-sm font-semibold text-[#006B3A] transition-colors hover:bg-[#EAF4D5]"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-[#007A3D] bg-white px-6 text-sm font-semibold text-[#007A3D] transition-colors hover:bg-[#EAF6DD]"
             >
               Explore Gift Boxes
             </Link>
@@ -115,7 +115,7 @@ export function PremiumVisualHero({
         </div>
 
         <div className="relative min-h-[560px] lg:min-h-[650px]">
-          <div className="absolute left-8 top-8 hidden h-40 w-40 rounded-full border border-[#A0D020]/45 lg:block" />
+          <div className="absolute left-8 top-8 hidden h-40 w-40 rounded-full border border-[#A6D920]/45 lg:block" />
           <div className="absolute right-5 top-0 h-[78%] w-[68%] overflow-hidden rounded-[36px] bg-[#EFE6D2] shadow-[0_32px_80px_rgba(4,61,37,0.18)]">
             {mainProduct?.image && (
               <Image
@@ -143,7 +143,7 @@ export function PremiumVisualHero({
 
           <div className="absolute bottom-6 right-8 w-[300px] max-w-[78vw] rounded-[28px] border border-white/70 bg-white/90 p-4 shadow-[0_24px_70px_rgba(40,29,15,0.22)] backdrop-blur-xl">
             <div className="flex items-start gap-3">
-              <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-2xl bg-[#f3efe6]">
+              <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-2xl bg-[#EAF6DD]">
                 {thirdProduct?.image && (
                   <Image
                     src={thirdProduct.image}
@@ -155,14 +155,14 @@ export function PremiumVisualHero({
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-[#f3ead9] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#7d5b22]">
-                  <Star className="h-3 w-3 fill-[#c6923a] text-[#c6923a]" />
+                <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-[#EAF6DD] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#007A3D]">
+                  <Star className="h-3 w-3 fill-[#C9A24A] text-[#C9A24A]" />
                   4.8 Customer Favorite
                 </div>
-                <p className="line-clamp-2 text-sm font-semibold text-[#1c1710]">
+                <p className="line-clamp-2 text-sm font-semibold text-[#162018]">
                   {thirdProduct?.name ?? "Niyamah signature pick"}
                 </p>
-                <p className="mt-1 text-sm font-bold text-[#7d5b22]">
+                <p className="mt-1 text-sm font-bold text-[#007A3D]">
                   {thirdProduct ? formatCurrency(thirdProduct.price) : "From Tk 850"}
                 </p>
               </div>
@@ -170,15 +170,15 @@ export function PremiumVisualHero({
           </div>
 
           <div className="absolute left-3 top-16 rounded-2xl border border-[#DED6BF] bg-white px-4 py-3 shadow-xl">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#6D7668]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#687464]">
               Verified Products
             </p>
-            <p className="text-lg font-bold text-[#006B3A]">COD Available</p>
+            <p className="text-lg font-bold text-[#007A3D]">COD Available</p>
           </div>
 
           <div className="absolute right-0 top-[48%] hidden rounded-2xl bg-[#043D25] px-4 py-3 text-white shadow-xl md:block">
             <div className="flex items-center gap-2 text-sm font-semibold">
-              <Heart className="h-4 w-4 text-[#A0D020]" />
+              <Heart className="h-4 w-4 text-[#A6D920]" />
               WhatsApp Support
             </div>
           </div>
@@ -187,14 +187,14 @@ export function PremiumVisualHero({
 
       {categories.length > 0 && (
         <div className="mx-auto -mt-2 max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-          <div className="flex gap-3 overflow-x-auto rounded-[24px] border border-[#e8d9be] bg-white/84 p-3 shadow-sm backdrop-blur">
+          <div className="flex gap-3 overflow-x-auto rounded-[24px] border border-[#DED6BF] bg-white/84 p-3 shadow-sm backdrop-blur">
             {categories.slice(0, 6).map((category) => (
               <Link
                 key={category.id}
                 href={`/category/${category.slug}`}
-                className="group inline-flex min-w-[150px] items-center gap-3 rounded-[18px] px-2 py-2 transition-colors hover:bg-[#f6efe3]"
+                className="group inline-flex min-w-[150px] items-center gap-3 rounded-[18px] px-2 py-2 transition-colors hover:bg-[#FAF7EE]"
               >
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#f3efe6]">
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#EAF6DD]">
                   {category.image && (
                     <Image
                       src={category.image}
@@ -206,10 +206,10 @@ export function PremiumVisualHero({
                   )}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-[#1c1710]">
+                  <p className="truncate text-sm font-semibold text-[#162018]">
                     {category.name}
                   </p>
-                  <p className="text-xs text-[#8a765d]">Explore now</p>
+                  <p className="text-xs text-[#687464]">Explore now</p>
                 </div>
               </Link>
             ))}
@@ -219,3 +219,4 @@ export function PremiumVisualHero({
     </section>
   );
 }
+

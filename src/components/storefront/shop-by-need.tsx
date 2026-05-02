@@ -58,7 +58,7 @@ export function ShopByNeed({ className, categories = [] }: ShopByNeedProps) {
     <section className={cn("space-y-7", className)}>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#9a7029]">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#C9A24A]">
             Peaceful Shopping
           </p>
           <h2

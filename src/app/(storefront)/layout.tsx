@@ -2,7 +2,6 @@ import { SiteHeader } from "@/components/storefront/site-header";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { TopBar } from "@/components/storefront/top-bar";
 import { WhatsAppFloat } from "@/components/storefront/whatsapp-float";
-import { LiveShoppingProof } from "@/components/storefront/live-shopping-proof";
 import { getHomepageContent } from "@/modules/storefront/homepage-content";
 
 export default async function StorefrontLayout({
@@ -32,7 +31,6 @@ export default async function StorefrontLayout({
           message={content.whatsapp.defaultMessage}
         />
       )}
-      <LiveShoppingProof />
     </div>
   );
 }

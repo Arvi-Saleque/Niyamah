@@ -9,6 +9,7 @@ import { TrustSection } from "@/components/storefront/trust-section";
 import { NewsletterSubscribe } from "@/components/storefront/newsletter-subscribe";
 import { TestimonialsSection } from "@/components/storefront/testimonials-section";
 import { PhotoReviewsStrip } from "@/components/storefront/photo-reviews-strip";
+import { GiftBuilderSection } from "@/components/storefront/gift-builder-section";
 import {
   getFeaturedCategories,
   getNewArrivals,
@@ -17,7 +18,7 @@ import {
 } from "@/modules/storefront/queries";
 import { getHomepageContent } from "@/modules/storefront/homepage-content";
 import Link from "next/link";
-import { BookOpen, Gift, MessageCircle, PackageSearch, Truck, Wallet } from "lucide-react";
+import { BookOpen, MessageCircle, Truck } from "lucide-react";
 
 export const revalidate = 300;
 
@@ -94,73 +95,7 @@ export default async function StorefrontHomePage() {
 
         {/* === 8. Gift Builder === */}
         {content.whatsapp.enabled && (
-          <section className="grid gap-6 rounded-[32px] border border-[#DED6BF] bg-[#EFE6D2] p-5 shadow-sm md:grid-cols-[1fr,420px] md:p-8">
-            <div>
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#006B3A]">
-                <Gift className="h-3.5 w-3.5" />
-                Gift Builder
-              </div>
-              <h2 className="text-3xl font-semibold text-[#172018] md:text-4xl">
-                Build a Meaningful Islamic Gift
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#6D7668]">
-                Choose a recipient, budget, and purpose. We will suggest the
-                right Quran, tasbih, prayer mat, or gift box through WhatsApp.
-              </p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {["Parents", "Teacher", "Friend", "Family", "Under Tk 1000", "Premium"].map((item) => (
-                  <span
-                    key={item}
-                    className="rounded-full border border-[#006B3A]/25 bg-[#FAF7EE] px-4 py-2 text-center text-sm font-semibold text-[#006B3A]"
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="grid gap-2">
-              {[
-                {
-                  icon: Gift,
-                  label: "Quran Gift",
-                  text: "I need a Quran gift box",
-                },
-                {
-                  icon: Wallet,
-                  label: "Budget Gift",
-                  text: "Find Islamic gift under Tk 1000",
-                },
-                {
-                  icon: PackageSearch,
-                  label: "Prayer Gift",
-                  text: "Suggest prayer mat and tasbih gift",
-                },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <a
-                    key={item.label}
-                    href={`https://wa.me/${content.whatsapp.phoneNumber}?text=${encodeURIComponent(item.text)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center gap-3 rounded-2xl border border-[#DED6BF] bg-white p-3 transition-all hover:border-[#006B3A]"
-                  >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#EAF4D5] text-[#006B3A] group-hover:bg-[#006B3A] group-hover:text-white">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-semibold text-[#172018]">
-                        {item.label}
-                      </span>
-                      <span className="line-clamp-1 text-xs text-[#6D7668]">
-                        {item.text}
-                      </span>
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
-          </section>
+          <GiftBuilderSection whatsappPhone={content.whatsapp.phoneNumber} />
         )}
 
         {/* === 9. Learn Before You Buy === */}
@@ -169,31 +104,34 @@ export default async function StorefrontHomePage() {
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#C9A24A]">
               Learning Guides
             </p>
-            <h2 className="text-3xl font-semibold text-[#172018] md:text-4xl">
+            <h2 className="text-3xl font-semibold text-[#162018] md:text-4xl">
               Learn Before You Buy
             </h2>
-            <p className="mt-2 max-w-xl text-sm text-[#6D7668]">
+            <p className="mt-2 max-w-xl text-sm text-[#687464]">
               Helpful guides for choosing Quran, Islamic gifts, and worship essentials.
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-4">
             {[
-              "How to choose a Quran for daily recitation",
-              "Best Islamic gifts for parents",
-              "Why color-coded Quran helps beginners",
-              "How to care for prayer mats and tasbih",
-            ].map((title) => (
+              { title: "How to Choose a Quran for Daily Recitation", category: "Quran Guide" },
+              { title: "Best Islamic Gifts for Parents", category: "Gift Guide" },
+              { title: "Why Color-Coded Quran Helps Beginners", category: "Quran Guide" },
+              { title: "How to Care for Prayer Mats and Tasbih", category: "Care Guide" },
+            ].map((item) => (
               <Link
-                key={title}
+                key={item.title}
                 href="/blog"
-                className="rounded-[24px] border border-[#DED6BF] bg-white p-5 transition-all hover:-translate-y-1 hover:border-[#006B3A] hover:shadow-lg"
+                className="group flex min-h-[200px] flex-col rounded-[24px] border border-[#DED6BF] bg-white p-5 transition-all hover:-translate-y-1 hover:border-[#007A3D] hover:shadow-lg"
               >
-                <BookOpen className="mb-5 h-5 w-5 text-[#006B3A]" />
-                <h3 className="text-base font-semibold leading-6 text-[#172018]">
-                  {title}
+                <span className="mb-2 inline-block self-start rounded-full bg-[#EAF6DD] px-2.5 py-0.5 text-[11px] font-semibold text-[#007A3D]">
+                  {item.category}
+                </span>
+                <BookOpen className="mb-4 mt-1 h-7 w-7 text-[#007A3D]" />
+                <h3 className="flex-1 text-base font-semibold leading-6 text-[#162018]">
+                  {item.title}
                 </h3>
-                <p className="mt-4 text-sm font-semibold text-[#006B3A]">
-                  Read Guide -&gt;
+                <p className="mt-4 text-sm font-semibold text-[#007A3D] group-hover:underline">
+                  Read Guide →
                 </p>
               </Link>
             ))}

@@ -57,7 +57,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
                 <Link
                   key={href}
                   href={href}
-                  className="rounded-full px-3 py-2 text-sm font-semibold text-[#172018] transition-colors hover:bg-white hover:text-[#006B3A]"
+                  className="rounded-full px-3 py-2 text-sm font-semibold text-[#162018] transition-colors hover:bg-white hover:text-[#007A3D]"
                 >
                   {label}
                 </Link>
@@ -68,7 +68,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="hidden h-10 min-w-[280px] items-center gap-2 rounded-full border border-[#DED6BF] bg-white px-4 text-left text-sm text-[#6D7668] shadow-sm transition-colors hover:border-[#006B3A] lg:flex"
+                className="hidden h-10 min-w-[280px] items-center gap-2 rounded-full border border-[#DED6BF] bg-white px-4 text-left text-sm text-[#687464] shadow-sm transition-colors hover:border-[#007A3D] lg:flex"
               >
                 <Search className="h-4 w-4" />
                 Search Quran, gift box, tasbih...
@@ -105,7 +105,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
               >
                 <ShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#006B3A] text-[10px] font-bold text-white">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#007A3D] text-[10px] font-bold text-white">
                     {totalItems > 99 ? "99+" : totalItems}
                   </span>
                 )}
@@ -138,7 +138,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
             }}
             className="flex items-center gap-2 border-b border-[#DED6BF] p-3"
           >
-            <Search className="ml-2 h-5 w-5 text-[#006B3A]" />
+            <Search className="ml-2 h-5 w-5 text-[#007A3D]" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -149,7 +149,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
             <button
               type="button"
               onClick={() => setSearchOpen(false)}
-              className="rounded-full p-2 text-[#6D7668] hover:bg-[#EAF4D5]"
+              className="rounded-full p-2 text-[#687464] hover:bg-[#EAF6DD]"
               aria-label="Close search"
             >
               <X className="h-5 w-5" />
@@ -168,7 +168,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
               onPick={submitSearch}
             />
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#8a765d]">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#687464]">
                 Categories
               </p>
               <div className="grid gap-2">
@@ -184,7 +184,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
                     key={href}
                     href={href}
                     onClick={() => setSearchOpen(false)}
-                    className="rounded-xl border border-[#DED6BF] px-3 py-2 text-sm font-semibold text-[#172018] hover:border-[#006B3A] hover:bg-[#EAF4D5]"
+                    className="rounded-xl border border-[#DED6BF] px-3 py-2 text-sm font-semibold text-[#162018] hover:border-[#007A3D] hover:bg-[#EAF6DD]"
                   >
                     {label}
                   </Link>
@@ -209,7 +209,7 @@ function SearchGroup({
 }) {
   return (
     <div>
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#6D7668]">
+      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#687464]">
         {title}
       </p>
       <div className="flex flex-wrap gap-2">
@@ -218,7 +218,7 @@ function SearchGroup({
             key={item}
             type="button"
             onClick={() => onPick(item)}
-            className="rounded-full border border-[#DED6BF] bg-[#FAF7EE] px-3 py-2 text-xs font-semibold text-[#172018] hover:border-[#006B3A] hover:text-[#006B3A]"
+            className="rounded-full border border-[#DED6BF] bg-[#FAF7EE] px-3 py-2 text-xs font-semibold text-[#162018] hover:border-[#007A3D] hover:text-[#007A3D]"
           >
             {item}
           </button>
@@ -227,3 +227,4 @@ function SearchGroup({
     </div>
   );
 }
+

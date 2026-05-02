@@ -10,6 +10,7 @@ export interface Testimonial {
   rating: number;
   body: string;
   location?: string;
+  purchasedItem?: string;
 }
 
 interface TestimonialsSectionProps {
@@ -44,6 +45,11 @@ export function TestimonialsSection({
           <p className="mt-4 text-sm leading-6 text-white/75">
             Trusted by customers across Bangladesh. Verified reviews from real Quran, gift box, and prayer essential orders.
           </p>
+          <div className="mt-5 space-y-2 border-t border-white/10 pt-5 text-xs text-white/65">
+            <p>✓ Verified reviews from real orders</p>
+            <p>✓ COD supported across Bangladesh</p>
+            <p>✓ 2,000+ happy customers</p>
+          </div>
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -64,6 +70,9 @@ export function TestimonialsSection({
                     <p className="text-xs text-[#687464]">
                       Verified buyer &middot; {t.location}
                     </p>
+                  )}
+                  {t.purchasedItem && (
+                    <p className="text-[10px] text-[#687464]">Purchased: {t.purchasedItem}</p>
                   )}
                 </div>
               </div>

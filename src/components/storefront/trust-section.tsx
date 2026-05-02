@@ -48,10 +48,10 @@ export function TrustSection({ className, data }: TrustSectionProps) {
               key={item.id}
               type="button"
               onClick={() => setOpen(item)}
-              className="group flex min-h-[132px] flex-col items-center justify-center gap-2 border-b border-r border-[#EFE6D2] p-4 text-center transition-colors hover:bg-[#FAF7EE] lg:border-b-0"
+              className="group flex min-h-[152px] flex-col items-center justify-center gap-2 border-b border-r border-[#EFE6D2] p-4 text-center transition-colors hover:bg-[#FAF7EE] lg:border-b-0"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EAF6DD] text-[#007A3D] transition-colors group-hover:bg-[#007A3D] group-hover:text-white">
-                <Icon className="h-5 w-5" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EAF6DD] text-[#007A3D] transition-colors group-hover:bg-[#007A3D] group-hover:text-white">
+                <Icon className="h-6 w-6" />
               </div>
               <p className="text-sm font-semibold text-[#162018]">
                 {item.title}

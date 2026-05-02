@@ -44,166 +44,192 @@ const ADMIN_NAME = "Niyamah Admin";
 const CUSTOMER_PASSWORD = "Customer@12345";
 
 const demoImages = {
+  quranOpen:
+    "https://images.unsplash.com/photo-1585831167895-0f9c9f0cf6cf?auto=format&fit=crop&w=900&q=80",
+  quranStack:
+    "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=900&q=80",
+  prayerBeads:
+    "https://images.unsplash.com/photo-1508919801845-fc2ae1bc2a28?auto=format&fit=crop&w=900&q=80",
+  prayerMat:
+    "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=900&q=80",
+  giftBox:
+    "https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=900&q=80",
+  islamicBooks:
+    "https://images.unsplash.com/photo-1531346878377-a5be20888e57?auto=format&fit=crop&w=900&q=80",
   hero:
-    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80",
-  fashion:
-    "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
-  home:
-    "https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?auto=format&fit=crop&w=1200&q=80",
-  apparel:
-    "https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=900&q=80",
-  accessories:
-    "https://images.unsplash.com/photo-1523205771623-e0faa4d2813d?auto=format&fit=crop&w=900&q=80",
-  lifestyle:
-    "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=900&q=80",
-  journal:
-    "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1585831167895-0f9c9f0cf6cf?auto=format&fit=crop&w=1600&q=80",
 };
 
 const productSeeds = [
   {
-    name: "Embroidered Cotton Kurti",
-    slug: "embroidered-cotton-kurti",
-    category: "apparel",
+    name: "Color-Coded Quran with Bengali Meaning",
+    slug: "color-coded-quran-bengali-meaning",
+    category: "quran",
     brand: "niyamah",
-    price: "2450.00",
-    salePrice: "1990.00",
-    sku: "NIY-KURTI-001",
-    stock: 28,
+    price: "1500.00",
+    salePrice: "1250.00",
+    sku: "NIY-QURAN-001",
+    stock: 45,
     featured: true,
     bestSeller: true,
-    image:
-      "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=900&q=80",
-    shortDescription: "Soft cotton everyday kurti with subtle embroidery.",
+    image: demoImages.quranOpen,
+    shortDescription: "Full color-coded Quran with Bengali word-by-word meaning.",
     description:
-      "A breathable cotton kurti designed for everyday comfort, with restrained embroidery and a relaxed silhouette.",
-    tags: ["cotton", "kurti", "apparel"],
+      "This color-coded Quran uses color highlighting to help beginners and learners identify different types of tajweed rules during recitation. Comes with Bengali word-by-word meaning, making it ideal for learners of all ages across Bangladesh.",
+    tags: ["quran", "color-coded", "bengali", "tajweed"],
   },
   {
-    name: "Handwoven Jamdani Scarf",
-    slug: "handwoven-jamdani-scarf",
-    category: "accessories",
-    brand: "heritage",
-    price: "1850.00",
-    salePrice: null,
-    sku: "HER-SCARF-002",
-    stock: 16,
+    name: "Easy Quran — Medium Size (Bengali Translation)",
+    slug: "easy-quran-medium-bengali",
+    category: "quran",
+    brand: "niyamah",
+    price: "1100.00",
+    salePrice: "950.00",
+    sku: "NIY-QURAN-002",
+    stock: 38,
+    featured: true,
+    bestSeller: true,
+    image: demoImages.islamicBooks,
+    shortDescription: "Comfortable medium-size Quran with complete Bengali translation.",
+    description:
+      "Perfect for daily recitation at home. Medium font size with clear Arabic script and full Bengali translation. Soft cover, lightweight, and easy to hold for long reading sessions.",
+    tags: ["quran", "medium", "bengali", "daily-use"],
+  },
+  {
+    name: "Premium Bengali Translation Quran",
+    slug: "premium-bengali-translation-quran",
+    category: "bengali-quran",
+    brand: "niyamah",
+    price: "1500.00",
+    salePrice: "1350.00",
+    sku: "NIY-BQ-001",
+    stock: 30,
     featured: true,
     bestSeller: false,
-    image:
-      "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=900&q=80",
-    shortDescription: "Lightweight woven scarf with Jamdani-inspired motifs.",
+    image: demoImages.quranStack,
+    shortDescription: "Large-format Quran with complete Bengali tafsir and translation.",
     description:
-      "A soft accent piece for day or evening styling, woven with delicate geometric motifs.",
-    tags: ["scarf", "jamdani", "accessories"],
+      "A comprehensive Bengali translation Quran with detailed tafsir notes for each ayah. Large font for ease of reading. Ideal for home, learning, and as a meaningful gift to parents.",
+    tags: ["bengali-quran", "tafsir", "large-print", "gift"],
   },
   {
-    name: "Brass Statement Earrings",
-    slug: "brass-statement-earrings",
-    category: "accessories",
-    brand: "heritage",
-    price: "1250.00",
-    salePrice: "990.00",
-    sku: "HER-EAR-003",
-    stock: 42,
+    name: "Islamic Gift Box — Quran + Tasbih Set",
+    slug: "islamic-gift-box-quran-tasbih",
+    category: "gift-box",
+    brand: "niyamah",
+    price: "2800.00",
+    salePrice: "2400.00",
+    sku: "NIY-GIFT-001",
+    stock: 20,
+    featured: true,
+    bestSeller: true,
+    image: demoImages.giftBox,
+    shortDescription: "Elegant gift box with color-coded Quran and premium tasbih.",
+    description:
+      "A ready-to-send Islamic gift box containing a color-coded Quran and a premium wooden tasbih, packaged in a premium kraft box with ribbon. Perfect for parents, teachers, Eid, or any occasion.",
+    tags: ["gift-box", "quran", "tasbih", "eid", "parents"],
+  },
+  {
+    name: "Complete Prayer Gift Set",
+    slug: "complete-prayer-gift-set",
+    category: "gift-box",
+    brand: "niyamah",
+    price: "3200.00",
+    salePrice: "2750.00",
+    sku: "NIY-GIFT-002",
+    stock: 15,
+    featured: true,
+    bestSeller: false,
+    image: demoImages.giftBox,
+    shortDescription: "Full prayer essentials in a beautiful gift box — mat, tasbih, and Quran.",
+    description:
+      "A complete Islamic gift box with a soft folding prayer mat, premium wooden tasbih, and a medium Quran — ideal for newly married couples, parents, or a thoughtful gift from abroad.",
+    tags: ["gift-box", "prayer-mat", "tasbih", "quran", "newly-married"],
+  },
+  {
+    name: "Digital Tasbih Counter",
+    slug: "digital-tasbih-counter",
+    category: "tasbih",
+    brand: "deenstore",
+    price: "450.00",
+    salePrice: null,
+    sku: "DS-TASBIH-001",
+    stock: 80,
     featured: false,
     bestSeller: true,
-    image:
-      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=80",
-    shortDescription: "Polished brass earrings for festive and daily wear.",
+    image: demoImages.prayerBeads,
+    shortDescription: "Compact digital counter for dhikr and tasbeeh counting.",
     description:
-      "Warm brass-tone earrings with a clean statement profile, easy to pair with ethnic or modern outfits.",
-    tags: ["jewelry", "earrings", "brass"],
+      "A small, button-operated digital counter for accurate dhikr counting. Can count up to 9,999 clicks. Lightweight and easy to carry for travel or daily use. Battery included.",
+    tags: ["tasbih", "digital", "dhikr", "gift"],
   },
   {
-    name: "Minimal Leather Tote",
-    slug: "minimal-leather-tote",
-    category: "bags",
-    brand: "urban-weave",
-    price: "3650.00",
-    salePrice: "3190.00",
-    sku: "URB-TOTE-004",
-    stock: 10,
-    featured: true,
-    bestSeller: true,
-    image:
-      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=900&q=80",
-    shortDescription: "Structured tote bag with room for workday essentials.",
-    description:
-      "A clean, structured tote with durable handles and a roomy interior for laptop, notebook, and daily carry.",
-    tags: ["bag", "tote", "leather"],
-  },
-  {
-    name: "Ceramic Aroma Candle",
-    slug: "ceramic-aroma-candle",
-    category: "home-living",
-    brand: "homecraft",
-    price: "1450.00",
+    name: "Premium Wooden Tasbih — 99 Beads",
+    slug: "premium-wooden-tasbih-99-beads",
+    category: "tasbih",
+    brand: "deenstore",
+    price: "950.00",
     salePrice: null,
-    sku: "HOM-CANDLE-005",
-    stock: 24,
-    featured: false,
-    bestSeller: false,
-    image:
-      "https://images.unsplash.com/photo-1602874801006-e26ceaf74d4b?auto=format&fit=crop&w=900&q=80",
-    shortDescription: "Soy wax candle poured in a reusable ceramic jar.",
-    description:
-      "A warm home fragrance candle with a reusable ceramic vessel, made for calm evenings and gifting.",
-    tags: ["home", "candle", "gift"],
-  },
-  {
-    name: "Linen Cushion Cover Set",
-    slug: "linen-cushion-cover-set",
-    category: "home-living",
-    brand: "homecraft",
-    price: "2100.00",
-    salePrice: "1750.00",
-    sku: "HOM-CUSHION-006",
-    stock: 7,
-    featured: true,
-    bestSeller: false,
-    image:
-      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=900&q=80",
-    shortDescription: "Set of two linen cushion covers in muted tones.",
-    description:
-      "Textured linen cushion covers that add softness to sofas, reading corners, and bedrooms.",
-    tags: ["home", "linen", "decor"],
-  },
-  {
-    name: "Everyday Cotton Shirt",
-    slug: "everyday-cotton-shirt",
-    category: "apparel",
-    brand: "urban-weave",
-    price: "2290.00",
-    salePrice: null,
-    sku: "URB-SHIRT-007",
+    sku: "DS-TASBIH-002",
     stock: 35,
     featured: false,
-    bestSeller: true,
-    image:
-      "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=900&q=80",
-    shortDescription: "Crisp cotton shirt for office and weekend wear.",
+    bestSeller: false,
+    image: demoImages.prayerBeads,
+    shortDescription: "Hand-finished natural wood 99-bead tasbih with soft knot finish.",
     description:
-      "A reliable cotton shirt with a neat collar, balanced fit, and soft hand-feel.",
-    tags: ["shirt", "cotton", "apparel"],
+      "Crafted from natural wood with 99 smooth beads on a strong cord. Ideal for daily dhikr, post-prayer recitation, and gifting. Available in natural walnut and sandalwood finishes.",
+    tags: ["tasbih", "wooden", "99-beads", "dhikr"],
   },
   {
-    name: "Gift Box - Festive Essentials",
-    slug: "gift-box-festive-essentials",
-    category: "gifts",
+    name: "Soft Velvet Prayer Mat",
+    slug: "soft-velvet-prayer-mat",
+    category: "prayer-mat",
     brand: "niyamah",
-    price: "4200.00",
-    salePrice: "3690.00",
-    sku: "NIY-GIFT-008",
-    stock: 12,
+    price: "1200.00",
+    salePrice: null,
+    sku: "NIY-PM-001",
+    stock: 50,
     featured: true,
     bestSeller: false,
-    image:
-      "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=900&q=80",
-    shortDescription: "A ready-to-send gift set with curated lifestyle pieces.",
+    image: demoImages.prayerMat,
+    shortDescription: "Thick soft velvet prayer mat with anti-slip base for daily salah.",
     description:
-      "A polished gift set made for Eid, weddings, housewarmings, and thoughtful thank-you moments.",
-    tags: ["gift", "festive", "bundle"],
+      "A premium velvet prayer mat with a comfortable thick pile and a non-slip rubber base. Comes with a matching carrying pouch. Available in green, cream, and burgundy.",
+    tags: ["prayer-mat", "velvet", "soft", "daily-salah"],
+  },
+  {
+    name: "Compact Travel Prayer Mat",
+    slug: "compact-travel-prayer-mat",
+    category: "prayer-mat",
+    brand: "deenstore",
+    price: "850.00",
+    salePrice: null,
+    sku: "DS-PM-001",
+    stock: 40,
+    featured: false,
+    bestSeller: true,
+    image: demoImages.prayerMat,
+    shortDescription: "Foldable travel prayer mat that fits in a small carry bag.",
+    description:
+      "A lightweight and foldable travel prayer mat with a built-in compass. Packs into a small zip pouch. Ideal for office, travel, and outdoor prayers. Machine washable.",
+    tags: ["prayer-mat", "travel", "foldable", "compact"],
+  },
+  {
+    name: "Wooden Quran Stand (Rehal)",
+    slug: "wooden-quran-stand-rehal",
+    category: "quran",
+    brand: "deenstore",
+    price: "750.00",
+    salePrice: null,
+    sku: "DS-STAND-001",
+    stock: 25,
+    featured: false,
+    bestSeller: false,
+    image: demoImages.islamicBooks,
+    shortDescription: "Foldable wooden Quran stand for comfortable recitation.",
+    description:
+      "A traditional foldable wooden Quran stand (rehal) with carved patterns. Holds any standard Quran size at a comfortable angle for recitation. Folds flat for easy storage.",
+    tags: ["quran", "stand", "rehal", "wooden"],
   },
 ];
 
@@ -230,18 +256,18 @@ async function ensureStore() {
     contactEmail: ADMIN_EMAIL,
     contactPhone: "+8801700000000",
     address: "House 12, Road 7, Dhanmondi, Dhaka",
-    metaTitle: "Niyamah - Premium E-Commerce",
+    metaTitle: "Niyamah - Quran, Prayer Essentials & Islamic Gifts",
     metaDescription:
-      "Premium e-commerce experience with curated fashion, home, gifts, and accessories.",
+      "Your trusted source for Quran, Bengali Quran, tasbih, prayer mats, and meaningful Islamic gift boxes — with Cash on Delivery across Bangladesh.",
   });
   await db.insert(storeThemes).values({
     storeId: row.id,
     themeKey: "default",
     config: {
       colors: {
-        bg: "#FAFAF8",
-        accent: "#C9A96E",
-        text: "#1A1814",
+        bg: "#FAF7EE",
+        accent: "#007A3D",
+        text: "#162018",
       },
     },
   });
@@ -355,20 +381,19 @@ async function ensureCatalog(storeId: number) {
   const brandMap = new Map<string, { id: number }>();
   for (const brand of [
     ["Niyamah", "niyamah", true],
-    ["Heritage", "heritage", true],
-    ["Urban Weave", "urban-weave", false],
-    ["Homecraft", "homecraft", false],
+    ["Deen Store", "deenstore", true],
+    ["Al-Barakah", "al-barakah", false],
   ] as const) {
     brandMap.set(brand[1], await ensureBrand(storeId, brand[0], brand[1], brand[2]));
   }
 
   const categoryMap = new Map<string, { id: number }>();
   const categorySeed = [
-    ["Apparel", "apparel", 1, demoImages.apparel],
-    ["Accessories", "accessories", 2, demoImages.accessories],
-    ["Bags", "bags", 3, demoImages.lifestyle],
-    ["Home & Living", "home-living", 4, demoImages.home],
-    ["Gifts", "gifts", 5, demoImages.fashion],
+    ["Quran", "quran", 1, demoImages.quranOpen],
+    ["Bengali Quran", "bengali-quran", 2, demoImages.quranStack],
+    ["Gift Box", "gift-box", 3, demoImages.giftBox],
+    ["Prayer Mat", "prayer-mat", 4, demoImages.prayerMat],
+    ["Tasbih", "tasbih", 5, demoImages.prayerBeads],
   ] as const;
   for (const category of categorySeed) {
     categoryMap.set(
@@ -427,7 +452,7 @@ async function ensureCatalog(storeId: number) {
         },
         {
           productId: product.id,
-          url: demoImages.lifestyle,
+          url: demoImages.islamicBooks,
           alt: `${seed.name} lifestyle`,
           sortOrder: 1,
           isPrimary: false,
@@ -576,24 +601,24 @@ async function ensureMarketing(storeId: number, productRows: Array<{ id: number 
   }
 
   const existingBanner = await db.query.banners.findFirst({
-    where: and(eq(banners.storeId, storeId), eq(banners.title, "Fresh festive arrivals")),
+    where: and(eq(banners.storeId, storeId), eq(banners.title, "Premium Quran & Gift Collection")),
   });
   if (!existingBanner) {
     await db.insert(banners).values([
       {
         storeId,
-        title: "Fresh festive arrivals",
+        title: "Premium Quran & Gift Collection",
         imageUrl: demoImages.hero,
-        linkUrl: "/campaigns/eid-style-edit",
+        linkUrl: "/category/quran",
         position: "hero",
         status: "active",
         sortOrder: 1,
       },
       {
         storeId,
-        title: "Home refresh picks",
-        imageUrl: demoImages.home,
-        linkUrl: "/category/home-living",
+        title: "Islamic Gift Box Collection",
+        imageUrl: demoImages.giftBox,
+        linkUrl: "/category/gift-box",
         position: "homepage",
         status: "active",
         sortOrder: 2,
@@ -645,23 +670,23 @@ async function ensureShipping(storeId: number) {
 
 async function ensureBlog(storeId: number, adminId: string) {
   const existingCategory = await db.query.blogCategories.findFirst({
-    where: and(eq(blogCategories.storeId, storeId), eq(blogCategories.slug, "style-guide")),
+    where: and(eq(blogCategories.storeId, storeId), eq(blogCategories.slug, "islamic-guide")),
   });
   const category =
     existingCategory ??
     (
       await db
         .insert(blogCategories)
-        .values({ storeId, name: "Style Guide", slug: "style-guide" })
+        .values({ storeId, name: "Islamic Guide", slug: "islamic-guide" })
         .returning()
     )[0];
   if (!category) throw new Error("Could not create blog category.");
 
   const tagRows = [];
   for (const [name, slug] of [
-    ["Styling", "styling"],
+    ["Quran", "quran"],
     ["Gifting", "gifting"],
-    ["Home", "home"],
+    ["Prayer", "prayer"],
   ] as const) {
     const existing = await db.query.blogTags.findFirst({
       where: and(eq(blogTags.storeId, storeId), eq(blogTags.slug, slug)),
@@ -676,20 +701,36 @@ async function ensureBlog(storeId: number, adminId: string) {
 
   const postSeeds = [
     {
-      title: "How to Build a Festive Capsule Wardrobe",
-      slug: "festive-capsule-wardrobe",
-      excerpt: "A compact guide to mixing statement pieces with everyday essentials.",
-      image: demoImages.journal,
+      title: "How to Choose a Quran for Daily Recitation",
+      slug: "how-to-choose-quran-daily-recitation",
+      excerpt: "A practical guide to finding the right Quran edition for your daily reading habit.",
+      image: demoImages.quranOpen,
       content:
-        "Start with breathable basics, add one statement accessory, and keep colors balanced. A capsule wardrobe helps every outfit feel intentional without needing too many pieces.",
+        "When choosing a Quran for daily recitation, consider the font size, paper quality, and whether you need a Bengali translation. Color-coded editions are excellent for beginners learning tajweed. Choose a size that fits comfortably in your hands for longer sessions.",
     },
     {
-      title: "Gift Ideas for Housewarmings",
-      slug: "gift-ideas-housewarmings",
-      excerpt: "Home-friendly gifts that feel thoughtful, useful, and easy to style.",
-      image: demoImages.home,
+      title: "Best Islamic Gifts for Parents in Bangladesh",
+      slug: "best-islamic-gifts-for-parents",
+      excerpt: "Thoughtful Islamic gift ideas that are meaningful, useful, and easy to send anywhere in Bangladesh.",
+      image: demoImages.giftBox,
       content:
-        "Candles, cushion covers, and curated gift boxes are easy choices for a new home. Pick textures and neutral tones so the gift works with many interiors.",
+        "A Quran gift box is one of the most meaningful gifts for parents. Combine a color-coded Quran with a premium tasbih and a soft prayer mat for a complete gift. Niyamah gift boxes can be delivered with Cash on Delivery across all 64 districts of Bangladesh.",
+    },
+    {
+      title: "Why Color-Coded Quran Helps Beginners",
+      slug: "why-color-coded-quran-helps-beginners",
+      excerpt: "Understanding the tajweed color system and how it makes Quran recitation easier for new learners.",
+      image: demoImages.islamicBooks,
+      content:
+        "Color-coded Quran editions use different colors to mark different tajweed rules such as ghunnah, qalqalah, and madd letters. This visual system helps beginners identify and apply rules during recitation without needing a separate tajweed guide.",
+    },
+    {
+      title: "How to Care for Prayer Mats and Tasbih",
+      slug: "how-to-care-for-prayer-mats-and-tasbih",
+      excerpt: "Simple tips to keep your prayer mat clean and your tasbih in good condition for years.",
+      image: demoImages.prayerMat,
+      content:
+        "Prayer mats should be shaken gently after each use and stored in a clean, dry place. For velvet mats, spot-clean with a damp cloth rather than machine washing. Wooden tasbih should be kept away from water and stored in the pouch provided to maintain the wood finish.",
     },
   ];
 
@@ -831,16 +872,21 @@ async function ensureReviewsAndOrders(
       where: and(eq(reviews.storeId, storeId), eq(reviews.productId, product.id), eq(reviews.userId, customerId)),
     });
     if (existingReview) continue;
+    const reviewContent = [
+      { title: "Excellent Quran edition", body: "The color-coded Quran arrived beautifully. The Bengali meaning is very clear and the print quality is excellent. Cash on Delivery worked smoothly." },
+      { title: "Perfect gift for my parents", body: "Gifted the Quran + tasbih box to my parents — they were very happy. The packaging was clean and professional. Will order again, in sha Allah." },
+      { title: "Quick delivery, great product", body: "Fast delivery and the Bengali Quran matched exactly what was described. Highly recommend Niyamah for Islamic essentials." },
+      { title: "Tasbih is very well made", body: "The wooden tasbih is smooth and the cord is strong. Very satisfied with the quality. Good value for the price." },
+      { title: "Prayer mat is soft and durable", body: "The velvet prayer mat is thick and comfortable. The non-slip base works well on tiles. Good quality for the price." },
+    ];
+    const rc = reviewContent[idx % reviewContent.length]!;
     await db.insert(reviews).values({
       storeId,
       productId: product.id,
       userId: customerId,
-      rating: (idx % 2 === 0 ? 5 : 4) as 4 | 5,
-      title: idx % 2 === 0 ? "Beautiful quality" : "Very useful",
-      body:
-        idx % 2 === 0
-          ? "The product looks even better in person and feels thoughtfully made."
-          : "Good finish, accurate photos, and quick delivery.",
+      rating: (idx % 5 === 3 ? 4 : 5) as 4 | 5,
+      title: rc.title,
+      body: rc.body,
       status: "APPROVED",
       verifiedPurchase: true,
     });

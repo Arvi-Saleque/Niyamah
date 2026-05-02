@@ -88,6 +88,7 @@ export interface TestimonialData {
   rating: number;
   body: string;
   location?: string;
+  purchasedItem?: string;
 }
 
 export interface TestimonialsData {
@@ -329,13 +330,15 @@ export const HOMEPAGE_DEFAULTS = {
         rating: 5,
         body: "The color-coded Quran arrived beautifully packaged. Cash on Delivery worked smoothly in Dhaka and the print quality is excellent.",
         location: "Dhaka",
+        purchasedItem: "Color-Coded Quran",
       },
       {
         id: "t2",
         name: "Tanvir Hossain",
         rating: 5,
-        body: "Gifted the premium gift box to my parents \u2014 the tasbih, prayer mat, and Quran were perfectly chosen. Will order again, in sha Allah.",
+        body: "Gifted the premium gift box to my parents — the tasbih, prayer mat, and Quran were perfectly chosen. Will order again, in sha Allah.",
         location: "Chattogram",
+        purchasedItem: "Islamic Gift Box",
       },
       {
         id: "t3",
@@ -343,6 +346,7 @@ export const HOMEPAGE_DEFAULTS = {
         rating: 5,
         body: "Quick delivery and the Bengali Quran translation matched exactly what was described. Highly recommend Niyamah for Islamic essentials.",
         location: "Sylhet",
+        purchasedItem: "Bengali Quran",
       },
     ],
   } satisfies TestimonialsData,
