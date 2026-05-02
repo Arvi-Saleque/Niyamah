@@ -48,18 +48,18 @@ export function SiteFooter() {
             <div className="mt-5 space-y-2 text-sm">
               <a
                 href={`tel:${HOTLINE.replace(/-/g, "")}`}
-                className="flex items-center gap-2 text-white/80 transition-colors hover:text-[#A6D920]"
+                className="flex items-center gap-2 text-white/80 transition-colors hover:text-[#BFE8C6]"
               >
-                <Phone className="h-4 w-4 text-[#A6D920]" />
+                <Phone className="h-4 w-4 text-[#BFE8C6]" />
                 Hotline: {HOTLINE}
               </a>
               <a
                 href={WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-white/80 transition-colors hover:text-[#A6D920]"
+                className="flex items-center gap-2 text-white/80 transition-colors hover:text-[#BFE8C6]"
               >
-                <MessageCircle className="h-4 w-4 text-[#A6D920]" />
+                <MessageCircle className="h-4 w-4 text-[#BFE8C6]" />
                 WhatsApp Order Support
               </a>
             </div>
@@ -74,7 +74,7 @@ export function SiteFooter() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors hover:border-[#A6D920] hover:text-[#A6D920]"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors hover:border-[#BFE8C6] hover:text-[#BFE8C6]"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
@@ -97,7 +97,7 @@ export function SiteFooter() {
                   <li key={href}>
                     <Link
                       href={href}
-                      className="text-sm text-white/65 transition-colors hover:text-[#A6D920]"
+                      className="text-sm text-white/65 transition-colors hover:text-[#BFE8C6]"
                     >
                       {label}
                     </Link>

@@ -18,7 +18,7 @@ export function FlashSaleSection({
   products,
   endsAt,
   durationHours,
-  title = "Today’s Best Islamic Essentials",
+  title = "Today's Best Islamic Essentials",
   stockClaimedPct,
   className,
 }: FlashSaleSectionProps) {
@@ -35,7 +35,7 @@ export function FlashSaleSection({
       <div className="grid gap-8 p-5 md:p-8 lg:grid-cols-[0.9fr,1.1fr] lg:p-10">
         <div className="flex flex-col justify-between gap-8">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#C9A24A]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#BFE8C6]">
               <Flame className="h-3.5 w-3.5" />
               Featured Collection
             </div>
@@ -57,7 +57,7 @@ export function FlashSaleSection({
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-white/[0.12]">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#C9A24A] to-[#f2d58a]"
+                  className="h-full rounded-full bg-gradient-to-r from-[#007A3D] to-[#BFE8C6]"
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -65,7 +65,7 @@ export function FlashSaleSection({
 
             <Link
               href="/products"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#C9A24A] px-6 text-sm font-semibold text-[#11160F] transition-colors hover:bg-[#A88A38]"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#007A3D] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#0A5F36]"
             >
               Shop Offers
               <ArrowRight className="h-4 w-4" />
@@ -95,14 +95,14 @@ export function FlashSaleSection({
                 />
               </div>
               <p className="mt-3 line-clamp-1 text-sm font-semibold">{product.name}</p>
-              <p className="mt-1 text-sm font-bold text-[#C9A24A]">
+              <p className="mt-1 text-sm font-bold text-[#007A3D]">
                 {formatCurrency(product.price)}
               </p>
             </Link>
           ))}
 
-          <div className="absolute right-0 top-[46%] rounded-2xl bg-[#C9A24A] px-4 py-3 text-center shadow-xl">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#11160F]/75">
+          <div className="absolute right-0 top-[46%] rounded-2xl bg-[#EAF6DD] px-4 py-3 text-center text-[#043D25] shadow-xl">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#043D25]/75">
               Up to
             </p>
             <p className="text-2xl font-black">35% Off</p>

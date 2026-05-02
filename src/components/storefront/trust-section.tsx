@@ -25,7 +25,7 @@ export function TrustSection({ className, data }: TrustSectionProps) {
   return (
     <section className={cn("space-y-5", className)}>
       <div className="text-center">
-        <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-[#C9A24A]">
+        <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-[#007A3D]">
           {d.eyebrow}
         </p>
         <h2
@@ -39,7 +39,7 @@ export function TrustSection({ className, data }: TrustSectionProps) {
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-[24px] border border-[#DED6BF] bg-white shadow-[0_18px_50px_rgba(4,61,37,0.08)]">
+      <div className="overflow-hidden rounded-[24px] border border-[#D6DDCF] bg-white shadow-[0_18px_50px_rgba(4,61,37,0.08)]">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
         {d.items.map((item) => {
           const Icon = getIcon(item.icon);
@@ -48,7 +48,7 @@ export function TrustSection({ className, data }: TrustSectionProps) {
               key={item.id}
               type="button"
               onClick={() => setOpen(item)}
-              className="group flex min-h-[152px] flex-col items-center justify-center gap-2 border-b border-r border-[#EFE6D2] p-4 text-center transition-colors hover:bg-[#FAF7EE] lg:border-b-0"
+              className="group flex min-h-[152px] flex-col items-center justify-center gap-2 border-b border-r border-[#EAF6DD] p-4 text-center transition-colors hover:bg-[#F0F5EA] lg:border-b-0"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EAF6DD] text-[#007A3D] transition-colors group-hover:bg-[#007A3D] group-hover:text-white">
                 <Icon className="h-6 w-6" />

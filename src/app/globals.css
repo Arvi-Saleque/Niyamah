@@ -4,16 +4,16 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ========================================================
-   NIYAMAH DESIGN TOKENS — premium Islamic emerald + parchment
+   NIYAMAH DESIGN TOKENS - premium Islamic emerald + parchment
    ======================================================== */
 @theme {
   /* Brand surfaces */
   --color-background: #faf7ee;
   --color-surface: #ffffff;
-  --color-surface-alt: #efe6d2;
+  --color-surface-alt: #f0f5ea;
   --color-surface-hover: #eaf6dd;
-  --color-border: #ded6bf;
-  --color-border-strong: #c9a24a;
+  --color-border: #d6ddcf;
+  --color-border-strong: #007a3d;
 
   /* Text */
   --color-text-primary: #162018;
@@ -26,8 +26,8 @@
   --color-accent-hover: #043d25;
   --color-accent-dark: #043d25;
   --color-accent-light: #eaf6dd;
-  --color-logo-lime: #a6d920;
-  --color-quran-gold: #c9a24a;
+  --color-brand-highlight: #bfe8c6;
+  --color-brand-depth: #07512f;
   --color-accent-foreground: #ffffff;
 
   /* Semantic */
@@ -136,7 +136,7 @@ a { color: inherit; }
 /* Anything with text-foreground hover or muted hover gets a visible state */
 .hover\:text-accent:hover { color: var(--color-accent) !important; }
 
-/* Site links default hover: gold underline cue */
+/* Site links default hover cue */
 nav a:not([class*="bg-"]):hover,
 header a:not([class*="bg-"]):hover {
   color: var(--color-accent);

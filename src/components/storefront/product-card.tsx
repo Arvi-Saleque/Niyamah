@@ -35,7 +35,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-[22px] border border-[#DED6BF] bg-white transition-all hover:-translate-y-1 hover:border-[#007A3D] hover:shadow-xl",
+        "group relative overflow-hidden rounded-[22px] border border-[#D6DDCF] bg-white transition-all hover:-translate-y-1 hover:border-[#007A3D] hover:shadow-xl",
         className,
       )}
     >

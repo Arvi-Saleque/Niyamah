@@ -1,6 +1,5 @@
 import { Container } from "@/components/shared/container";
 import { PremiumVisualHero } from "@/components/storefront/premium-visual-hero";
-import { SearchDiscoveryPanel } from "@/components/storefront/search-discovery-panel";
 import { ShopByNeed } from "@/components/storefront/shop-by-need";
 import { FeaturedCategories } from "@/components/storefront/featured-categories";
 import { FlashSaleSection } from "@/components/storefront/flash-sale-section";
@@ -54,32 +53,28 @@ export default async function StorefrontHomePage() {
         categories={categories}
       />
 
-      {/* === 2. Floating Search Discovery === */}
-      <Container id="discover" className="relative z-10 -mt-8 md:-mt-12">
-        <SearchDiscoveryPanel data={discovery} />
-      </Container>
-
-      {/* === 3. Trust Ribbon === */}
-      <Container className="py-8 md:py-12">
+      {/* === 2. Trust Ribbon === */}
+      <Container className="py-8 md:py-10">
         <TrustSection data={content.trust} />
       </Container>
 
       <Container className="space-y-14 py-10 md:space-y-20 md:py-14">
-        {/* === 4. Shop by Need === */}
+        {/* === 3. Shop by Need === */}
         <ShopByNeed categories={categories} />
 
-        {/* === 5. Featured Categories === */}
+        {/* === 4. Featured Categories === */}
         {categories.length > 0 && (
           <div id="categories">
             <FeaturedCategories
               categories={categories}
               title="Popular Categories"
-              subtitle="Browse the main shelves when you already know the product family."
+              subtitle="Quickly choose Quran, gift, prayer, or dhikr items."
+              variant="rail"
             />
           </div>
         )}
 
-        {/* === 6. Flash Sale === */}
+        {/* === 5. Flash Sale === */}
         {content.flashSale.enabled && bestSellers.length > 0 && (
           <div id="flash-sale">
             <FlashSaleSection
@@ -90,18 +85,18 @@ export default async function StorefrontHomePage() {
           </div>
         )}
 
-        {/* === 7. Product Tabs === */}
+        {/* === 6. Product Tabs === */}
         <HomepageProductTabs newArrivals={newArrivals} bestSellers={bestSellers} />
 
-        {/* === 8. Gift Builder === */}
+        {/* === 7. Gift Builder === */}
         {content.whatsapp.enabled && (
           <GiftBuilderSection whatsappPhone={content.whatsapp.phoneNumber} />
         )}
 
-        {/* === 9. Learn Before You Buy === */}
+        {/* === 8. Learn Before You Buy === */}
         <section className="space-y-6">
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#C9A24A]">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#007A3D]">
               Learning Guides
             </p>
             <h2 className="text-3xl font-semibold text-[#162018] md:text-4xl">
@@ -121,7 +116,7 @@ export default async function StorefrontHomePage() {
               <Link
                 key={item.title}
                 href="/blog"
-                className="group flex min-h-[200px] flex-col rounded-[24px] border border-[#DED6BF] bg-white p-5 transition-all hover:-translate-y-1 hover:border-[#007A3D] hover:shadow-lg"
+                className="group flex min-h-[200px] flex-col rounded-[24px] border border-[#D6DDCF] bg-white p-5 transition-all hover:-translate-y-1 hover:border-[#007A3D] hover:shadow-lg"
               >
                 <span className="mb-2 inline-block self-start rounded-full bg-[#EAF6DD] px-2.5 py-0.5 text-[11px] font-semibold text-[#007A3D]">
                   {item.category}
@@ -131,7 +126,7 @@ export default async function StorefrontHomePage() {
                   {item.title}
                 </h3>
                 <p className="mt-4 text-sm font-semibold text-[#007A3D] group-hover:underline">
-                  Read Guide →
+                  Read Guide -&gt;
                 </p>
               </Link>
             ))}
@@ -140,15 +135,15 @@ export default async function StorefrontHomePage() {
 
         {photoReviews.length > 0 && <PhotoReviewsStrip reviews={photoReviews} />}
 
-        {/* === 10. Customer Reviews === */}
+        {/* === 9. Customer Reviews === */}
         <TestimonialsSection testimonials={content.testimonials.items} />
 
-        {/* === 11. WhatsApp Support + Track Order === */}
+        {/* === 10. WhatsApp Support + Track Order === */}
         {content.whatsapp.enabled && (
-          <section className="relative overflow-hidden rounded-3xl border border-[#0A2418] bg-gradient-to-br from-[#043D25] via-[#0A4D2E] to-[#11160F] p-8 text-white md:p-12">
+          <section className="relative overflow-hidden rounded-3xl border border-[#0A2418] bg-gradient-to-br from-[#043D25] via-[#07512F] to-[#11160F] p-8 text-white md:p-12">
             <div className="relative grid items-center gap-8 md:grid-cols-2">
               <div>
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#25D366]/20 px-3 py-1 text-xs font-semibold text-[#A6D920]">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-[#BFE8C6]">
                   <MessageCircle className="h-3 w-3" /> WhatsApp + Track Order
                 </div>
                 <h2
@@ -172,7 +167,7 @@ export default async function StorefrontHomePage() {
                       href={`https://wa.me/${content.whatsapp.phoneNumber}?text=${encodeURIComponent(chip)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur transition-colors hover:border-[#A6D920] hover:text-[#A6D920]"
+                      className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur transition-colors hover:border-[#BFE8C6] hover:text-[#BFE8C6]"
                     >
                       {chip}
                     </a>
@@ -184,7 +179,7 @@ export default async function StorefrontHomePage() {
                   href={`https://wa.me/${content.whatsapp.phoneNumber}?text=${encodeURIComponent(content.whatsapp.defaultMessage)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:bg-[#1DAE54]"
+                  className="flex items-center justify-center gap-2 rounded-full bg-[#007A3D] px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:bg-[#0A5F36]"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Chat on WhatsApp
@@ -201,7 +196,7 @@ export default async function StorefrontHomePage() {
           </section>
         )}
 
-        {/* === 12. Newsletter === */}
+        {/* === 11. Newsletter === */}
         <NewsletterSubscribe />
       </Container>
     </div>

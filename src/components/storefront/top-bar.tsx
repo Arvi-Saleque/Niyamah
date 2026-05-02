@@ -37,7 +37,7 @@ export function TopBar({ className, phone, items }: TopBarProps) {
                   key={i}
                 className="flex items-center gap-2 font-medium tracking-wide opacity-90"
               >
-                  <Icon className="h-3 w-3 text-[#A6D920]" />
+                  <Icon className="h-3 w-3 text-[#BFE8C6]" />
                   {item.text}
                 </span>
               );

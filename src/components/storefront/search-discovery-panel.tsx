@@ -11,6 +11,7 @@ import { HOMEPAGE_DEFAULTS, type DiscoveryData } from "@/modules/storefront/home
 interface SearchDiscoveryPanelProps {
   className?: string;
   data?: DiscoveryData;
+  variant?: "standalone" | "hero";
 }
 
 interface AutocompleteData {
@@ -28,8 +29,13 @@ interface AutocompleteData {
 }
 
 /** Hero-adjacent search panel with live autocomplete + trending chips. */
-export function SearchDiscoveryPanel({ className, data }: SearchDiscoveryPanelProps) {
+export function SearchDiscoveryPanel({
+  className,
+  data,
+  variant = "standalone",
+}: SearchDiscoveryPanelProps) {
   const d = data ?? HOMEPAGE_DEFAULTS.discovery;
+  const isHero = variant === "hero";
   const router = useRouter();
   const [value, setValue] = useState("");
   const [suggestions, setSuggestions] = useState<AutocompleteData | null>(null);
@@ -92,49 +98,76 @@ export function SearchDiscoveryPanel({ className, data }: SearchDiscoveryPanelPr
   return (
     <section
       className={cn(
-        "relative mx-auto max-w-5xl overflow-visible rounded-[28px] border border-[#e8d9be] bg-white p-5 shadow-[0_24px_70px_rgba(75,54,24,0.14)] md:p-7",
+        isHero
+          ? "relative overflow-visible rounded-[24px] border border-[#D6DDCF] bg-white/92 p-3 shadow-[0_16px_40px_rgba(4,61,37,0.12)] backdrop-blur md:p-4"
+          : "relative mx-auto max-w-5xl overflow-visible rounded-[28px] border border-[#D6DDCF] bg-white p-5 shadow-[0_24px_70px_rgba(4,61,37,0.13)] md:p-7",
         className,
       )}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[var(--color-accent)]" />
-      <div className="pointer-events-none absolute bottom-0 left-0 h-20 w-full bg-[linear-gradient(135deg,transparent_0%,transparent_55%,rgba(184,137,61,0.12)_55%,rgba(184,137,61,0.12)_100%)]" />
+      {!isHero && (
+        <div className="pointer-events-none absolute bottom-0 left-0 h-20 w-full bg-[linear-gradient(135deg,transparent_0%,transparent_55%,rgba(0,122,61,0.08)_55%,rgba(0,122,61,0.08)_100%)]" />
+      )}
 
-      <div className="relative mx-auto max-w-4xl text-center">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-[#9a7029]">
+      <div className={cn("relative mx-auto max-w-4xl", isHero ? "text-left" : "text-center")}>
+        <p
+          className={cn(
+            "text-xs font-semibold uppercase text-[#007A3D]",
+            isHero ? "mb-1 tracking-[0.18em]" : "mb-2 tracking-[0.3em]",
+          )}
+        >
           {d.eyebrow}
         </p>
         <h2
-          className="mb-2 text-2xl font-semibold text-[#1c1710] md:text-3xl"
+          className={cn(
+            "font-semibold text-[#162018]",
+            isHero ? "text-lg md:text-xl" : "mb-2 text-2xl md:text-3xl",
+          )}
           style={{ fontFamily: "var(--font-heading)" }}
         >
           {d.title}
         </h2>
-        <p className="mb-6 text-sm text-[#7a6a55]">{d.subtitle}</p>
+        <p className={cn("text-sm text-[#687464]", isHero ? "mt-1" : "mb-6")}>
+          {d.subtitle}
+        </p>
 
-        <div ref={containerRef} className="relative mx-auto max-w-3xl">
+        <div
+          ref={containerRef}
+          className={cn("relative mx-auto max-w-3xl", isHero ? "mt-3 max-w-none" : "")}
+        >
           <form
             onSubmit={(e) => {
               e.preventDefault();
               go(value);
             }}
-            className="relative flex"
+            className={cn(isHero ? "flex flex-col gap-2 sm:flex-row" : "relative flex")}
           >
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--color-text-muted)]" />
-            <input
-              value={value}
-              onChange={(e) => {
-                setValue(e.target.value);
-                setOpen(true);
-              }}
-              onFocus={() => setOpen(true)}
-              type="search"
-              placeholder={d.placeholder}
-              autoComplete="off"
-              className="h-14 w-full rounded-full border border-[#e1d2b7] bg-[#fbf7ef] pl-12 pr-32 text-sm shadow-sm outline-none transition-all focus:border-[#c6923a] focus:ring-2 focus:ring-[#c6923a]/20"
-            />
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--color-text-muted)]" />
+              <input
+                value={value}
+                onChange={(e) => {
+                  setValue(e.target.value);
+                  setOpen(true);
+                }}
+                onFocus={() => setOpen(true)}
+                type="search"
+                placeholder={d.placeholder}
+                autoComplete="off"
+                className={cn(
+                  "w-full rounded-full border border-[#D6DDCF] bg-[#FAF7EE] pl-12 text-sm shadow-sm outline-none transition-all focus:border-[#007A3D] focus:ring-2 focus:ring-[#007A3D]/20",
+                  isHero ? "h-12 pr-4" : "h-14 pr-32",
+                )}
+              />
+            </div>
             <button
               type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-[#c6923a] px-5 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-[#9a7029]"
+              className={cn(
+                "rounded-full bg-[#007A3D] text-sm font-semibold text-white shadow transition-colors hover:bg-[#043D25]",
+                isHero
+                  ? "h-12 px-5 sm:w-auto"
+                  : "absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5",
+              )}
             >
               Search
             </button>
@@ -145,7 +178,7 @@ export function SearchDiscoveryPanel({ className, data }: SearchDiscoveryPanelPr
             <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white text-left shadow-xl">
               {loading && (
                 <div className="flex items-center gap-2 p-4 text-xs text-[var(--color-text-muted)]">
-                  <Loader2 className="h-3 w-3 animate-spin" /> Searching…
+                  <Loader2 className="h-3 w-3 animate-spin" /> Searching...
                 </div>
               )}
 
@@ -254,18 +287,23 @@ export function SearchDiscoveryPanel({ className, data }: SearchDiscoveryPanelPr
                   onClick={() => go(value)}
                   className="block w-full border-t border-[var(--color-border)] bg-[var(--color-surface-alt)] px-4 py-2 text-center text-xs font-semibold text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10"
                 >
-                  See all results for &ldquo;{value}&rdquo; →
+                  See all results for &ldquo;{value}&rdquo; -&gt;
                 </button>
               )}
             </div>
           )}
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+        <div
+          className={cn(
+            "flex flex-wrap items-center gap-2",
+            isHero ? "mt-3 justify-start" : "mt-6 justify-center",
+          )}
+        >
           <span className="flex items-center gap-1 text-xs font-medium text-[var(--color-text-muted)]">
             <TrendingUp className="h-3 w-3" /> Trending:
           </span>
-          {d.trending.map((q) => (
+          {(isHero ? d.trending.slice(0, 4) : d.trending).map((q) => (
             <button
               key={q}
               type="button"

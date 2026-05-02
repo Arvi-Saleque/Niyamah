@@ -28,7 +28,7 @@ export function TestimonialsSection({
   return (
     <section className={cn("grid gap-6 lg:grid-cols-[320px,1fr]", className)}>
       <div className="rounded-[28px] bg-[#043D25] p-6 text-white">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A24A]">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#BFE8C6]">
           Customer Love
         </p>
         <h2 className="text-3xl font-semibold text-white">{title}</h2>
@@ -37,7 +37,7 @@ export function TestimonialsSection({
             <span className="text-6xl font-semibold leading-none">4.8</span>
             <span className="pb-2 text-sm text-white/65">/ 5</span>
           </div>
-          <div className="mt-3 flex gap-1 text-[#C9A24A]">
+          <div className="mt-3 flex gap-1 text-[#BFE8C6]">
             {Array.from({ length: 5 }).map((_, index) => (
               <Star key={index} className="h-5 w-5 fill-current" />
             ))}
@@ -56,7 +56,7 @@ export function TestimonialsSection({
         {testimonials.map((t) => {
           const initials = t.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
           return (
-            <div key={t.id} className="space-y-4 rounded-[24px] border border-[#DED6BF] bg-white p-5 shadow-sm">
+            <div key={t.id} className="space-y-4 rounded-[24px] border border-[#D6DDCF] bg-white p-5 shadow-sm">
               <RatingStars rating={t.rating} showCount={false} size="sm" />
               <p className="text-sm leading-6 text-[#162018]">&ldquo;{t.body}&rdquo;</p>
               <div className="flex items-center gap-2 pt-1">

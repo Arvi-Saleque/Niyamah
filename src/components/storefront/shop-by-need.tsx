@@ -58,7 +58,7 @@ export function ShopByNeed({ className, categories = [] }: ShopByNeedProps) {
     <section className={cn("space-y-7", className)}>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#C9A24A]">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#007A3D]">
             Peaceful Shopping
           </p>
           <h2
@@ -87,11 +87,11 @@ export function ShopByNeed({ className, categories = [] }: ShopByNeedProps) {
             key={label}
             href={href}
             className={cn(
-              "group relative overflow-hidden rounded-[28px] border border-[#e8d9be] bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl",
+              "group relative overflow-hidden rounded-[28px] border border-[#D6DDCF] bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-[#007A3D] hover:shadow-xl",
               featured && "sm:row-span-2",
               wide && "lg:col-span-2 lg:row-span-1",
-              index === 0 && "border-[#A0D020]/60 bg-[#F7FBEF]",
-              index === 3 && "border-[#C9A24A]/60 bg-[#FBF7EE]",
+              index === 0 && "border-[#007A3D]/35 bg-[#F7FBEF]",
+              index === 3 && "border-[#007A3D]/25 bg-[#FBF7EE]",
             )}
           >
             {image && (
@@ -110,7 +110,7 @@ export function ShopByNeed({ className, categories = [] }: ShopByNeedProps) {
               <span
                 className={cn(
                   "absolute right-4 top-4 z-10 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow",
-                  index === 3 ? "bg-[#C9A24A]" : "bg-[#006B3A]"
+                  "bg-[#007A3D]"
                 )}
               >
                 {badge}

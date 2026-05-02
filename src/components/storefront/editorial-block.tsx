@@ -57,7 +57,7 @@ export function EditorialBlock({ className, data, images = [] }: EditorialBlockP
 
               <div className="relative text-white">
                 <p
-                  className="text-xs font-semibold uppercase tracking-[0.25em] text-[#f2d58a]"
+                  className="text-xs font-semibold uppercase tracking-[0.25em] text-[#BFE8C6]"
                 >
                   {card.eyebrow}
                 </p>
@@ -74,7 +74,7 @@ export function EditorialBlock({ className, data, images = [] }: EditorialBlockP
                 <div
                   className={cn(
                     "mt-4 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-all group-hover:gap-3",
-                    isDark ? "bg-white text-[#1c1710]" : "bg-[#c6923a] text-white"
+                    isDark ? "bg-white text-[#162018]" : "bg-[#007A3D] text-white"
                   )}
                 >
                   {card.cta}

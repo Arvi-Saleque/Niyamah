@@ -200,7 +200,7 @@ export function AssistantDrawer({
             onClick={() =>
               sendToWhatsApp("Hi Niyamah, I'd like help choosing a product.")
             }
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-2 text-xs font-semibold text-white transition-colors hover:bg-[#1DAE54]"
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-[#007A3D] py-2 text-xs font-semibold text-white transition-colors hover:bg-[#043D25]"
           >
             <MessageCircle className="h-3.5 w-3.5" /> Continue on WhatsApp
           </button>

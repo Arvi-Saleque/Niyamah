@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,14 +19,6 @@ export function WhatsAppFloat({
   className,
 }: WhatsAppFloatProps) {
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  // Avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
 
   const waUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
@@ -35,7 +27,7 @@ export function WhatsAppFloat({
       {open && (
         <div className="w-72 origin-bottom-right animate-in fade-in slide-in-from-bottom-4 duration-200 rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-2xl">
           <div className="mb-3 flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#007A3D] text-white">
               <MessageCircle className="h-5 w-5" />
             </div>
             <div className="flex-1">
@@ -62,7 +54,7 @@ export function WhatsAppFloat({
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-lg bg-[#25D366] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1DAE54]"
+            className="flex items-center justify-center gap-2 rounded-lg bg-[#007A3D] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#043D25]"
           >
             <MessageCircle className="h-4 w-4" />
             Start WhatsApp Chat
@@ -73,10 +65,10 @@ export function WhatsAppFloat({
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="Open WhatsApp chat"
-        className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl"
+        className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-[#007A3D] text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl"
       >
         {!open && (
-          <span className="absolute inset-0 animate-ping rounded-full bg-[#25D366] opacity-30" />
+          <span className="absolute inset-0 animate-ping rounded-full bg-[#007A3D] opacity-30" />
         )}
         {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
       </button>

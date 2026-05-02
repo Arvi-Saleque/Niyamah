@@ -10,7 +10,7 @@ interface BudgetChip {
 }
 
 const DEFAULT_CHIPS: BudgetChip[] = [
-  { label: "Under ৳499", href: "/products?max=499", badge: "Steal" },
+  { label: "Under ৳499", href: "/products?max=499", badge: "Value" },
   { label: "Under ৳999", href: "/products?max=999", highlight: true },
   { label: "Under ৳1,499", href: "/products?max=1499" },
   { label: "Under ৳2,499", href: "/products?max=2499" },
