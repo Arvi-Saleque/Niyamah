@@ -4,22 +4,16 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Search, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const TRENDING_QUERIES = [
-  "Eid outfit",
-  "Gift under ৳1000",
-  "New arrivals",
-  "Premium picks",
-  "Home decor",
-  "Best sellers",
-];
+import { HOMEPAGE_DEFAULTS, type DiscoveryData } from "@/modules/storefront/homepage-content";
 
 interface SearchDiscoveryPanelProps {
   className?: string;
+  data?: DiscoveryData;
 }
 
 /** Hero-adjacent search panel with trending search chips. */
-export function SearchDiscoveryPanel({ className }: SearchDiscoveryPanelProps) {
+export function SearchDiscoveryPanel({ className, data }: SearchDiscoveryPanelProps) {
+  const d = data ?? HOMEPAGE_DEFAULTS.discovery;
   const router = useRouter();
   const [value, setValue] = useState("");
 
@@ -42,16 +36,16 @@ export function SearchDiscoveryPanel({ className }: SearchDiscoveryPanelProps) {
 
       <div className="relative mx-auto max-w-3xl text-center">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--color-accent)]">
-          Discover
+          {d.eyebrow}
         </p>
         <h2
           className="mb-2 text-2xl font-semibold md:text-3xl"
           style={{ fontFamily: "var(--font-heading)" }}
         >
-          What are you looking for today?
+          {d.title}
         </h2>
         <p className="mb-6 text-sm text-[var(--color-text-secondary)]">
-          Search across 1,000+ products — apparel, gifts, home & more.
+          {d.subtitle}
         </p>
 
         <form
@@ -66,7 +60,7 @@ export function SearchDiscoveryPanel({ className }: SearchDiscoveryPanelProps) {
             value={value}
             onChange={(e) => setValue(e.target.value)}
             type="search"
-            placeholder="Search dress, gift, skincare, decor…"
+            placeholder={d.placeholder}
             className="h-14 w-full rounded-full border border-[var(--color-border)] bg-white pl-12 pr-32 text-sm shadow-sm outline-none transition-all focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20"
           />
           <button
@@ -81,7 +75,7 @@ export function SearchDiscoveryPanel({ className }: SearchDiscoveryPanelProps) {
           <span className="flex items-center gap-1 text-xs font-medium text-[var(--color-text-muted)]">
             <TrendingUp className="h-3 w-3" /> Trending:
           </span>
-          {TRENDING_QUERIES.map((q) => (
+          {d.trending.map((q) => (
             <button
               key={q}
               type="button"

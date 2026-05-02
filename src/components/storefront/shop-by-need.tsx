@@ -1,53 +1,39 @@
 import Link from "next/link";
-import { Sparkles, Gift, Briefcase, Home, Tag, Crown, Heart, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface NeedTile {
-  label: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: string;
-  tone?: "default" | "accent" | "danger";
-}
-
-const NEED_TILES: NeedTile[] = [
-  { label: "For Daily Use", href: "/products?intent=daily", icon: ShoppingBag },
-  { label: "For Eid", href: "/products?intent=eid", icon: Sparkles, tone: "accent", badge: "Hot" },
-  { label: "Gift Ideas", href: "/products?intent=gift", icon: Gift },
-  { label: "For Office", href: "/products?intent=office", icon: Briefcase },
-  { label: "For Home", href: "/products?intent=home", icon: Home },
-  { label: "Under ৳999", href: "/products?max=999", icon: Tag, tone: "danger", badge: "Save" },
-  { label: "Premium Picks", href: "/products?premium=1", icon: Crown, tone: "accent" },
-  { label: "Loved by All", href: "/products?sort=rating", icon: Heart },
-];
+import { getIcon } from "@/lib/icon-registry";
+import { HOMEPAGE_DEFAULTS, type NeedsData } from "@/modules/storefront/homepage-content";
 
 interface ShopByNeedProps {
   className?: string;
+  data?: NeedsData;
 }
 
 /** Intent-driven category pills that go beyond the standard product taxonomy. */
-export function ShopByNeed({ className }: ShopByNeedProps) {
+export function ShopByNeed({ className, data }: ShopByNeedProps) {
+  const d = data ?? HOMEPAGE_DEFAULTS.needs;
   return (
     <section className={cn("space-y-6", className)}>
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--color-accent)]">
-            Smart Shopping
+            {d.eyebrow}
           </p>
           <h2
             className="text-2xl font-semibold md:text-3xl"
             style={{ fontFamily: "var(--font-heading)" }}
           >
-            Shop by Need
+            {d.title}
           </h2>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-            Don&rsquo;t know the category? Pick the moment.
+            {d.subtitle}
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-        {NEED_TILES.map(({ label, href, icon: Icon, tone, badge }) => (
+        {d.tiles.map(({ label, href, icon, tone, badge }) => {
+          const Icon = getIcon(icon);
+          return (
           <Link
             key={label}
             href={href}
@@ -87,7 +73,8 @@ export function ShopByNeed({ className }: ShopByNeedProps) {
               {label}
             </span>
           </Link>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

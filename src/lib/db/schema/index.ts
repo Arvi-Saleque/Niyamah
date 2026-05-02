@@ -111,6 +111,27 @@ export const campaignStatusEnum = pgEnum("campaign_status", [
 export const couponStatusEnum = pgEnum("coupon_status", ["active", "inactive"]);
 
 // ─────────────────────────────────────────────
+// Homepage / CMS Blocks
+// ─────────────────────────────────────────────
+
+export const homepageBlocks = pgTable(
+  "homepage_blocks",
+  {
+    id: serial("id").primaryKey(),
+    storeId: integer("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    blockKey: varchar("block_key", { length: 64 }).notNull(),
+    data: json("data").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    uniq: uniqueIndex("homepage_blocks_store_key_uniq").on(t.storeId, t.blockKey),
+  }),
+);
+
+// ─────────────────────────────────────────────
 // Store & Tenant
 // ─────────────────────────────────────────────
 

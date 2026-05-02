@@ -1,78 +1,36 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface EditorialCard {
-  eyebrow: string;
-  title: string;
-  description: string;
-  href: string;
-  cta: string;
-  /** CSS gradient string for background */
-  gradient: string;
-  /** Optional product/category emoji or short label as decoration */
-  decoration?: string;
-}
-
-const CARDS: EditorialCard[] = [
-  {
-    eyebrow: "The Edit",
-    title: "Everyday Essentials",
-    description:
-      "Soft, breathable, made to last. Pieces that earn their place in your wardrobe — every single day.",
-    href: "/category/apparel",
-    cta: "Shop Essentials",
-    gradient: "from-[#f3efe6] via-[#ebe5d6] to-[#e2dccc]",
-    decoration: "ESSENTIALS",
-  },
-  {
-    eyebrow: "Wrap & Send",
-    title: "Gift Collection",
-    description:
-      "Thoughtful choices, beautifully packaged. Curated gifts for birthdays, weddings, and every reason in between.",
-    href: "/products?intent=gift",
-    cta: "Find a Gift",
-    gradient: "from-[#e8d5a8] via-[#d4ba85] to-[#b8893d]",
-    decoration: "GIFT",
-  },
-  {
-    eyebrow: "Top Shelf",
-    title: "Premium Picks",
-    description:
-      "When good isn&rsquo;t good enough. Our finest craftsmanship, finest fabrics, finest finishes — for moments that matter.",
-    href: "/products?premium=1",
-    cta: "Explore Premium",
-    gradient: "from-[#1a1814] via-[#3a342a] to-[#7d5b22]",
-    decoration: "PREMIUM",
-  },
-];
+import { HOMEPAGE_DEFAULTS, type EditorialData } from "@/modules/storefront/homepage-content";
 
 interface EditorialBlockProps {
   className?: string;
+  data?: EditorialData;
 }
 
 /** Brand-story editorial 3-card section — premium magazine-feel storytelling. */
-export function EditorialBlock({ className }: EditorialBlockProps) {
+export function EditorialBlock({ className, data }: EditorialBlockProps) {
+  const d = data ?? HOMEPAGE_DEFAULTS.editorial;
   return (
     <section className={cn("space-y-6", className)}>
       <div className="text-center">
         <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--color-accent)]">
-          The Niyamah Edit
+          {d.eyebrow}
         </p>
         <h2
           className="text-2xl font-semibold md:text-3xl"
           style={{ fontFamily: "var(--font-heading)" }}
         >
-          Curated Collections
+          {d.title}
         </h2>
         <p className="mx-auto mt-1 max-w-xl text-sm text-[var(--color-text-secondary)]">
-          More than products — stories you wear, gifts you give, moments you keep.
+          {d.subtitle}
         </p>
       </div>
 
       <div className="grid gap-5 md:grid-cols-3">
-        {CARDS.map((card, idx) => {
-          const isDark = idx === 2;
+        {d.cards.map((card, idx) => {
+          const isDark = card.isDark ?? idx === 2;
           return (
             <Link
               key={card.title}

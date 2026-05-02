@@ -1,24 +1,19 @@
-import { Truck, ShieldCheck, RefreshCcw, MessageCircle, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getIcon } from "@/lib/icon-registry";
+import { HOMEPAGE_DEFAULTS, type TickerItem } from "@/modules/storefront/homepage-content";
 
 interface TopBarProps {
   className?: string;
   /** Phone shown on the right (desktop only) */
   phone?: string;
+  items?: TickerItem[];
 }
 
-const TICKER_ITEMS = [
-  { icon: Truck, text: "Free delivery on orders over ৳2,000" },
-  { icon: CreditCard, text: "Cash on Delivery available nationwide" },
-  { icon: RefreshCcw, text: "7-day hassle-free returns" },
-  { icon: MessageCircle, text: "WhatsApp support 9 AM – 11 PM" },
-  { icon: ShieldCheck, text: "100% secure checkout" },
-];
-
 /** Slim animated announcement bar: trust ticker + optional contact phone. */
-export function TopBar({ className, phone }: TopBarProps) {
+export function TopBar({ className, phone, items }: TopBarProps) {
+  const tickerItems = items?.length ? items : HOMEPAGE_DEFAULTS.ticker.items;
   // Duplicate items so the marquee loop appears seamless
-  const loop = [...TICKER_ITEMS, ...TICKER_ITEMS];
+  const loop = [...tickerItems, ...tickerItems];
 
   return (
     <div
@@ -35,15 +30,18 @@ export function TopBar({ className, phone }: TopBarProps) {
           <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-8 bg-gradient-to-l from-[var(--color-text-primary)] to-transparent" />
 
           <div className="flex w-max gap-10 animate-marquee whitespace-nowrap">
-            {loop.map(({ icon: Icon, text }, i) => (
-              <span
-                key={i}
-                className="flex items-center gap-2 font-medium tracking-wide opacity-90"
-              >
-                <Icon className="h-3 w-3 text-[var(--color-accent-light)]" />
-                {text}
-              </span>
-            ))}
+            {loop.map((item, i) => {
+              const Icon = getIcon(item.icon);
+              return (
+                <span
+                  key={i}
+                  className="flex items-center gap-2 font-medium tracking-wide opacity-90"
+                >
+                  <Icon className="h-3 w-3 text-[var(--color-accent-light)]" />
+                  {item.text}
+                </span>
+              );
+            })}
           </div>
         </div>
 

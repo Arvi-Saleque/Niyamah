@@ -18,6 +18,7 @@ import {
   BookOpen,
   Truck,
   Percent,
+  Layout,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -25,6 +26,7 @@ import { Logo } from "@/components/shared/logo";
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Homepage", href: "/admin/homepage", icon: Layout },
   { label: "Products", href: "/admin/products", icon: Package },
   { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { label: "Customers", href: "/admin/customers", icon: Users },
