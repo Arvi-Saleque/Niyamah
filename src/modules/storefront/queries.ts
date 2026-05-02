@@ -206,10 +206,11 @@ export async function listProductsForGrid(opts: {
     conds.push(eq(products.brandId, b.id));
   }
 
-  const [{ total: totalCount }] = await db
+  const [countRow] = await db
     .select({ total: count() })
     .from(products)
     .where(and(...conds));
+  const totalCount = countRow?.total ?? 0;
 
   const rows = await db
     .select()

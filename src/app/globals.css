@@ -149,3 +149,20 @@ header a:not([class*="bg-"]):hover {
 .image-zoom { overflow: hidden; }
 .image-zoom img { transition: transform .5s ease; }
 .image-zoom:hover img { transform: scale(1.05); }
+
+/* ========================================================
+   ANIMATIONS — homepage marquee/ticker, fade-ins
+   ======================================================== */
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee-x 30s linear infinite;
+}
+.animate-marquee:hover { animation-play-state: paused; }
+
+/* Hide scrollbar but allow scrolling — used on horizontal pill rows */
+.scrollbar-thin::-webkit-scrollbar { height: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; border: none; }

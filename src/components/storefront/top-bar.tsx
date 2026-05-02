@@ -1,54 +1,61 @@
+import { Truck, ShieldCheck, RefreshCcw, MessageCircle, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Phone, Mail } from "lucide-react";
 
 interface TopBarProps {
   className?: string;
-  promoText?: string;
+  /** Phone shown on the right (desktop only) */
   phone?: string;
-  email?: string;
 }
 
-/** Slim announcement / contact bar above the main header. Admin-configurable promo text. */
-export function TopBar({
-  className,
-  promoText = "Free delivery on orders above ৳1,000 | Cash on Delivery available",
-  phone,
-  email,
-}: TopBarProps) {
+const TICKER_ITEMS = [
+  { icon: Truck, text: "Free delivery on orders over ৳2,000" },
+  { icon: CreditCard, text: "Cash on Delivery available nationwide" },
+  { icon: RefreshCcw, text: "7-day hassle-free returns" },
+  { icon: MessageCircle, text: "WhatsApp support 9 AM – 11 PM" },
+  { icon: ShieldCheck, text: "100% secure checkout" },
+];
+
+/** Slim animated announcement bar: trust ticker + optional contact phone. */
+export function TopBar({ className, phone }: TopBarProps) {
+  // Duplicate items so the marquee loop appears seamless
+  const loop = [...TICKER_ITEMS, ...TICKER_ITEMS];
+
   return (
     <div
       className={cn(
-        "border-b border-[var(--color-border)] bg-[var(--color-text-primary)] text-white",
-        className,
+        "relative overflow-hidden border-b border-[var(--color-border)] bg-[var(--color-text-primary)] text-white",
+        className
       )}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5 text-xs sm:px-6 lg:px-8">
-        {/* Promo text */}
-        <p className="line-clamp-1 text-center font-medium tracking-wide opacity-90 sm:text-left">
-          {promoText}
-        </p>
+      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2 text-xs sm:px-6 lg:px-8">
+        {/* Ticker */}
+        <div className="relative flex-1 overflow-hidden">
+          {/* Edge fades */}
+          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-8 bg-gradient-to-r from-[var(--color-text-primary)] to-transparent" />
+          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-8 bg-gradient-to-l from-[var(--color-text-primary)] to-transparent" />
 
-        {/* Contact links — hidden on mobile */}
-        <div className="hidden items-center gap-4 sm:flex">
-          {phone && (
-            <a
-              href={`tel:${phone}`}
-              className="flex items-center gap-1 opacity-80 transition-opacity hover:opacity-100"
-            >
-              <Phone className="h-3 w-3" />
-              {phone}
-            </a>
-          )}
-          {email && (
-            <a
-              href={`mailto:${email}`}
-              className="flex items-center gap-1 opacity-80 transition-opacity hover:opacity-100"
-            >
-              <Mail className="h-3 w-3" />
-              {email}
-            </a>
-          )}
+          <div className="flex w-max gap-10 animate-marquee whitespace-nowrap">
+            {loop.map(({ icon: Icon, text }, i) => (
+              <span
+                key={i}
+                className="flex items-center gap-2 font-medium tracking-wide opacity-90"
+              >
+                <Icon className="h-3 w-3 text-[var(--color-accent-light)]" />
+                {text}
+              </span>
+            ))}
+          </div>
         </div>
+
+        {/* Contact phone — desktop only */}
+        {phone && (
+          <a
+            href={`tel:${phone}`}
+            className="hidden shrink-0 items-center gap-1 opacity-80 transition-opacity hover:opacity-100 sm:flex"
+          >
+            📞 {phone}
+          </a>
+        )}
       </div>
     </div>
   );
