@@ -4,29 +4,30 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ========================================================
-   NIYAMAH DESIGN TOKENS — single source of truth
-   Premium ivory + warm gold palette
+   NIYAMAH DESIGN TOKENS — premium Islamic emerald + parchment
    ======================================================== */
 @theme {
   /* Brand surfaces */
-  --color-background: #faf8f3;
+  --color-background: #faf7ee;
   --color-surface: #ffffff;
-  --color-surface-alt: #f3efe6;
-  --color-surface-hover: #ebe5d6;
-  --color-border: #e2dccc;
-  --color-border-strong: #c9c0a8;
+  --color-surface-alt: #efe6d2;
+  --color-surface-hover: #eaf6dd;
+  --color-border: #ded6bf;
+  --color-border-strong: #c9a24a;
 
   /* Text */
-  --color-text-primary: #1a1814;
-  --color-text-secondary: #5d564a;
-  --color-text-muted: #8a8270;
-  --color-text-inverse: #faf8f3;
+  --color-text-primary: #162018;
+  --color-text-secondary: #3d4a3d;
+  --color-text-muted: #687464;
+  --color-text-inverse: #faf7ee;
 
-  /* Brand accent — warm gold */
-  --color-accent: #b8893d;
-  --color-accent-hover: #9a7029;
-  --color-accent-dark: #7d5b22;
-  --color-accent-light: #e8d5a8;
+  /* Brand accents */
+  --color-accent: #007a3d;
+  --color-accent-hover: #043d25;
+  --color-accent-dark: #043d25;
+  --color-accent-light: #eaf6dd;
+  --color-logo-lime: #a6d920;
+  --color-quran-gold: #c9a24a;
   --color-accent-foreground: #ffffff;
 
   /* Semantic */
@@ -40,8 +41,8 @@
   --color-info-bg: #e1ecfd;
 
   /* Typography */
-  --font-heading: "Playfair Display", Georgia, serif;
-  --font-body: "Inter", "Geist", system-ui, sans-serif;
+  --font-heading: "Noto Serif Bengali", "Noto Serif", Georgia, serif;
+  --font-body: "Hind Siliguri", "Noto Sans Bengali", "Inter", "Geist", system-ui, sans-serif;
 
   /* Radii */
   --radius: 10px;

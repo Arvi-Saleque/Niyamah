@@ -27,12 +27,14 @@ export function NewsletterBox({ onSubscribe, className }: NewsletterBoxProps) {
   };
 
   return (
-    <div className={cn("rounded-2xl bg-[var(--color-accent)] px-8 py-10 text-center text-white", className)}>
-      <Mail className="mx-auto mb-4 h-8 w-8 opacity-80" />
-      <h3 className="font-heading text-2xl font-bold">Stay in the Loop</h3>
-      <p className="mt-1 text-sm opacity-80">Get exclusive deals and new arrivals straight to your inbox.</p>
+    <div className={cn("rounded-2xl bg-[#007A3D] px-8 py-10 text-center text-white", className)}>
+      <Mail className="mx-auto mb-4 h-8 w-8 text-[#A6D920]" />
+      <h3 className="font-heading text-2xl font-bold">Join the Niyamah List</h3>
+      <p className="mt-1 text-sm text-white/85">
+        Get Quran arrivals, Islamic gift ideas, and special offers directly.
+      </p>
       {done ? (
-        <p className="mt-6 font-medium">🎉 You&rsquo;re subscribed!</p>
+        <p className="mt-6 font-medium">JazakAllahu Khairan &mdash; you&rsquo;re subscribed.</p>
       ) : (
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Input
@@ -41,13 +43,14 @@ export function NewsletterBox({ onSubscribe, className }: NewsletterBoxProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="h-11 w-full max-w-xs border-white/30 bg-white/10 text-white placeholder:text-white/60 focus:border-white"
+            className="h-11 w-full max-w-xs border-white/30 bg-white/10 text-white placeholder:text-white/60 focus:border-[#A6D920]"
           />
-          <Button type="submit" disabled={loading} className="h-11 bg-white text-[var(--color-accent)] hover:bg-white/90">
+          <Button type="submit" disabled={loading} className="h-11 bg-[#FAF7EE] text-[#043D25] hover:bg-white">
             {loading ? "…" : "Subscribe"}
           </Button>
         </form>
       )}
+      <p className="mt-4 text-xs text-white/65">No spam. Only meaningful updates.</p>
     </div>
   );
 }

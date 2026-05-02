@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 
 interface CountdownTimerProps {
   /** ISO string or Date object for the end time */
-  endsAt: string | Date;
+  endsAt?: string | Date;
+  /** Alternative to endsAt: count down from now for this many hours. */
+  durationHours?: number;
   className?: string;
   /** Called when the countdown reaches zero */
   onExpire?: () => void;
@@ -28,6 +30,12 @@ function getTimeLeft(endsAt: Date): TimeLeft {
   };
 }
 
+function resolveEndDate(endsAt?: string | Date, durationHours?: number) {
+  if (endsAt instanceof Date) return endsAt;
+  if (typeof endsAt === "string") return new Date(endsAt);
+  return new Date(Date.now() + (durationHours ?? 24) * 60 * 60 * 1000);
+}
+
 function Digit({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center">
@@ -42,9 +50,14 @@ function Digit({ value, label }: { value: number; label: string }) {
 }
 
 /** Live dd:hh:mm:ss countdown blocks — used in flash sale sections. */
-export function CountdownTimer({ endsAt, className, onExpire }: CountdownTimerProps) {
-  const end = endsAt instanceof Date ? endsAt : new Date(endsAt);
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(getTimeLeft(end));
+export function CountdownTimer({
+  endsAt,
+  durationHours,
+  className,
+  onExpire,
+}: CountdownTimerProps) {
+  const [end] = useState(() => resolveEndDate(endsAt, durationHours));
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => getTimeLeft(end));
   const [expired, setExpired] = useState(false);
 
   useEffect(() => {

@@ -10,10 +10,10 @@ import { cn } from "@/lib/utils";
 export type ProductTabKey = "new" | "best" | "trending" | "viewed";
 
 const TABS: { id: ProductTabKey; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: "new", label: "New Arrivals", icon: Sparkles },
   { id: "best", label: "Best Sellers", icon: Flame },
-  { id: "trending", label: "Trending Now", icon: Clock },
-  { id: "viewed", label: "Recently Viewed", icon: Heart },
+  { id: "new", label: "New Arrivals", icon: Sparkles },
+  { id: "trending", label: "Quran Picks", icon: Clock },
+  { id: "viewed", label: "Gift Box", icon: Heart },
 ];
 
 interface HomepageProductTabsProps {
@@ -38,7 +38,7 @@ export function HomepageProductTabs({
     new: newArrivals,
     best: bestSellers,
     trending: trending ?? bestSellers,
-    viewed: recentlyViewed ?? [],
+    viewed: recentlyViewed?.length ? recentlyViewed : bestSellers,
   };
 
   const products = dataMap[active];
@@ -47,15 +47,18 @@ export function HomepageProductTabs({
     <section className={cn("space-y-6", className)}>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--color-accent)]">
-            Curated For You
+          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-[#006B3A]">
+            Carefully Selected
           </p>
           <h2
             className="text-2xl font-semibold md:text-3xl"
             style={{ fontFamily: "var(--font-heading)" }}
           >
-            Discover Our Picks
+            Discover Products
           </h2>
+          <p className="mt-2 max-w-xl text-sm text-[#6D7668]">
+            Islamic essentials for everyday worship, gifting, and remembrance.
+          </p>
         </div>
         <Link
           href="/products"
@@ -71,7 +74,7 @@ export function HomepageProductTabs({
         {TABS.map(({ id, label, icon: Icon }) => {
           const isActive = active === id;
           const isEmpty = dataMap[id].length === 0;
-          if (isEmpty && id === "viewed") return null;
+          if (isEmpty) return null;
           return (
             <button
               key={id}

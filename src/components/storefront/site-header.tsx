@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, User, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Heart, Search, ShoppingCart, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/logo";
 import { Container } from "@/components/shared/container";
@@ -13,70 +15,215 @@ interface SiteHeaderProps {
   className?: string;
 }
 
-/** Main site header: logo, search bar, cart icon, auth actions. */
+const NAV_ITEMS = [
+  ["Quran", "/category/quran"],
+  ["Bengali Quran", "/category/bengali-quran"],
+  ["Gift Box", "/category/gift-box"],
+  ["Prayer Mat", "/category/prayer-mat"],
+  ["Tasbih", "/category/tasbih"],
+  ["All Products", "/products"],
+  ["Blog", "/blog"],
+  ["Contact", "/contact"],
+] as const;
+
 export function SiteHeader({ className }: SiteHeaderProps) {
   const totalItems = useCartStore((s) => s.totalItems());
   const toggleCart = useCartStore((s) => s.toggleCart);
+  const router = useRouter();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const submitSearch = (value: string) => {
+    const clean = value.trim();
+    if (!clean) return;
+    setSearchOpen(false);
+    router.push(`/search?q=${encodeURIComponent(clean)}`);
+  };
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm",
-        className,
-      )}
-    >
-      <Container>
-        <div className="flex h-16 items-center gap-4">
-          {/* Logo */}
-          <Logo className="shrink-0" />
+    <>
+      <header
+        className={cn(
+          "sticky top-0 z-40 border-b border-[#DED6BF]/90 bg-[#FAF7EE]/88 backdrop-blur-xl",
+          className,
+        )}
+      >
+        <Container>
+          <div className="flex h-[72px] items-center gap-5">
+            <Logo className="shrink-0" imageSize={46} />
 
-          {/* Search — desktop */}
-          <div className="hidden flex-1 lg:flex">
-            <div className="relative w-full max-w-xl">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
-              <input
-                type="search"
-                placeholder="Search products…"
-                className="h-10 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] pl-9 pr-4 text-sm outline-none transition-colors focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]"
-              />
+            <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex">
+              {NAV_ITEMS.map(([label, href]) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="rounded-full px-3 py-2 text-sm font-semibold text-[#172018] transition-colors hover:bg-white hover:text-[#006B3A]"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+
+            <div className="ml-auto flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                className="hidden h-10 min-w-[280px] items-center gap-2 rounded-full border border-[#DED6BF] bg-white px-4 text-left text-sm text-[#6D7668] shadow-sm transition-colors hover:border-[#006B3A] lg:flex"
+              >
+                <Search className="h-4 w-4" />
+                Search Quran, gift box, tasbih...
+              </button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                aria-label="Search"
+                onClick={() => setSearchOpen(true)}
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+
+              <Button variant="ghost" size="icon" aria-label="Wishlist" asChild>
+                <Link href="/account/wishlist">
+                  <Heart className="h-5 w-5" />
+                </Link>
+              </Button>
+
+              <Button variant="ghost" size="icon" aria-label="Account" asChild>
+                <Link href="/account">
+                  <User className="h-5 w-5" />
+                </Link>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative"
+                aria-label="Cart"
+                onClick={toggleCart}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#006B3A] text-[10px] font-bold text-white">
+                    {totalItems > 99 ? "99+" : totalItems}
+                  </span>
+                )}
+              </Button>
+
+              <MobileNav />
             </div>
           </div>
+        </Container>
+      </header>
 
-          {/* Actions */}
-          <div className="ml-auto flex items-center gap-1">
-            {/* Mobile search */}
-            <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Search">
-              <Search className="h-5 w-5" />
-            </Button>
-
-            {/* Auth */}
-            <Button variant="ghost" size="icon" aria-label="Account" asChild>
-              <Link href="/account">
-                <User className="h-5 w-5" />
-              </Link>
-            </Button>
-
-            {/* Cart */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative"
-              aria-label="Cart"
-              onClick={toggleCart}
+      <div
+        className={cn(
+          "fixed inset-0 z-50 bg-black/35 p-4 backdrop-blur-sm transition-opacity",
+          searchOpen ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+        onClick={() => setSearchOpen(false)}
+      >
+        <div
+          className={cn(
+            "mx-auto mt-16 max-w-2xl overflow-hidden rounded-[28px] border border-[#DED6BF] bg-white shadow-2xl transition-transform",
+            searchOpen ? "translate-y-0" : "-translate-y-4",
+          )}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitSearch(query);
+            }}
+            className="flex items-center gap-2 border-b border-[#DED6BF] p-3"
+          >
+            <Search className="ml-2 h-5 w-5 text-[#006B3A]" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              autoFocus
+              placeholder="Search Quran, gift box, tasbih..."
+              className="h-11 flex-1 bg-transparent text-sm outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => setSearchOpen(false)}
+              className="rounded-full p-2 text-[#6D7668] hover:bg-[#EAF4D5]"
+              aria-label="Close search"
             >
-              <ShoppingCart className="h-5 w-5" />
-              {totalItems > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-accent)] text-[10px] font-bold text-white">
-                  {totalItems > 99 ? "99+" : totalItems}
-                </span>
-              )}
-            </Button>
+              <X className="h-5 w-5" />
+            </button>
+          </form>
 
-            {/* Mobile menu */}
-            <MobileNav />
+          <div className="grid gap-5 p-5 md:grid-cols-2">
+            <SearchGroup
+              title="Popular searches"
+              items={[
+                "Color coded Quran",
+                "Gift box",
+                "Tasbih",
+                "Prayer mat",
+              ]}
+              onPick={submitSearch}
+            />
+            <div>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#8a765d]">
+                Categories
+              </p>
+              <div className="grid gap-2">
+                {([
+                  ["Quran", "/category/quran"],
+                  ["Bengali Quran", "/category/bengali-quran"],
+                  ["Gift Box", "/category/gift-box"],
+                  ["Prayer Mat", "/category/prayer-mat"],
+                  ["Tasbih", "/category/tasbih"],
+                  ["All Products", "/products"],
+                ] as const).map(([label, href]) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setSearchOpen(false)}
+                    className="rounded-xl border border-[#DED6BF] px-3 py-2 text-sm font-semibold text-[#172018] hover:border-[#006B3A] hover:bg-[#EAF4D5]"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      </Container>
-    </header>
+      </div>
+    </>
+  );
+}
+
+function SearchGroup({
+  title,
+  items,
+  onPick,
+}: {
+  title: string;
+  items: string[];
+  onPick: (item: string) => void;
+}) {
+  return (
+    <div>
+      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#6D7668]">
+        {title}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {items.map((item) => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => onPick(item)}
+            className="rounded-full border border-[#DED6BF] bg-[#FAF7EE] px-3 py-2 text-xs font-semibold text-[#172018] hover:border-[#006B3A] hover:text-[#006B3A]"
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

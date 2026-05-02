@@ -35,18 +35,18 @@ export function ProductCard({ product, className }: ProductCardProps) {
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] transition-shadow hover:shadow-md",
+        "group relative overflow-hidden rounded-[22px] border border-[#eadfc9] bg-white transition-all hover:-translate-y-1 hover:border-[#c6923a] hover:shadow-xl",
         className,
       )}
     >
       {/* Image */}
-      <Link href={`/products/${product.slug}`} className="relative block aspect-square overflow-hidden bg-[var(--color-surface-alt)]">
+      <Link href={`/products/${product.slug}`} className="relative block aspect-[4/5] overflow-hidden bg-[#f3efe6]">
         <ImageWithFallback
           src={product.image}
           alt={product.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {/* Badges overlay */}
         <div className="absolute left-2 top-2 flex flex-col gap-1">
@@ -76,10 +76,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
       {/* Info */}
       <div className="p-3">
         {product.categoryName && (
-          <p className="mb-0.5 text-xs text-[var(--color-text-muted)]">{product.categoryName}</p>
+          <p className="mb-1 text-xs font-medium text-[#8a765d]">{product.categoryName}</p>
         )}
         <Link href={`/products/${product.slug}`}>
-          <h3 className="line-clamp-2 text-sm font-medium text-[var(--color-text-primary)] hover:text-[var(--color-accent)]">
+          <h3 className="line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-[#1c1710] hover:text-[#9a7029]">
             {product.name}
           </h3>
         </Link>
@@ -88,6 +88,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
         )}
         <div className="mt-2 flex items-center justify-between gap-2">
           <PriceText price={product.price} originalPrice={product.originalPrice} size="sm" showDiscount={false} />
+        </div>
+        <div className="mt-3">
           <AddToCartButton
             productId={product.id}
             variantId={product.variantId}
@@ -98,6 +100,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
             originalPrice={product.originalPrice}
             inStock={product.inStock ?? true}
             size="sm"
+            className="w-full"
+            fullWidth
           />
         </div>
       </div>

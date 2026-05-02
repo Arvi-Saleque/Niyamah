@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -11,27 +12,15 @@ interface LogoProps {
 
 function LogoMark({ size }: { size: number }) {
   return (
-    <svg
+    <Image
+      src="/logo.png"
+      alt=""
       width={size}
       height={size}
-      viewBox="0 0 36 36"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+      className="h-auto w-auto object-contain"
       aria-hidden="true"
-    >
-      <rect width="36" height="36" rx="8" fill="var(--color-accent)" />
-      <text
-        x="18"
-        y="25"
-        textAnchor="middle"
-        fontSize="20"
-        fontWeight="700"
-        fontFamily="Georgia, serif"
-        fill="#ffffff"
-      >
-        N
-      </text>
-    </svg>
+      priority
+    />
   );
 }
 
@@ -43,7 +32,7 @@ export function Logo({ href = "/", className, variant = "both", imageSize = 36 }
       )}
       {(variant === "text" || variant === "both") && (
         <span
-          className="text-xl font-semibold tracking-wide"
+          className="text-xl font-semibold tracking-wide text-[#043D25]"
           style={{ fontFamily: "var(--font-heading)" }}
         >
           Niyamah

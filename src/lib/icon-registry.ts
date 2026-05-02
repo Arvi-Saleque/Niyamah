@@ -18,6 +18,7 @@ import {
   Phone,
   Package,
   Zap,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 
@@ -42,6 +43,7 @@ export const ICON_REGISTRY = {
   phone: Phone,
   package: Package,
   zap: Zap,
+  book: BookOpen,
 } as const satisfies Record<string, LucideIcon>;
 
 export type IconKey = keyof typeof ICON_REGISTRY;

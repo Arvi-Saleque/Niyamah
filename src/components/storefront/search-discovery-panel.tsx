@@ -50,6 +50,7 @@ export function SearchDiscoveryPanel({ className, data }: SearchDiscoveryPanelPr
     if (debounceRef.current) clearTimeout(debounceRef.current);
     const v = value.trim();
     if (v.length < 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSuggestions(null);
       setLoading(false);
       return;
@@ -91,27 +92,26 @@ export function SearchDiscoveryPanel({ className, data }: SearchDiscoveryPanelPr
   return (
     <section
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-[var(--color-border)] bg-gradient-to-br from-[var(--color-surface-alt)] via-[var(--color-surface)] to-[var(--color-accent-light)]/40 p-6 shadow-sm md:p-10",
+        "relative mx-auto max-w-5xl overflow-visible rounded-[28px] border border-[#e8d9be] bg-white p-5 shadow-[0_24px_70px_rgba(75,54,24,0.14)] md:p-7",
         className,
       )}
     >
-      {/* Decorative gold orbs */}
-      <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-[var(--color-accent)]/15 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-[var(--color-accent-light)]/40 blur-3xl" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[var(--color-accent)]" />
+      <div className="pointer-events-none absolute bottom-0 left-0 h-20 w-full bg-[linear-gradient(135deg,transparent_0%,transparent_55%,rgba(184,137,61,0.12)_55%,rgba(184,137,61,0.12)_100%)]" />
 
-      <div className="relative mx-auto max-w-3xl text-center">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--color-accent)]">
+      <div className="relative mx-auto max-w-4xl text-center">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-[#9a7029]">
           {d.eyebrow}
         </p>
         <h2
-          className="mb-2 text-2xl font-semibold md:text-3xl"
+          className="mb-2 text-2xl font-semibold text-[#1c1710] md:text-3xl"
           style={{ fontFamily: "var(--font-heading)" }}
         >
           {d.title}
         </h2>
-        <p className="mb-6 text-sm text-[var(--color-text-secondary)]">{d.subtitle}</p>
+        <p className="mb-6 text-sm text-[#7a6a55]">{d.subtitle}</p>
 
-        <div ref={containerRef} className="relative mx-auto max-w-xl">
+        <div ref={containerRef} className="relative mx-auto max-w-3xl">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -130,11 +130,11 @@ export function SearchDiscoveryPanel({ className, data }: SearchDiscoveryPanelPr
               type="search"
               placeholder={d.placeholder}
               autoComplete="off"
-              className="h-14 w-full rounded-full border border-[var(--color-border)] bg-white pl-12 pr-32 text-sm shadow-sm outline-none transition-all focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20"
+              className="h-14 w-full rounded-full border border-[#e1d2b7] bg-[#fbf7ef] pl-12 pr-32 text-sm shadow-sm outline-none transition-all focus:border-[#c6923a] focus:ring-2 focus:ring-[#c6923a]/20"
             />
             <button
               type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-[var(--color-accent-hover)]"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-[#c6923a] px-5 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-[#9a7029]"
             >
               Search
             </button>
@@ -165,7 +165,7 @@ export function SearchDiscoveryPanel({ className, data }: SearchDiscoveryPanelPr
                     {suggestions.products.map((p) => (
                       <li key={p.id}>
                         <Link
-                          href={`/product/${p.slug}`}
+                          href={`/products/${p.slug}`}
                           onClick={() => setOpen(false)}
                           className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-[var(--color-surface-alt)]"
                         >

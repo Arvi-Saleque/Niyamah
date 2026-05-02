@@ -23,23 +23,24 @@ export function TrustSection({ className, data }: TrustSectionProps) {
   const [open, setOpen] = useState<TrustItemData | null>(null);
 
   return (
-    <section className={cn("space-y-6", className)}>
+    <section className={cn("space-y-5", className)}>
       <div className="text-center">
-        <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--color-accent)]">
+        <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-[#C9A24A]">
           {d.eyebrow}
         </p>
         <h2
-          className="text-2xl font-semibold md:text-3xl"
+          className="text-2xl font-semibold text-[#162018] md:text-3xl"
           style={{ fontFamily: "var(--font-heading)" }}
         >
           {d.title}
         </h2>
-        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+        <p className="mt-1 text-sm text-[#687464]">
           {d.subtitle}
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="overflow-hidden rounded-[24px] border border-[#DED6BF] bg-white shadow-[0_18px_50px_rgba(4,61,37,0.08)]">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
         {d.items.map((item) => {
           const Icon = getIcon(item.icon);
           return (
@@ -47,18 +48,19 @@ export function TrustSection({ className, data }: TrustSectionProps) {
               key={item.id}
               type="button"
               onClick={() => setOpen(item)}
-              className="group flex flex-col items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-center transition-all hover:-translate-y-0.5 hover:border-[var(--color-accent)] hover:shadow-md"
+              className="group flex min-h-[132px] flex-col items-center justify-center gap-2 border-b border-r border-[#EFE6D2] p-4 text-center transition-colors hover:bg-[#FAF7EE] lg:border-b-0"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] transition-colors group-hover:bg-[var(--color-accent)] group-hover:text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EAF6DD] text-[#007A3D] transition-colors group-hover:bg-[#007A3D] group-hover:text-white">
                 <Icon className="h-5 w-5" />
               </div>
-              <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+              <p className="text-sm font-semibold text-[#162018]">
                 {item.title}
               </p>
-              <p className="text-xs text-[var(--color-text-muted)]">{item.short}</p>
+              <p className="text-xs text-[#687464]">{item.short}</p>
             </button>
           );
         })}
+        </div>
       </div>
 
       <Dialog open={!!open} onOpenChange={(v) => !v && setOpen(null)}>
