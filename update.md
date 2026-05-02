@@ -883,3 +883,12 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | src/app/(storefront)/products/[slug]/page.tsx | Uses selected variant stock/id for Add to Cart and structured availability |
 | src/lib/auth/index.ts / src/proxy.ts | Simplified credentials JWT auth path and renamed middleware to Next 16 proxy convention |
 | .env.example / src/lib/db/seed.ts | Removed example default admin credentials and require explicit seed admin password |
+
+---
+
+## Phase 24 - Demo data seed
+| File | What was done |
+|------|---------------|
+| src/lib/db/seed.ts | Expanded seed data for storefront/admin testing: demo customer, brands, categories, products, images, variants, inventory, shipping, coupons, campaign, banners, blog posts, reviews, sample order, payment, and address |
+| drizzle/0001_checkout_hardening.sql | Added Drizzle statement breakpoints so db:migrate can parse the migration correctly |
+| drizzle/meta/_journal.json | Registered checkout hardening migration in the journal |
