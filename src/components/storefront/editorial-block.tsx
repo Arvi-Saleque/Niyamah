@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { HOMEPAGE_DEFAULTS, type EditorialData } from "@/modules/storefront/homepage-content";
+import { HOMEPAGE_DEFAULTS, type EditorialData } from "@/modules/storefront/homepage-defaults";
 
 interface EditorialBlockProps {
   className?: string;

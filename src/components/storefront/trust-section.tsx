@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { getIcon } from "@/lib/icon-registry";
-import { HOMEPAGE_DEFAULTS, type TrustData, type TrustItemData } from "@/modules/storefront/homepage-content";
+import { HOMEPAGE_DEFAULTS, type TrustData, type TrustItemData } from "@/modules/storefront/homepage-defaults";
 
 interface TrustSectionProps {
   className?: string;

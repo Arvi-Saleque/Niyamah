@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Search, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { HOMEPAGE_DEFAULTS, type DiscoveryData } from "@/modules/storefront/homepage-content";
+import { HOMEPAGE_DEFAULTS, type DiscoveryData } from "@/modules/storefront/homepage-defaults";
 
 interface SearchDiscoveryPanelProps {
   className?: string;
