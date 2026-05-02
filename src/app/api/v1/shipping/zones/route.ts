@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { shippingRepository } from "@/modules/commerce/infrastructure/shipping.repository";
 import { shippingZoneCreateSchema } from "@/lib/validations/commerce";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";

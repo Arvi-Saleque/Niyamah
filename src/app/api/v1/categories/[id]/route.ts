@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { categoryRepository } from "@/modules/catalog/infrastructure/category.repository";
 import { categoryUpdateSchema } from "@/lib/validations/catalog";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";

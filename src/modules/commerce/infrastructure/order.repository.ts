@@ -12,7 +12,7 @@ import type { OrderStatusUpdateInput } from "@/lib/validations/commerce";
 export const orderRepository = {
   async listForUser(userId: string, page = 1, limit = 20) {
     const offset = (page - 1) * limit;
-    const [rows, [{ count }]] = await Promise.all([
+    const [rows, countRows] = await Promise.all([
       db
         .select()
         .from(orders)
@@ -29,7 +29,7 @@ export const orderRepository = {
           and(eq(orders.storeId, DEFAULT_STORE_ID), eq(orders.userId, userId)),
         ),
     ]);
-    return { items: rows, total: count, page, limit };
+    return { items: rows, total: countRows[0]?.count ?? 0, page, limit };
   },
 
   async listAdmin(opts: {
@@ -43,15 +43,22 @@ export const orderRepository = {
 
     const where = [eq(orders.storeId, DEFAULT_STORE_ID)];
     if (opts.status) {
-      where.push(
-        eq(
-          orders.status,
-          opts.status as Parameters<typeof eq<typeof orders.status>>[1],
-        ),
-      );
+      const validStatus = [
+        "PENDING",
+        "CONFIRMED",
+        "PROCESSING",
+        "SHIPPED",
+        "DELIVERED",
+        "CANCELLED",
+        "RETURNED",
+        "REFUNDED",
+      ].includes(opts.status);
+      if (validStatus) {
+        where.push(eq(orders.status, opts.status as (typeof orders.$inferSelect)["status"]));
+      }
     }
 
-    const [rows, [{ count }]] = await Promise.all([
+    const [rows, countRows] = await Promise.all([
       db
         .select()
         .from(orders)
@@ -64,7 +71,7 @@ export const orderRepository = {
         .from(orders)
         .where(and(...where)),
     ]);
-    return { items: rows, total: count, page, limit };
+    return { items: rows, total: countRows[0]?.count ?? 0, page, limit };
   },
 
   async findByIdForUser(id: number, userId: string) {

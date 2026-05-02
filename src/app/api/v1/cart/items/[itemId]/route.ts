@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { cartRepository } from "@/modules/commerce/infrastructure/cart.repository";
 import { cartUpdateItemSchema } from "@/lib/validations/commerce";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";

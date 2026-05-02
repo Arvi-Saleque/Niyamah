@@ -29,12 +29,15 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
   const products: ProductCardData[] = result.items.map((p) => ({
     id: String(p.id),
+    ...(p.variantId && { variantId: String(p.variantId) }),
     slug: p.slug,
     name: p.name,
     image: p.image ?? "/placeholder-product.png",
-    price: Number(p.salePrice ?? p.price),
-    ...(p.salePrice && { originalPrice: Number(p.price) }),
-    inStock: true,
+    price: Number(p.salePriceOverride ?? p.priceOverride ?? p.salePrice ?? p.price),
+    ...((p.salePriceOverride && p.priceOverride) || p.salePrice
+      ? { originalPrice: Number(p.priceOverride ?? p.price) }
+      : {}),
+    inStock: p.variantId ? p.trackStock === false || (p.stockAvailable ?? 0) > 0 : false,
   }));
 
   return (

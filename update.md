@@ -866,3 +866,20 @@ These items remain on the SaaS-prep backlog but are out of scope for this commit
 | src/app/(auth)/reset-password/page.tsx | Wrapped useSearchParams in Suspense boundary |
 | src/app/(admin)/admin/orders/[id]/page.tsx | Use schema field names (discountAmount, shippingAmount); show coupon + note instead of fictional fields |
 
+
+---
+
+## Phase 23 - Hardening pass: build, schema, checkout correctness
+| File | What was done |
+|------|---------------|
+| next.config.ts | Removed ignored TypeScript/build checks so production build fails on real type errors |
+| eslint.config.mjs / package.json | Migrated lint script to ESLint CLI for Next 16 and kept React Compiler-only advisories as warnings |
+| src/lib/db/schema/index.ts / drizzle/0001_checkout_hardening.sql | Added order shipping snapshot fields and newsletter subscriber migration support |
+| src/modules/commerce/application/place-order.usecase.ts | Re-priced cart lines at checkout, locked stock with inArray, saved shipping snapshot, confirmed orders transactionally, and moved coupon usage inside the transaction |
+| src/modules/commerce/infrastructure/cart.repository.ts | Added server-side stock validation and quantity checks when adding items |
+| src/components/storefront/add-to-cart-button.tsx | Writes to the server cart before updating the client drawer |
+| src/modules/storefront/queries.ts / src/modules/search/infrastructure/product-search.repository.ts | Product cards now include primary variant id, variant price overrides, and real stock state |
+| src/app/(storefront)/checkout/page.tsx | Removed duplicate cart sync loop and validates shipping rate id before placing an order |
+| src/app/(storefront)/products/[slug]/page.tsx | Uses selected variant stock/id for Add to Cart and structured availability |
+| src/lib/auth/index.ts / src/proxy.ts | Simplified credentials JWT auth path and renamed middleware to Next 16 proxy convention |
+| .env.example / src/lib/db/seed.ts | Removed example default admin credentials and require explicit seed admin password |

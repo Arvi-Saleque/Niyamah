@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import { rateLimit } from "@/lib/redis/rate-limit";
@@ -64,7 +64,3 @@ export async function POST(req: NextRequest) {
     return apiError("UPLOAD_FAILED", "Could not upload file.", 502);
   }
 }
-
-export const config = {
-  api: { bodyParser: false },
-};

@@ -26,7 +26,7 @@ export const reviewRepository = {
     const where = [eq(reviews.productId, productId), eq(reviews.storeId, DEFAULT_STORE_ID)];
     if (onlyApproved) where.push(eq(reviews.status, "APPROVED"));
 
-    const [items, [{ total }]] = await Promise.all([
+    const [items, totalRows] = await Promise.all([
       db
         .select()
         .from(reviews)
@@ -40,7 +40,8 @@ export const reviewRepository = {
         .where(and(...where)),
     ]);
 
-    if (!items.length) return { items: [], total: total ?? 0, page, limit };
+    const total = totalRows[0]?.total ?? 0;
+    if (!items.length) return { items: [], total, page, limit };
 
     const ids = items.map((r) => r.id);
     const imgs = await db
@@ -143,7 +144,7 @@ export const reviewRepository = {
       eq(reviews.storeId, DEFAULT_STORE_ID),
       eq(reviews.userId, userId),
     ];
-    const [items, [{ total }]] = await Promise.all([
+    const [items, totalRows] = await Promise.all([
       db
         .select()
         .from(reviews)
@@ -156,7 +157,7 @@ export const reviewRepository = {
         .from(reviews)
         .where(and(...where)),
     ]);
-    return { items, total: total ?? 0, page, limit };
+    return { items, total: totalRows[0]?.total ?? 0, page, limit };
   },
 
   async listForModeration(opts: { status?: "PENDING" | "APPROVED" | "REJECTED"; page?: number; limit?: number } = {}) {
@@ -166,7 +167,7 @@ export const reviewRepository = {
     const where = [eq(reviews.storeId, DEFAULT_STORE_ID)];
     if (opts.status) where.push(eq(reviews.status, opts.status));
 
-    const [items, [{ total }]] = await Promise.all([
+    const [items, totalRows] = await Promise.all([
       db
         .select()
         .from(reviews)
@@ -179,7 +180,7 @@ export const reviewRepository = {
         .from(reviews)
         .where(and(...where)),
     ]);
-    return { items, total: total ?? 0, page, limit };
+    return { items, total: totalRows[0]?.total ?? 0, page, limit };
   },
 
   async moderate(id: number, input: ReviewModerateInput) {

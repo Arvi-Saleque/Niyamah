@@ -1,7 +1,5 @@
-import Link from "next/link";
 import { SectionHeader } from "@/components/shared/section-header";
 import { ProductCard, type ProductCardData } from "@/components/storefront/product-card";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 

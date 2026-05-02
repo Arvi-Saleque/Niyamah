@@ -16,7 +16,7 @@ export const brandRepository = {
     const where = [eq(brands.storeId, DEFAULT_STORE_ID)];
     if (query.q) where.push(ilike(brands.name, `%${query.q}%`));
 
-    const [rows, [{ count }]] = await Promise.all([
+    const [rows, countRows] = await Promise.all([
       db
         .select()
         .from(brands)
@@ -30,7 +30,7 @@ export const brandRepository = {
         .where(and(...where)),
     ]);
 
-    return { items: rows, total: count, page, limit };
+    return { items: rows, total: countRows[0]?.count ?? 0, page, limit };
   },
 
   async findBySlug(slug: string) {

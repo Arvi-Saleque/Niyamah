@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, ChevronRight } from "lucide-react";
+import { Menu, ChevronRight } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -32,7 +32,7 @@ export function MobileNav({ categories = [] }: MobileNavProps) {
 
       <SheetContent side="left" className="w-72 p-0">
         <SheetHeader className="border-b border-[var(--color-border)] px-5 py-4">
-          <SheetTitle asChild>
+          <SheetTitle>
             <Logo variant="both" />
           </SheetTitle>
         </SheetHeader>

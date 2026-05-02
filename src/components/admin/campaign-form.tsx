@@ -33,7 +33,7 @@ export const campaignFormSchema = z.object({
   bannerImage: z.string().url().optional().or(z.literal("")),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  status: z.enum(["draft", "scheduled", "active", "ended", "archived"]),
+  status: z.enum(["draft", "active", "ended"]),
 });
 
 export type CampaignFormValues = z.infer<typeof campaignFormSchema>;
@@ -162,10 +162,8 @@ export function CampaignForm({
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="scheduled">Scheduled</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="ended">Ended</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { forgotPasswordSchema } from "@/lib/validations/auth";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import { rateLimit } from "@/lib/redis/rate-limit";

@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import { config } from "dotenv";
 import { hash } from "bcryptjs";
 import { nanoid } from "nanoid";
@@ -16,8 +16,8 @@ import {
   categories,
 } from "./schema";
 
-const ADMIN_EMAIL = "admin@niyamah.com.bd";
-const ADMIN_PASSWORD = "!N_i@Y%A^M^A#H!";
+const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? "admin@niyamah.com.bd";
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD;
 const ADMIN_NAME = "Niyamah Admin";
 
 async function ensureStore() {
@@ -32,6 +32,7 @@ async function ensureStore() {
     .insert(stores)
     .values({ name: "Niyamah", slug: "niyamah", plan: "free", status: "active" })
     .returning();
+  if (!row) throw new Error("Store insert failed.");
   await db.insert(storeSettings).values({
     storeId: row.id,
     currency: "BDT",
@@ -58,6 +59,9 @@ async function ensureStore() {
 }
 
 async function ensureAdmin() {
+  if (!ADMIN_PASSWORD) {
+    throw new Error("Set SEED_ADMIN_PASSWORD in .env.local before running db:seed.");
+  }
   const existing = await db.query.users.findFirst({
     where: eq(users.email, ADMIN_EMAIL),
   });

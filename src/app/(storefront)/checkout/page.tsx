@@ -116,6 +116,11 @@ export default function CheckoutPage() {
       toast.error("Please choose a delivery method.");
       return;
     }
+    const shippingRateId = Number(selectedRate.id);
+    if (!Number.isInteger(shippingRateId) || shippingRateId <= 0) {
+      toast.error("Delivery rates are not configured yet.");
+      return;
+    }
     if (!session && !guestEmail) {
       toast.error("Please enter your email for order updates.");
       return;
@@ -123,18 +128,6 @@ export default function CheckoutPage() {
 
     setPlacing(true);
     try {
-      // Sync client cart → server cart (best-effort) so the checkout API sees items.
-      // Server uses session cookie / userId to resolve the cart automatically.
-      for (const item of items) {
-        const variantId = Number(item.variantId ?? item.id);
-        if (!Number.isInteger(variantId) || variantId <= 0) continue;
-        await fetch("/api/v1/cart", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ variantId, quantity: item.quantity }),
-        }).catch(() => null);
-      }
-
       const idempotencyKey = `co-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
       const res = await fetch("/api/v1/checkout", {
         method: "POST",
@@ -152,7 +145,7 @@ export default function CheckoutPage() {
             ...(address.city && { city: address.city }),
             ...(address.postalCode && { postalCode: address.postalCode }),
           },
-          shippingRateId: Number(selectedRate.id) || undefined,
+          shippingRateId,
           paymentMethod: "COD",
           ...(session ? {} : { guestEmail, guestPhone: address.phone }),
           ...(address.note && { note: address.note }),

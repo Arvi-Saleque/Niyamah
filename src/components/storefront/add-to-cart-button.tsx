@@ -45,23 +45,42 @@ export function AddToCartButton({
 
   const handleAdd = async () => {
     if (!inStock || loading) return;
+    const numericVariantId = Number(variantId ?? productId);
+    if (!Number.isInteger(numericVariantId) || numericVariantId <= 0) {
+      toast.error("This product is not available for cart yet.");
+      return;
+    }
+
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 400)); // simulate async
-    addItem({
-      id: variantId ?? productId,
-      productId,
-      variantId,
-      name,
-      slug,
-      image,
-      price,
-      originalPrice,
-      options,
-      quantity,
-    });
-    setLoading(false);
-    toast.success(`${name} added to cart`);
-    openCart();
+    try {
+      const res = await fetch("/api/v1/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ variantId: numericVariantId, quantity }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || data?.success === false) {
+        throw new Error(data?.error?.message ?? "Could not add item.");
+      }
+      addItem({
+        id: variantId ?? productId,
+        productId,
+        variantId,
+        name,
+        slug,
+        image,
+        price,
+        originalPrice,
+        options,
+        quantity,
+      });
+      toast.success(`${name} added to cart`);
+      openCart();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not add item.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!inStock) {

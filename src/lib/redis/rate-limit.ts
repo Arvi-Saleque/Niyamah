@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { redis } from "@/lib/redis";
 

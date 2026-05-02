@@ -107,7 +107,7 @@ export const couponRepository = {
     }
 
     if (opts.userId) {
-      const [{ count }] = await db
+      const countRows = await db
         .select({ count: sql<number>`count(*)::int` })
         .from(couponUsage)
         .where(
@@ -116,7 +116,7 @@ export const couponRepository = {
             eq(couponUsage.userId, opts.userId),
           ),
         );
-      if (count >= coupon.perUserLimit) {
+      if ((countRows[0]?.count ?? 0) >= coupon.perUserLimit) {
         throw new CouponError(
           "PER_USER_LIMIT",
           "You have already used this coupon.",

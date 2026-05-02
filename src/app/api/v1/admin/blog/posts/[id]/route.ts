@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { blogRepository } from "@/modules/blog/infrastructure/blog.repository";
 import { blogPostUpdateSchema } from "@/lib/validations/marketing";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";

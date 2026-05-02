@@ -45,6 +45,9 @@ export default async function ProductDetailPage({
 
   const price = Number(product.salePrice ?? product.price);
   const originalPrice = product.salePrice ? Number(product.price) : undefined;
+  const selectedVariant = product.variants?.[0] ?? null;
+  const stockAvailable = selectedVariant?.stockAvailable ?? 0;
+  const inStock = selectedVariant?.trackStock === false || stockAvailable > 0;
   const images = product.images?.length
     ? product.images.map((i) => i.url)
     : ["/placeholder.svg"];
@@ -68,18 +71,20 @@ export default async function ProductDetailPage({
             {...(originalPrice !== undefined && { originalPrice })}
             rating={stats.average}
             reviewCount={stats.total}
+            stock={stockAvailable}
             {...(product.shortDescription && { shortDescription: product.shortDescription })}
             {...(product.sku && { sku: product.sku })}
           />
           <div className="flex items-center gap-3">
             <AddToCartButton
               productId={String(product.id)}
-              variantId={product.variants?.[0] ? String(product.variants[0].id) : undefined}
+              variantId={selectedVariant ? String(selectedVariant.id) : undefined}
               name={product.name}
               slug={product.slug}
               image={images[0] ?? "/placeholder.svg"}
               price={price}
               {...(originalPrice !== undefined && { originalPrice })}
+              inStock={inStock}
               size="lg"
             />
             <WishlistButton
@@ -117,7 +122,7 @@ export default async function ProductDetailPage({
               url: `${SITE_URL}/products/${product.slug}`,
               price,
               priceCurrency: "BDT",
-              availability: "InStock",
+              availability: inStock ? "InStock" : "OutOfStock",
               ratingValue: stats.average,
               reviewCount: stats.total,
             }),

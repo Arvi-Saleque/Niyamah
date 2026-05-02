@@ -24,7 +24,7 @@ export async function getCurrentUser(): Promise<AuthContext | null> {
   return {
     userId: session.user.id,
     email: session.user.email ?? "",
-    role: (session.user.role as UserRole) ?? "customer",
+    role: ((session.user as { role?: UserRole }).role) ?? "customer",
   };
 }
 

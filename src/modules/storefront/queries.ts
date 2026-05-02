@@ -5,11 +5,14 @@ import {
   productImages,
   categories,
   brands,
+  productVariants,
+  inventory,
 } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
 
 export interface StorefrontProductCard {
   id: string;
+  variantId?: string;
   slug: string;
   name: string;
   image: string;
@@ -22,6 +25,14 @@ export interface StorefrontProductCard {
 }
 
 const FALLBACK_IMAGE = "/placeholder.svg";
+
+interface PrimaryVariantInfo {
+  variantId: number;
+  priceOverride: string | null;
+  salePriceOverride: string | null;
+  stockAvailable: number;
+  trackStock: boolean;
+}
 
 async function attachPrimaryImages(productRows: Array<{ id: number }>) {
   if (productRows.length === 0) return new Map<number, string>();
@@ -43,18 +54,63 @@ async function attachPrimaryImages(productRows: Array<{ id: number }>) {
   return map;
 }
 
-function toCard(p: typeof products.$inferSelect, image: string | undefined): StorefrontProductCard {
-  const price = Number(p.salePrice ?? p.price);
-  const orig = p.salePrice ? Number(p.price) : undefined;
+async function attachPrimaryVariants(productRows: Array<{ id: number }>) {
+  if (productRows.length === 0) return new Map<number, PrimaryVariantInfo>();
+  const ids = productRows.map((r) => r.id);
+  const rows = await db
+    .select({
+      productId: productVariants.productId,
+      variantId: productVariants.id,
+      priceOverride: productVariants.priceOverride,
+      salePriceOverride: productVariants.salePriceOverride,
+      stockAvailable: inventory.stockAvailable,
+      trackStock: inventory.trackStock,
+    })
+    .from(productVariants)
+    .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
+    .where(and(inArray(productVariants.productId, ids), eq(productVariants.status, true)))
+    .orderBy(asc(productVariants.productId), asc(productVariants.sortOrder), asc(productVariants.id));
+
+  const map = new Map<number, PrimaryVariantInfo>();
+  for (const row of rows) {
+    if (map.has(row.productId)) continue;
+    map.set(row.productId, {
+      variantId: row.variantId,
+      priceOverride: row.priceOverride,
+      salePriceOverride: row.salePriceOverride,
+      stockAvailable: row.stockAvailable ?? 0,
+      trackStock: row.trackStock ?? true,
+    });
+  }
+  return map;
+}
+
+function toCard(
+  p: typeof products.$inferSelect,
+  image: string | undefined,
+  variant: PrimaryVariantInfo | undefined,
+): StorefrontProductCard {
+  const effectivePrice = variant?.salePriceOverride ?? variant?.priceOverride ?? p.salePrice ?? p.price;
+  const originalPrice =
+    variant?.salePriceOverride && variant.priceOverride
+      ? variant.priceOverride
+      : variant?.priceOverride
+        ? p.salePrice
+          ? p.price
+          : undefined
+        : p.salePrice
+          ? p.price
+          : undefined;
   const card: StorefrontProductCard = {
     id: String(p.id),
+    ...(variant && { variantId: String(variant.variantId) }),
     slug: p.slug,
     name: p.name,
     image: image ?? FALLBACK_IMAGE,
-    price,
-    inStock: true,
+    price: Number(effectivePrice),
+    inStock: variant ? !variant.trackStock || variant.stockAvailable > 0 : false,
   };
-  if (orig !== undefined) card.originalPrice = orig;
+  if (originalPrice !== undefined) card.originalPrice = Number(originalPrice);
   return card;
 }
 
@@ -66,7 +122,8 @@ export async function getNewArrivals(limit = 8): Promise<StorefrontProductCard[]
     .orderBy(desc(products.createdAt))
     .limit(limit);
   const imgMap = await attachPrimaryImages(rows);
-  return rows.map((p) => toCard(p, imgMap.get(p.id)));
+  const variantMap = await attachPrimaryVariants(rows);
+  return rows.map((p) => toCard(p, imgMap.get(p.id), variantMap.get(p.id)));
 }
 
 export async function getBestSellers(limit = 8): Promise<StorefrontProductCard[]> {
@@ -90,7 +147,8 @@ export async function getBestSellers(limit = 8): Promise<StorefrontProductCard[]
     .orderBy(desc(products.createdAt))
     .limit(limit);
   const imgMap = await attachPrimaryImages(list);
-  return list.map((p) => toCard(p, imgMap.get(p.id)));
+  const variantMap = await attachPrimaryVariants(list);
+  return list.map((p) => toCard(p, imgMap.get(p.id), variantMap.get(p.id)));
 }
 
 export async function getFeaturedCategories(limit = 6) {
@@ -157,9 +215,10 @@ export async function listProductsForGrid(opts: {
     .offset((page - 1) * limit);
 
   const imgMap = await attachPrimaryImages(rows);
+  const variantMap = await attachPrimaryVariants(rows);
 
   return {
-    items: rows.map((p) => toCard(p, imgMap.get(p.id))),
+    items: rows.map((p) => toCard(p, imgMap.get(p.id), variantMap.get(p.id))),
     total: rows.length, // approx; precise count expensive — switch to count() if pagination UI needed
     page,
     limit,

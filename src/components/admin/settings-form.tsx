@@ -4,7 +4,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
-  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,7 +27,8 @@ export const settingsFormSchema = z.object({
   metaDescription: z.string().optional(),
 });
 
-export type SettingsFormValues = z.infer<typeof settingsFormSchema>;
+type SettingsFormInput = z.input<typeof settingsFormSchema>;
+export type SettingsFormValues = z.output<typeof settingsFormSchema>;
 
 interface SettingsFormProps {
   defaultValues?: Partial<SettingsFormValues> | undefined;
@@ -30,53 +36,143 @@ interface SettingsFormProps {
   className?: string;
 }
 
-/** Admin general settings form — store info + SEO defaults. */
+/** Admin general settings form - store info + SEO defaults. */
 export function SettingsForm({ defaultValues, onSubmit, className }: SettingsFormProps) {
-  const form = useForm<SettingsFormValues>({
+  const form = useForm<SettingsFormInput, unknown, SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
-    defaultValues: { currency: "BDT", freeShippingThreshold: 2000, ...defaultValues },
+    defaultValues: {
+      currency: "BDT",
+      freeShippingThreshold: 2000,
+      ...defaultValues,
+    },
   });
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className={cn("space-y-6", className)}>
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">Store Info</p>
+          <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+            Store Info
+          </p>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField control={form.control} name="storeName" render={({ field }) => (
-              <FormItem><FormLabel>Store Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="storeEmail" render={({ field }) => (
-              <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="storePhone" render={({ field }) => (
-              <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="freeShippingThreshold" render={({ field }) => (
-              <FormItem><FormLabel>Free Shipping Threshold (৳)</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="storeAddress" render={({ field }) => (
-              <FormItem className="sm:col-span-2"><FormLabel>Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
+            <FormField
+              control={form.control}
+              name="storeName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Store Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="storeEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="storePhone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="freeShippingThreshold"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Free Shipping Threshold (BDT)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      name={field.name}
+                      value={String(field.value ?? "")}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="storeAddress"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
 
         <Separator />
 
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">SEO Defaults</p>
+          <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+            SEO Defaults
+          </p>
           <div className="grid gap-4">
-            <FormField control={form.control} name="metaTitle" render={({ field }) => (
-              <FormItem><FormLabel>Meta Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="metaDescription" render={({ field }) => (
-              <FormItem><FormLabel>Meta Description</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
+            <FormField
+              control={form.control}
+              name="metaTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Meta Title</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="metaDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Meta Description</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
 
-        <Button type="submit" disabled={form.formState.isSubmitting} className="bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-dark)]">
-          {form.formState.isSubmitting ? "Saving…" : "Save Settings"}
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-dark)]"
+        >
+          {form.formState.isSubmitting ? "Saving..." : "Save Settings"}
         </Button>
       </form>
     </Form>

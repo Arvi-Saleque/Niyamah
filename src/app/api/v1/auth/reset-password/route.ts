@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { hash } from "bcryptjs";
 import { resetPasswordSchema } from "@/lib/validations/auth";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";

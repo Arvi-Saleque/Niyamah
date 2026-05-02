@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { productSearchRepository } from "@/modules/search/infrastructure/product-search.repository";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";

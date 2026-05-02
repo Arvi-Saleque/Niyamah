@@ -81,7 +81,7 @@ export const blogRepository = {
   async listPosts(opts: {
     page?: number;
     limit?: number;
-    status?: "draft" | "published" | "scheduled" | "archived";
+    status?: "draft" | "published" | "archived";
     categorySlug?: string;
     tagSlug?: string;
   } = {}) {

@@ -32,7 +32,7 @@ export const blogPostFormSchema = z.object({
   excerpt: z.string().max(500).optional(),
   content: z.string().min(10),
   featuredImage: z.string().url().optional().or(z.literal("")),
-  status: z.enum(["draft", "published", "scheduled", "archived"]),
+  status: z.enum(["draft", "published", "archived"]),
   seoTitle: z.string().max(255).optional(),
   seoDescription: z.string().max(500).optional(),
 });
@@ -165,7 +165,6 @@ export function BlogPostForm({
                   <SelectContent>
                     <SelectItem value="draft">Draft</SelectItem>
                     <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="scheduled">Scheduled</SelectItem>
                     <SelectItem value="archived">Archived</SelectItem>
                   </SelectContent>
                 </Select>

@@ -88,7 +88,7 @@ export function RegisterForm({ onSubmit, className }: RegisterFormProps) {
       </Form>
       <p className="text-center text-sm text-[var(--color-text-muted)]">
         Already have an account?{" "}
-        <Link href="/auth/login" className="text-[var(--color-accent)] hover:underline">Sign in</Link>
+        <Link href="/login" className="text-[var(--color-accent)] hover:underline">Sign in</Link>
       </p>
     </div>
   );

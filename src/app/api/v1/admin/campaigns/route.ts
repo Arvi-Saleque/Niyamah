@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { campaignRepository, CampaignError } from "@/modules/marketing/infrastructure/campaign.repository";
 import { campaignCreateSchema } from "@/lib/validations/marketing";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";

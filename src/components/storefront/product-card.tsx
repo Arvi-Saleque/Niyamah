@@ -9,6 +9,7 @@ import { WishlistButton } from "@/components/storefront/wishlist-button";
 
 export interface ProductCardData {
   id: string;
+  variantId?: string;
   slug: string;
   name: string;
   image: string;
@@ -89,6 +90,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           <PriceText price={product.price} originalPrice={product.originalPrice} size="sm" showDiscount={false} />
           <AddToCartButton
             productId={product.id}
+            variantId={product.variantId}
             name={product.name}
             slug={product.slug}
             image={product.image}

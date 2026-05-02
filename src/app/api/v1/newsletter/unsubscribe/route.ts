@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { newsletterRepository } from "@/modules/marketing/infrastructure/newsletter.repository";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 

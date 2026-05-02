@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { reviewRepository } from "@/modules/customer/infrastructure/review.repository";
 import { wishlistRepository } from "@/modules/customer/infrastructure/wishlist.repository";
 import { reviewCreateSchema } from "@/lib/validations/customer";

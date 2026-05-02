@@ -26,7 +26,7 @@ export async function uniqueSlug(
   const slug = toSlug(base);
   let candidate = slug;
   let n = 2;
-  // eslint-disable-next-line no-await-in-loop
+   
   while (await existsCheck(candidate)) {
     candidate = `${slug}-${n}`;
     n += 1;

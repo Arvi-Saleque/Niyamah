@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, User, Search, Menu } from "lucide-react";
+import { ShoppingCart, User, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/logo";
 import { Container } from "@/components/shared/container";
+import { MobileNav } from "@/components/storefront/mobile-nav";
 import { useCartStore } from "@/stores/cart-store";
 import { cn } from "@/lib/utils";
 
@@ -71,10 +72,8 @@ export function SiteHeader({ className }: SiteHeaderProps) {
               )}
             </Button>
 
-            {/* Mobile menu — handled by MobileNav */}
-            <Button variant="ghost" size="icon" className="ml-1 md:hidden" aria-label="Menu">
-              <Menu className="h-5 w-5" />
-            </Button>
+            {/* Mobile menu */}
+            <MobileNav />
           </div>
         </div>
       </Container>

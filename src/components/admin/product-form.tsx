@@ -4,7 +4,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
-  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,7 +29,8 @@ export const productFormSchema = z.object({
   isPublished: z.boolean().default(false),
 });
 
-export type ProductFormValues = z.infer<typeof productFormSchema>;
+type ProductFormInput = z.input<typeof productFormSchema>;
+export type ProductFormValues = z.output<typeof productFormSchema>;
 
 interface ProductFormProps {
   defaultValues?: Partial<ProductFormValues> | undefined;
@@ -32,9 +38,38 @@ interface ProductFormProps {
   className?: string;
 }
 
-/** Admin create/edit product form — basic fields only. Image upload handled separately. */
+function NumericFieldInput({
+  field,
+  min = 0,
+  step,
+}: {
+  field: {
+    name: string;
+    value: unknown;
+    onChange: (...event: unknown[]) => void;
+    onBlur: () => void;
+    ref: (instance: HTMLInputElement | null) => void;
+  };
+  min?: number;
+  step?: number;
+}) {
+  return (
+    <Input
+      type="number"
+      min={min}
+      step={step}
+      name={field.name}
+      value={String(field.value ?? "")}
+      onChange={field.onChange}
+      onBlur={field.onBlur}
+      ref={field.ref}
+    />
+  );
+}
+
+/** Admin create/edit product form - basic fields only. Image upload handled separately. */
 export function ProductForm({ defaultValues, onSubmit, className }: ProductFormProps) {
-  const form = useForm<ProductFormValues>({
+  const form = useForm<ProductFormInput, unknown, ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: { isPublished: false, ...defaultValues },
   });
@@ -43,42 +78,135 @@ export function ProductForm({ defaultValues, onSubmit, className }: ProductFormP
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className={cn("space-y-5", className)}>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField control={form.control} name="name" render={({ field }) => (
-            <FormItem><FormLabel>Product Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="slug" render={({ field }) => (
-            <FormItem><FormLabel>Slug</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="sku" render={({ field }) => (
-            <FormItem><FormLabel>SKU</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="stock" render={({ field }) => (
-            <FormItem><FormLabel>Stock</FormLabel><FormControl><Input type="number" min={0} {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="price" render={({ field }) => (
-            <FormItem><FormLabel>Price (৳)</FormLabel><FormControl><Input type="number" min={0} step={0.01} {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="salePrice" render={({ field }) => (
-            <FormItem><FormLabel>Sale Price (৳) <span className="text-[var(--color-text-muted)] font-normal">optional</span></FormLabel><FormControl><Input type="number" min={0} step={0.01} {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Product Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Slug</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="sku"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>SKU</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="stock"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stock</FormLabel>
+                <FormControl>
+                  <NumericFieldInput field={field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Price (BDT)</FormLabel>
+                <FormControl>
+                  <NumericFieldInput field={field} step={0.01} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="salePrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Sale Price (BDT){" "}
+                  <span className="font-normal text-[var(--color-text-muted)]">optional</span>
+                </FormLabel>
+                <FormControl>
+                  <NumericFieldInput field={field} step={0.01} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
-        <FormField control={form.control} name="shortDescription" render={({ field }) => (
-          <FormItem><FormLabel>Short Description</FormLabel><FormControl><Textarea rows={2} {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
-        <FormField control={form.control} name="description" render={({ field }) => (
-          <FormItem><FormLabel>Full Description</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
+        <FormField
+          control={form.control}
+          name="shortDescription"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Short Description</FormLabel>
+              <FormControl>
+                <Textarea rows={2} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Description</FormLabel>
+              <FormControl>
+                <Textarea rows={5} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <FormField control={form.control} name="isPublished" render={({ field }) => (
-          <FormItem className="flex items-center gap-3">
-            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-            <FormLabel className="!mt-0">Published</FormLabel>
-          </FormItem>
-        )} />
+        <FormField
+          control={form.control}
+          name="isPublished"
+          render={({ field }) => (
+            <FormItem className="flex items-center gap-3">
+              <FormControl>
+                <Switch checked={!!field.value} onCheckedChange={field.onChange} />
+              </FormControl>
+              <FormLabel className="!mt-0">Published</FormLabel>
+            </FormItem>
+          )}
+        />
 
-        <Button type="submit" disabled={form.formState.isSubmitting} className="bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-dark)]">
-          {form.formState.isSubmitting ? "Saving…" : "Save Product"}
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-dark)]"
+        >
+          {form.formState.isSubmitting ? "Saving..." : "Save Product"}
         </Button>
       </form>
     </Form>

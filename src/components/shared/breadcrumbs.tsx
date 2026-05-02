@@ -36,8 +36,7 @@ export function Breadcrumbs({ items, showHome = true, className }: BreadcrumbsPr
                 {isLast || !item.href ? (
                   <BreadcrumbPage>{item.label}</BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink asChild>
-                    <Link href={item.href}>
+                  <BreadcrumbLink render={<Link href={item.href} />}>
                       {index === 0 && showHome ? (
                         <span className="flex items-center gap-1">
                           <Home className="h-3.5 w-3.5" />
@@ -46,7 +45,6 @@ export function Breadcrumbs({ items, showHome = true, className }: BreadcrumbsPr
                       ) : (
                         item.label
                       )}
-                    </Link>
                   </BreadcrumbLink>
                 )}
               </ShadcnBreadcrumbItem>

@@ -17,28 +17,36 @@ interface MegaMenuProps {
 }
 
 const DEFAULT_CATEGORIES: MegaMenuCategory[] = [
-  { label: "New Arrivals", href: "/shop/new-arrivals" },
+  { label: "All Products", href: "/products" },
   {
-    label: "Men",
-    href: "/shop/men",
+    label: "Apparel",
+    href: "/category/apparel",
     children: [
-      { label: "T-Shirts", href: "/shop/men/t-shirts" },
-      { label: "Shirts", href: "/shop/men/shirts" },
-      { label: "Pants", href: "/shop/men/pants" },
+      { label: "Men", href: "/category/apparel?gender=men" },
+      { label: "Women", href: "/category/apparel?gender=women" },
+      { label: "Kids", href: "/category/apparel?gender=kids" },
     ],
   },
   {
-    label: "Women",
-    href: "/shop/women",
+    label: "Accessories",
+    href: "/category/accessories",
     children: [
-      { label: "Tops", href: "/shop/women/tops" },
-      { label: "Dresses", href: "/shop/women/dresses" },
-      { label: "Sarees", href: "/shop/women/sarees" },
+      { label: "Bags", href: "/category/accessories?type=bags" },
+      { label: "Jewellery", href: "/category/accessories?type=jewellery" },
+      { label: "Watches", href: "/category/accessories?type=watches" },
     ],
   },
-  { label: "Electronics", href: "/shop/electronics" },
-  { label: "Home & Living", href: "/shop/home" },
-  { label: "Sale", href: "/shop/sale" },
+  {
+    label: "Home & Living",
+    href: "/category/home-living",
+    children: [
+      { label: "Decor", href: "/category/home-living?type=decor" },
+      { label: "Kitchen", href: "/category/home-living?type=kitchen" },
+      { label: "Bedding", href: "/category/home-living?type=bedding" },
+    ],
+  },
+  { label: "Blog", href: "/blog" },
+  { label: "About", href: "/about" },
 ];
 
 /** Desktop horizontal nav bar with hover-triggered dropdown columns. */

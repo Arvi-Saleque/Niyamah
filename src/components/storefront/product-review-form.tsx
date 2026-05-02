@@ -33,7 +33,7 @@ interface ProductReviewFormProps {
 }
 
 /** Collects rating, title, and body for a new product review using react-hook-form + Zod. */
-export function ProductReviewForm({ productId, onSubmit, className }: ProductReviewFormProps) {
+export function ProductReviewForm({ productId: _productId, onSubmit, className }: ProductReviewFormProps) {
   const [hovered, setHovered] = useState(0);
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewSchema),

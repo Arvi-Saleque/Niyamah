@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/stores/cart-store";
 import { CartItemRow } from "@/components/storefront/cart-item";
 import { CartSummary } from "@/components/storefront/cart-summary";

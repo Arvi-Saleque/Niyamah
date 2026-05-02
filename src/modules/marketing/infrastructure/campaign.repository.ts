@@ -25,8 +25,8 @@ export const campaignRepository = {
     const page = opts.page ?? 1;
     const limit = opts.limit ?? 20;
     const conds = [eq(campaigns.storeId, DEFAULT_STORE_ID)];
-    if (opts.status) {
-      conds.push(eq(campaigns.status, opts.status as "draft" | "scheduled" | "active" | "ended" | "archived"));
+    if (opts.status && ["draft", "active", "ended"].includes(opts.status)) {
+      conds.push(eq(campaigns.status, opts.status as (typeof campaigns.$inferSelect)["status"]));
     }
     const items = await db
       .select()

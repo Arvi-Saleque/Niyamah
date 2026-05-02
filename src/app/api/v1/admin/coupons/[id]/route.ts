@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { couponRepository } from "@/modules/commerce/infrastructure/coupon.repository";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import { requireAdmin } from "@/lib/auth/guards";

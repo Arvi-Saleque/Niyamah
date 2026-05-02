@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { productRepository } from "@/modules/catalog/infrastructure/product.repository";
 import { productUpdateSchema } from "@/lib/validations/catalog";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";

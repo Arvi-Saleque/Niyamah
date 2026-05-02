@@ -23,14 +23,14 @@ export function OrderConfirmation({ orderId, className }: OrderConfirmationProps
       <div className="flex items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-4 py-3">
         <span className="text-sm text-[var(--color-text-muted)]">Order ID:</span>
         <span className="font-mono font-semibold">{orderId}</span>
-        <CopyButton text={orderId} />
+        <CopyButton value={orderId} />
       </div>
       <div className="flex gap-3">
         <Button asChild variant="outline">
           <Link href={`/account/orders/${orderId}`}>View Order</Link>
         </Button>
         <Button asChild className="bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-dark)]">
-          <Link href="/shop">Continue Shopping</Link>
+          <Link href="/products">Continue Shopping</Link>
         </Button>
       </div>
     </div>

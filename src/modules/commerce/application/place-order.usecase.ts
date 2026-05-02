@@ -1,4 +1,4 @@
-import { sql, eq, and } from "drizzle-orm";
+import { sql, eq, and, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   carts,
@@ -12,6 +12,8 @@ import {
   products,
   productImages,
   addresses,
+  coupons,
+  couponUsage,
 } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
 import { addressRepository } from "../infrastructure/address.repository";
@@ -36,6 +38,18 @@ export interface CheckoutResult {
   total: string;
   paymentMethod: string;
   paymentStatus: string;
+}
+
+function effectiveVariantPrice(opts: {
+  basePrice: string;
+  salePrice: string | null;
+  priceOverride: string | null;
+  salePriceOverride: string | null;
+}): string {
+  if (opts.salePriceOverride) return opts.salePriceOverride;
+  if (opts.priceOverride) return opts.priceOverride;
+  if (opts.salePrice) return opts.salePrice;
+  return opts.basePrice;
 }
 
 /**
@@ -70,7 +84,7 @@ export async function placeOrderUseCase(opts: {
       status: previous.status,
       total: previous.total,
       paymentMethod: input.paymentMethod,
-      paymentStatus: "PENDING",
+      paymentStatus: "UNPAID",
     };
   }
 
@@ -93,6 +107,10 @@ export async function placeOrderUseCase(opts: {
       productName: products.name,
       variantSku: productVariants.sku,
       variantStatus: productVariants.status,
+      basePrice: products.price,
+      salePrice: products.salePrice,
+      priceOverride: productVariants.priceOverride,
+      salePriceOverride: productVariants.salePriceOverride,
     })
     .from(cartItems)
     .innerJoin(productVariants, eq(productVariants.id, cartItems.variantId))
@@ -158,8 +176,12 @@ export async function placeOrderUseCase(opts: {
   if (!rate) throw new CheckoutError("RATE_NOT_FOUND", "Shipping rate not found.", 404);
 
   // ── 5. Subtotal + coupon + shipping
-  const subtotal = lines.reduce(
-    (acc, l) => acc + Number(l.priceSnapshot) * l.quantity,
+  const pricedLines = lines.map((line) => ({
+    ...line,
+    unitPrice: effectiveVariantPrice(line),
+  }));
+  const subtotal = pricedLines.reduce(
+    (acc, l) => acc + Number(l.unitPrice) * l.quantity,
     0,
   );
 
@@ -192,21 +214,21 @@ export async function placeOrderUseCase(opts: {
   // ── 6–10. Transaction
   const orderId = await db.transaction(async (tx) => {
     // Lock inventory rows for these variants and verify stock
-    const variantIds = lines.map((l) => l.variantId);
+    const variantIds = pricedLines.map((l) => l.variantId);
     const stockRows = await tx
       .select()
       .from(inventory)
       .where(
         and(
           eq(inventory.storeId, DEFAULT_STORE_ID),
-          sql`${inventory.variantId} IN ${variantIds}`,
+          inArray(inventory.variantId, variantIds),
         ),
       )
       .for("update");
 
     const stockMap = new Map(stockRows.map((s) => [s.variantId, s]));
 
-    for (const l of lines) {
+    for (const l of pricedLines) {
       const stock = stockMap.get(l.variantId);
       if (!stock) {
         throw new CheckoutError(
@@ -223,7 +245,7 @@ export async function placeOrderUseCase(opts: {
     }
 
     // Reserve stock
-    for (const l of lines) {
+    for (const l of pricedLines) {
       await tx
         .update(inventory)
         .set({
@@ -241,7 +263,15 @@ export async function placeOrderUseCase(opts: {
         userId: userId ?? null,
         guestEmail: !userId ? input.guestEmail ?? null : null,
         guestPhone: !userId ? input.guestPhone ?? null : null,
-        status: "PENDING",
+        shippingName: shippingAddrSnapshot.name,
+        shippingPhone: shippingAddrSnapshot.phone,
+        shippingAddressLine1: shippingAddrSnapshot.addressLine1,
+        shippingAddressLine2: shippingAddrSnapshot.addressLine2,
+        shippingDistrict: shippingAddrSnapshot.district,
+        shippingArea: shippingAddrSnapshot.area,
+        shippingCity: shippingAddrSnapshot.city,
+        shippingPostalCode: shippingAddrSnapshot.postalCode,
+        status: "CONFIRMED",
         subtotal: subtotal.toFixed(2),
         discountAmount: discountAmount.toFixed(2),
         shippingAmount: shippingPrice.toFixed(2),
@@ -252,9 +282,10 @@ export async function placeOrderUseCase(opts: {
         idempotencyKey: input.idempotencyKey,
       })
       .returning();
+    if (!order) throw new CheckoutError("ORDER_CREATE_FAILED", "Could not create order.", 500);
 
     // Snapshot: fetch primary images for items
-    const productIds = [...new Set(lines.map((l) => l.productId))];
+    const productIds = [...new Set(pricedLines.map((l) => l.productId))];
     const imgRows = await tx
       .select({ productId: productImages.productId, url: productImages.url })
       .from(productImages)
@@ -264,21 +295,20 @@ export async function placeOrderUseCase(opts: {
     const imgMap = new Map(imgRows.map((i) => [i.productId, i.url]));
 
     await tx.insert(orderItems).values(
-      lines.map((l) => ({
+      pricedLines.map((l) => ({
         orderId: order.id,
         variantId: l.variantId,
         productName: l.productName,
         sku: l.variantSku,
         quantity: l.quantity,
-        unitPrice: l.priceSnapshot,
-        totalPrice: (Number(l.priceSnapshot) * l.quantity).toFixed(2),
+        unitPrice: l.unitPrice,
+        totalPrice: (Number(l.unitPrice) * l.quantity).toFixed(2),
         imageUrl: imgMap.get(l.productId) ?? null,
       })),
     );
 
     // Payment row — COD starts as PENDING/UNPAID
-    const initialPaymentStatus =
-      input.paymentMethod === "COD" ? "PENDING" : "UNPAID";
+    const initialPaymentStatus = "UNPAID";
     await tx.insert(payments).values({
       storeId: DEFAULT_STORE_ID,
       orderId: order.id,
@@ -292,12 +322,31 @@ export async function placeOrderUseCase(opts: {
     await tx.insert(orderStatusHistory).values({
       orderId: order.id,
       fromStatus: null,
-      toStatus: "PENDING",
+      toStatus: "CONFIRMED",
       note: "Order placed.",
       actorId: userId ?? null,
     });
 
-    // Coupon usage is recorded after the tx commits (see below).
+    if (couponMeta) {
+      const bumped = await tx
+        .update(coupons)
+        .set({ usageCount: sql`${coupons.usageCount} + 1` })
+        .where(
+          and(
+            eq(coupons.id, couponMeta.id),
+            sql`(${coupons.usageLimit} IS NULL OR ${coupons.usageCount} < ${coupons.usageLimit})`,
+          ),
+        )
+        .returning({ id: coupons.id });
+      if (!bumped.length) {
+        throw new CheckoutError("COUPON_LIMIT_REACHED", "Coupon usage limit reached.");
+      }
+      await tx.insert(couponUsage).values({
+        couponId: couponMeta.id,
+        userId,
+        orderId: order.id,
+      });
+    }
 
     // Clear cart items
     await tx.delete(cartItems).where(eq(cartItems.cartId, cartId));
@@ -305,23 +354,13 @@ export async function placeOrderUseCase(opts: {
     return order.id;
   });
 
-  // Coupon usage (outside tx so we keep tx tight; usage_count update is non-critical)
-  if (couponMeta) {
-    await couponRepository.recordUsage(couponMeta.id, userId, orderId);
-  }
-
-  // Touch the address snapshot variable to satisfy the linter (snapshot
-  // already persisted into the order's referenced address rows on the user
-  // profile when applicable). The structured snapshot is preserved on the
-  // shipping rate selection and order_items.
-  void shippingAddrSnapshot;
   void addresses;
 
   return {
     orderId,
-    status: "PENDING",
+    status: "CONFIRMED",
     total: total.toFixed(2),
     paymentMethod: input.paymentMethod,
-    paymentStatus: input.paymentMethod === "COD" ? "PENDING" : "UNPAID",
+    paymentStatus: "UNPAID",
   };
 }

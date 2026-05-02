@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { ImageWithFallback } from "@/components/shared/image-with-fallback";
 import { PriceText } from "@/components/shared/price-text";
 import { RatingStars } from "@/components/shared/rating-stars";
-import { StockIndicator } from "@/components/shared/stock-indicator";
 import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
 import type { ProductCardData } from "@/components/storefront/product-card";
 import { SkeletonCard } from "@/components/shared/skeleton-card";
@@ -66,6 +65,7 @@ export function ProductListView({
               <PriceText price={p.price} originalPrice={p.originalPrice} />
               <AddToCartButton
                 productId={p.id}
+                variantId={p.variantId}
                 name={p.name}
                 slug={p.slug}
                 image={p.image}

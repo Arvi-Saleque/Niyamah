@@ -24,8 +24,12 @@ export function CartItemRow({ item, className }: CartItemProps) {
       </div>
       <div className="flex flex-1 flex-col gap-1">
         <p className="line-clamp-2 text-sm font-medium leading-snug">{item.name}</p>
-        {item.variant && (
-          <p className="text-xs text-[var(--color-text-muted)]">{item.variant}</p>
+        {item.options && Object.keys(item.options).length > 0 && (
+          <p className="text-xs text-[var(--color-text-muted)]">
+            {Object.entries(item.options)
+              .map(([key, value]) => `${key}: ${value}`)
+              .join(" / ")}
+          </p>
         )}
         <div className="mt-auto flex items-center justify-between">
           <QuantityStepper

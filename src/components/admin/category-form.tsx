@@ -30,7 +30,7 @@ interface CategoryFormProps {
 export function CategoryForm({ defaultValues, onSubmit, className }: CategoryFormProps) {
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
-    defaultValues,
+    defaultValues: defaultValues ?? {},
   });
 
   return (

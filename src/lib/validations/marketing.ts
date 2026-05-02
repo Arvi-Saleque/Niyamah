@@ -10,7 +10,7 @@ export const campaignCreateSchema = z.object({
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   couponId: z.number().int().positive().optional(),
-  status: z.enum(["draft", "scheduled", "active", "ended", "archived"]).default("draft"),
+  status: z.enum(["draft", "active", "ended"]).default("draft"),
   productIds: z.array(z.number().int().positive()).default([]),
 });
 export type CampaignCreateInput = z.infer<typeof campaignCreateSchema>;
@@ -38,7 +38,7 @@ export const blogPostCreateSchema = z.object({
   featuredImage: z.string().url().optional(),
   categoryId: z.number().int().positive().optional(),
   tagIds: z.array(z.number().int().positive()).default([]),
-  status: z.enum(["draft", "published", "scheduled", "archived"]).default("draft"),
+  status: z.enum(["draft", "published", "archived"]).default("draft"),
   publishedAt: z.string().datetime().optional(),
   seoTitle: z.string().max(255).optional(),
   seoDescription: z.string().max(500).optional(),
@@ -63,7 +63,7 @@ export const bannerCreateSchema = z.object({
   position: z.string().max(100).optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
-  status: z.enum(["active", "scheduled", "expired", "draft"]).default("active"),
+  status: z.enum(["active", "inactive"]).default("active"),
   sortOrder: z.number().int().default(0),
 });
 export type BannerCreateInput = z.infer<typeof bannerCreateSchema>;

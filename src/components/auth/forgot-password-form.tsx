@@ -53,7 +53,7 @@ export function ForgotPasswordForm({ onSubmit, className }: ForgotPasswordFormPr
         <Button variant="ghost" size="sm" onClick={() => { setSent(false); form.reset(); }}>
           Resend
         </Button>
-        <Link href="/auth/login" className="text-sm text-[var(--color-accent)] hover:underline">
+        <Link href="/login" className="text-sm text-[var(--color-accent)] hover:underline">
           Back to sign in
         </Link>
       </div>
@@ -88,7 +88,7 @@ export function ForgotPasswordForm({ onSubmit, className }: ForgotPasswordFormPr
       </Form>
       <p className="text-center text-sm text-[var(--color-text-muted)]">
         Remembered your password?{" "}
-        <Link href="/auth/login" className="text-[var(--color-accent)] hover:underline">Sign in</Link>
+        <Link href="/login" className="text-[var(--color-accent)] hover:underline">Sign in</Link>
       </p>
     </div>
   );

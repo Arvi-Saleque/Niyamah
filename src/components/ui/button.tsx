@@ -42,6 +42,12 @@ const buttonVariants = cva(
   }
 )
 
+type ButtonProps = Omit<ButtonPrimitive.Props, "render"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+    children?: React.ReactNode;
+  };
+
 function Button({
   className,
   variant = "default",
@@ -49,8 +55,7 @@ function Button({
   asChild,
   children,
   ...props
-}: ButtonPrimitive.Props &
-  VariantProps<typeof buttonVariants> & { asChild?: boolean }) {
+}: ButtonProps) {
   if (asChild && React.isValidElement(children)) {
     // Render the child as the root element, merging className.
     const child = children as React.ReactElement<{ className?: string }>;
@@ -58,6 +63,7 @@ function Button({
       <ButtonPrimitive
         data-slot="button"
         render={child}
+        nativeButton={false}
         className={cn(buttonVariants({ variant, size, className }))}
         {...props}
       />

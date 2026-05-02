@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PaginationControls } from "@/components/shared/pagination-controls";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -148,7 +147,7 @@ export function DataTable<T extends Record<string, unknown>>({
       </div>
 
       {totalPages > 1 && (
-        <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
+        <PaginationControls currentPage={page} totalPages={totalPages} onPageChange={setPage} />
       )}
     </div>
   );

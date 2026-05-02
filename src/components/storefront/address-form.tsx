@@ -40,7 +40,7 @@ export function AddressForm({
 }: AddressFormProps) {
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressSchema),
-    defaultValues,
+    defaultValues: defaultValues ?? {},
   });
 
   return (

@@ -18,7 +18,7 @@ export const categoryRepository = {
       where.push(ilike(categories.name, `%${query.q}%`));
     }
 
-    const [rows, [{ count }]] = await Promise.all([
+    const [rows, countRows] = await Promise.all([
       db
         .select()
         .from(categories)
@@ -32,7 +32,7 @@ export const categoryRepository = {
         .where(and(...where)),
     ]);
 
-    return { items: rows, total: count, page, limit };
+    return { items: rows, total: countRows[0]?.count ?? 0, page, limit };
   },
 
   async findBySlug(slug: string) {

@@ -149,6 +149,7 @@ export const cartRepository = {
           sessionId: opts.sessionId ?? null,
         })
         .returning();
+      if (!created) throw new Error("Cart insert failed.");
       existing = created;
     }
 
@@ -167,17 +168,21 @@ export const cartRepository = {
         basePrice: products.price,
         salePrice: products.salePrice,
         status: productVariants.status,
+        stockAvailable: inventory.stockAvailable,
+        trackStock: inventory.trackStock,
       })
       .from(productVariants)
       .innerJoin(products, eq(products.id, productVariants.productId))
+      .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
       .where(eq(productVariants.id, variantId))
       .limit(1);
 
-    if (!variant.length || !variant[0].status) {
+    const selectedVariant = variant[0];
+    if (!selectedVariant || !selectedVariant.status) {
       throw new Error("Variant not available.");
     }
 
-    const unitPrice = effectiveVariantPrice(variant[0]);
+    const unitPrice = effectiveVariantPrice(selectedVariant);
 
     const existing = await db.query.cartItems.findFirst({
       where: and(
@@ -186,10 +191,17 @@ export const cartRepository = {
       ),
     });
 
+    const nextQuantity = (existing?.quantity ?? 0) + quantity;
+    if (selectedVariant.trackStock !== false && selectedVariant.stockAvailable != null) {
+      if (selectedVariant.stockAvailable < nextQuantity) {
+        throw new Error(`Only ${selectedVariant.stockAvailable} item(s) are available.`);
+      }
+    }
+
     if (existing) {
       await db
         .update(cartItems)
-        .set({ quantity: existing.quantity + quantity, priceSnapshot: unitPrice })
+        .set({ quantity: nextQuantity, priceSnapshot: unitPrice })
         .where(eq(cartItems.id, existing.id));
     } else {
       await db.insert(cartItems).values({

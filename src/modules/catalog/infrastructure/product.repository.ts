@@ -1,4 +1,5 @@
-import { and, asc, desc, eq, ilike, sql, SQL } from "drizzle-orm";
+import type { SQL } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   products,
@@ -50,7 +51,7 @@ export const productRepository = {
 
     const orderBy = pickOrderBy(query.sort ?? "newest");
 
-    const [rows, [{ count }]] = await Promise.all([
+    const [rows, countRows] = await Promise.all([
       db
         .select()
         .from(products)
@@ -64,7 +65,7 @@ export const productRepository = {
         .where(and(...where)),
     ]);
 
-    return { items: rows, total: count, page, limit };
+    return { items: rows, total: countRows[0]?.count ?? 0, page, limit };
   },
 
   async findById(id: number) {
@@ -78,8 +79,21 @@ export const productRepository = {
       .where(eq(productImages.productId, product.id))
       .orderBy(asc(productImages.sortOrder));
     const variants = await db
-      .select()
+      .select({
+        id: productVariants.id,
+        productId: productVariants.productId,
+        sku: productVariants.sku,
+        barcode: productVariants.barcode,
+        priceOverride: productVariants.priceOverride,
+        salePriceOverride: productVariants.salePriceOverride,
+        imageUrl: productVariants.imageUrl,
+        status: productVariants.status,
+        sortOrder: productVariants.sortOrder,
+        stockAvailable: inventory.stockAvailable,
+        trackStock: inventory.trackStock,
+      })
       .from(productVariants)
+      .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
       .where(eq(productVariants.productId, product.id))
       .orderBy(asc(productVariants.sortOrder));
     return { ...product, images, variants };
@@ -139,6 +153,7 @@ export const productRepository = {
           tags: input.tags ?? null,
         })
         .returning();
+      if (!product) throw new Error("Product insert failed.");
 
       // Images
       if (input.images?.length) {
@@ -187,6 +202,7 @@ export const productRepository = {
             sortOrder: v.sortOrder ?? 0,
           })
           .returning();
+        if (!variant) throw new Error("Product variant insert failed.");
 
         // Options (type/value)
         if (v.options?.length) {
@@ -207,6 +223,7 @@ export const productRepository = {
                 .values({ productId: product.id, name: opt.type })
                 .returning();
             }
+            if (!type) throw new Error("Variant option type insert failed.");
             // Find or insert value
             let [value] = await tx
               .select()
@@ -223,6 +240,7 @@ export const productRepository = {
                 .values({ optionTypeId: type.id, value: opt.value })
                 .returning();
             }
+            if (!value) throw new Error("Variant option value insert failed.");
             await tx
               .insert(productVariantOptions)
               .values({ variantId: variant.id, optionValueId: value.id });

@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { wishlistRepository } from "@/modules/customer/infrastructure/wishlist.repository";
 import { wishlistAddSchema } from "@/lib/validations/customer";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";

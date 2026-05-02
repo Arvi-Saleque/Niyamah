@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { blogRepository, BlogError } from "@/modules/blog/infrastructure/blog.repository";
 import { blogPostCreateSchema } from "@/lib/validations/marketing";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   const status = sp.get("status") ?? undefined;
   if (!Number.isInteger(page) || page < 1) return apiError("INVALID_PAGE", "Invalid page.", 400);
   if (!Number.isInteger(limit) || limit < 1 || limit > 100) return apiError("INVALID_LIMIT", "Invalid limit.", 400);
-  const isStatus = status === "draft" || status === "published" || status === "scheduled" || status === "archived";
+  const isStatus = status === "draft" || status === "published" || status === "archived";
   const result = await blogRepository.listPosts(isStatus ? { page, limit, status } : { page, limit });
   return apiSuccess({ items: result.items }, 200, { page: result.page, limit: result.limit, total: result.total });
 }

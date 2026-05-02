@@ -68,7 +68,7 @@ export function LoginForm({ onSubmit, className }: LoginFormProps) {
       </Form>
       <p className="text-center text-sm text-[var(--color-text-muted)]">
         Don&rsquo;t have an account?{" "}
-        <Link href="/auth/register" className="text-[var(--color-accent)] hover:underline">Create one</Link>
+        <Link href="/register" className="text-[var(--color-accent)] hover:underline">Create one</Link>
       </p>
     </div>
   );

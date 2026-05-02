@@ -25,7 +25,8 @@ export const brandFormSchema = z.object({
   featured: z.boolean().default(false),
 });
 
-export type BrandFormValues = z.infer<typeof brandFormSchema>;
+type BrandFormInput = z.input<typeof brandFormSchema>;
+export type BrandFormValues = z.output<typeof brandFormSchema>;
 
 interface BrandFormProps {
   defaultValues?: Partial<BrandFormValues> | undefined;
@@ -35,7 +36,7 @@ interface BrandFormProps {
 
 /** Admin create/edit brand form. */
 export function BrandForm({ defaultValues, onSubmit, className }: BrandFormProps) {
-  const form = useForm<BrandFormValues>({
+  const form = useForm<BrandFormInput, unknown, BrandFormValues>({
     resolver: zodResolver(brandFormSchema),
     defaultValues: { featured: false, ...defaultValues },
   });
@@ -112,7 +113,7 @@ export function BrandForm({ defaultValues, onSubmit, className }: BrandFormProps
             <FormItem className="flex items-center gap-3">
               <FormControl>
                 <Switch
-                  checked={field.value}
+                  checked={!!field.value}
                   onCheckedChange={field.onChange}
                 />
               </FormControl>

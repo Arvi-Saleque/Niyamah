@@ -1,6 +1,5 @@
 import { CategoryGrid } from "@/components/storefront/category-grid";
 import type { CategoryCardData } from "@/components/storefront/category-card";
-import { cn } from "@/lib/utils";
 
 interface FeaturedCategoriesProps {
   categories: CategoryCardData[];

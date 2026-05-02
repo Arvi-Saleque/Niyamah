@@ -1,26 +1,26 @@
 import Link from "next/link";
-import { Globe, Camera, Video, Mail, Phone, MapPin } from "lucide-react";
+import { Globe, Camera, Video } from "lucide-react";
 import { Container } from "@/components/shared/container";
 import { Logo } from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
 
 const footerLinks = {
   shop: [
-    { label: "New Arrivals", href: "/shop/new-arrivals" },
-    { label: "Best Sellers", href: "/shop/best-sellers" },
-    { label: "Sale", href: "/shop/sale" },
-    { label: "All Products", href: "/shop" },
+    { label: "All Products", href: "/products" },
+    { label: "Apparel", href: "/category/apparel" },
+    { label: "Accessories", href: "/category/accessories" },
+    { label: "Home & Living", href: "/category/home-living" },
   ],
   help: [
-    { label: "Track Order", href: "/track-order" },
-    { label: "Return & Refund", href: "/returns" },
+    { label: "Track Order", href: "/account/orders" },
+    { label: "Returns & Refunds", href: "/refund" },
     { label: "FAQ", href: "/faq" },
     { label: "Contact Us", href: "/contact" },
   ],
   company: [
     { label: "About Us", href: "/about" },
     { label: "Blog", href: "/blog" },
-    { label: "Careers", href: "/careers" },
+    { label: "Terms", href: "/terms" },
     { label: "Privacy Policy", href: "/privacy" },
   ],
 };

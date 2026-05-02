@@ -20,7 +20,7 @@ interface CategoryCardProps {
 export function CategoryCard({ category, className, variant = "image" }: CategoryCardProps) {
   return (
     <Link
-      href={`/shop/${category.slug}`}
+      href={`/category/${category.slug}`}
       className={cn(
         "group flex flex-col items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-all hover:border-[var(--color-accent)] hover:shadow-sm",
         className,
