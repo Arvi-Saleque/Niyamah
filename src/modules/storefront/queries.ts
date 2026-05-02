@@ -7,6 +7,8 @@ import {
   brands,
   productVariants,
   inventory,
+  reviews,
+  reviewImages,
 } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
 
@@ -229,4 +231,47 @@ export async function listProductsForGrid(opts: {
     page,
     limit,
   };
+}
+
+export interface PhotoReviewItem {
+  reviewId: string;
+  productSlug: string;
+  productName: string;
+  rating: number;
+  body: string | null;
+  imageUrl: string;
+}
+
+/** Recent approved reviews that include at least one photo (UGC strip). */
+export async function getRecentPhotoReviews(limit = 8): Promise<PhotoReviewItem[]> {
+  const rows = await db
+    .select({
+      reviewId: reviews.id,
+      rating: reviews.rating,
+      body: reviews.body,
+      productId: reviews.productId,
+      productSlug: products.slug,
+      productName: products.name,
+      imageUrl: reviewImages.url,
+    })
+    .from(reviewImages)
+    .innerJoin(reviews, eq(reviews.id, reviewImages.reviewId))
+    .innerJoin(products, eq(products.id, reviews.productId))
+    .where(
+      and(
+        eq(reviews.storeId, DEFAULT_STORE_ID),
+        eq(reviews.status, "APPROVED"),
+      ),
+    )
+    .orderBy(desc(reviews.createdAt))
+    .limit(limit);
+
+  return rows.map((r) => ({
+    reviewId: String(r.reviewId),
+    productSlug: r.productSlug,
+    productName: r.productName,
+    rating: r.rating,
+    body: r.body,
+    imageUrl: r.imageUrl,
+  }));
 }

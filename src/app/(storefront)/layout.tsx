@@ -3,6 +3,8 @@ import { SiteFooter } from "@/components/storefront/site-footer";
 import { TopBar } from "@/components/storefront/top-bar";
 import { MegaMenu } from "@/components/storefront/mega-menu";
 import { WhatsAppFloat } from "@/components/storefront/whatsapp-float";
+import { LiveShoppingProof } from "@/components/storefront/live-shopping-proof";
+import { AssistantDrawer } from "@/components/storefront/assistant-drawer";
 import { getHomepageContent } from "@/modules/storefront/homepage-content";
 
 export default async function StorefrontLayout({
@@ -20,11 +22,15 @@ export default async function StorefrontLayout({
       <main className="flex-1">{children}</main>
       <SiteFooter />
       {content.whatsapp.enabled && (
-        <WhatsAppFloat
-          phoneNumber={content.whatsapp.phoneNumber}
-          message={content.whatsapp.defaultMessage}
-        />
+        <>
+          <WhatsAppFloat
+            phoneNumber={content.whatsapp.phoneNumber}
+            message={content.whatsapp.defaultMessage}
+          />
+          <AssistantDrawer whatsappPhone={content.whatsapp.phoneNumber} />
+        </>
       )}
+      <LiveShoppingProof />
     </div>
   );
 }

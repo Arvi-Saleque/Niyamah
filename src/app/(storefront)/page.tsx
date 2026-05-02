@@ -10,10 +10,13 @@ import { TrustSection } from "@/components/storefront/trust-section";
 import { EditorialBlock } from "@/components/storefront/editorial-block";
 import { NewsletterSubscribe } from "@/components/storefront/newsletter-subscribe";
 import { TestimonialsSection } from "@/components/storefront/testimonials-section";
+import { BudgetShop } from "@/components/storefront/budget-shop";
+import { PhotoReviewsStrip } from "@/components/storefront/photo-reviews-strip";
 import {
   getFeaturedCategories,
   getNewArrivals,
   getBestSellers,
+  getRecentPhotoReviews,
 } from "@/modules/storefront/queries";
 import { getHomepageContent } from "@/modules/storefront/homepage-content";
 import Link from "next/link";
@@ -22,10 +25,11 @@ import { MessageCircle } from "lucide-react";
 export const revalidate = 300;
 
 export default async function StorefrontHomePage() {
-  const [categories, newArrivals, bestSellers, content] = await Promise.all([
+  const [categories, newArrivals, bestSellers, photoReviews, content] = await Promise.all([
     getFeaturedCategories(6),
     getNewArrivals(8),
     getBestSellers(8),
+    getRecentPhotoReviews(10),
     getHomepageContent(),
   ]);
 
@@ -76,8 +80,14 @@ export default async function StorefrontHomePage() {
         {/* === 7. Product Tabs === */}
         <HomepageProductTabs newArrivals={newArrivals} bestSellers={bestSellers} />
 
+        {/* === 7b. Budget Shop === */}
+        <BudgetShop />
+
         {/* === 8. Trust Section === */}
         <TrustSection data={content.trust} />
+
+        {/* === 8b. Photo Reviews / UGC === */}
+        {photoReviews.length > 0 && <PhotoReviewsStrip reviews={photoReviews} />}
 
         {/* === 9. Editorial Block === */}
         <div id="editorial">
