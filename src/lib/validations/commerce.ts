@@ -46,7 +46,7 @@ export const checkoutSchema = z.object({
   shippingAddress: addressCreateSchema.optional(),
   shippingZoneId: z.number().int().positive().optional(),
   shippingRateId: z.number().int().positive(),
-  paymentMethod: z.enum(["COD", "BKASH", "SSLCOMMERZ", "STRIPE"]).default("COD"),
+  paymentMethod: z.literal("COD").default("COD"),
   couponCode: z.string().max(100).optional(),
   note: z.string().max(1000).optional(),
   idempotencyKey: z.string().min(8).max(255),

@@ -1,4 +1,4 @@
-import { asc, desc, eq, and, inArray } from "drizzle-orm";
+import { asc, desc, eq, and, inArray, count } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   products,
@@ -206,6 +206,11 @@ export async function listProductsForGrid(opts: {
     conds.push(eq(products.brandId, b.id));
   }
 
+  const [{ total: totalCount }] = await db
+    .select({ total: count() })
+    .from(products)
+    .where(and(...conds));
+
   const rows = await db
     .select()
     .from(products)
@@ -219,7 +224,7 @@ export async function listProductsForGrid(opts: {
 
   return {
     items: rows.map((p) => toCard(p, imgMap.get(p.id), variantMap.get(p.id))),
-    total: rows.length, // approx; precise count expensive — switch to count() if pagination UI needed
+    total: totalCount,
     page,
     limit,
   };

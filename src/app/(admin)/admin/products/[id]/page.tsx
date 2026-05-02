@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { ProductForm, type ProductFormValues } from "@/components/admin/product-form";
 import { ProductImageUploader } from "@/components/admin/product-image-uploader";
+import { VariantManager, type VariantRow } from "@/components/admin/variant-manager";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ArrowLeft, Trash2 } from "lucide-react";
@@ -37,6 +38,8 @@ export default function EditProductPage() {
   const [loading, setLoading] = useState(true);
   const [defaults, setDefaults] = useState<Partial<ProductFormValues> | null>(null);
   const [images, setImages] = useState<string[]>([]);
+  const [variants, setVariants] = useState<VariantRow[]>([]);
+  const [basePrice, setBasePrice] = useState(0);
 
   useEffect(() => {
     if (!id) return;
@@ -139,8 +142,17 @@ export default function EditProductPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-2xl border border-[var(--color-border)] bg-white p-6">
-          <ProductForm defaultValues={defaults} onSubmit={handleSubmit} />
+        <div className="space-y-6 lg:col-span-2">
+          <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
+            <ProductForm defaultValues={defaults} onSubmit={handleSubmit} onPriceChange={setBasePrice} />
+          </div>
+          <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
+            <VariantManager
+              basePrice={basePrice}
+              variants={variants}
+              onChange={setVariants}
+            />
+          </div>
         </div>
         <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">

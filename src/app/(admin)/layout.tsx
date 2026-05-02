@@ -15,14 +15,14 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-[var(--color-bg)]">
+    <div className="flex min-h-screen bg-[var(--color-surface-alt)]">
       <AdminSidebar className="hidden md:flex" />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen flex-1 flex-col overflow-hidden">
         <AdminTopbar
           userName={user.email.split("@")[0] ?? "Admin"}
           userEmail={user.email}
         />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
       </div>
     </div>
   );

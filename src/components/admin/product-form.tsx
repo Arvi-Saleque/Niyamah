@@ -1,6 +1,7 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -35,6 +36,7 @@ export type ProductFormValues = z.output<typeof productFormSchema>;
 interface ProductFormProps {
   defaultValues?: Partial<ProductFormValues> | undefined;
   onSubmit: (values: ProductFormValues) => Promise<void>;
+  onPriceChange?: (price: number) => void;
   className?: string;
 }
 
@@ -68,11 +70,16 @@ function NumericFieldInput({
 }
 
 /** Admin create/edit product form - basic fields only. Image upload handled separately. */
-export function ProductForm({ defaultValues, onSubmit, className }: ProductFormProps) {
+export function ProductForm({ defaultValues, onSubmit, onPriceChange, className }: ProductFormProps) {
   const form = useForm<ProductFormInput, unknown, ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: { isPublished: false, ...defaultValues },
   });
+
+  const priceValue = useWatch({ control: form.control, name: "price" });
+  useEffect(() => {
+    if (onPriceChange) onPriceChange(Number(priceValue) || 0);
+  }, [priceValue, onPriceChange]);
 
   return (
     <Form {...form}>
