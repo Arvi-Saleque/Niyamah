@@ -7,6 +7,7 @@ import {
   generateResetToken,
   storeResetToken,
 } from "@/lib/auth/password-reset";
+import { sendPasswordResetEmail } from "@/lib/resend";
 
 /**
  * POST /api/v1/auth/forgot-password
@@ -47,9 +48,10 @@ export async function POST(req: NextRequest) {
   if (user) {
     const token = generateResetToken();
     await storeResetToken(token, user.id);
-    // TODO(Phase 22): enqueue Resend email with link to /reset-password?token=...
-    // For now, the token is only stored in Redis; client must use the link
-    // delivered by the email job (or by direct admin lookup in dev).
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const resetUrl = `${appUrl}/reset-password?token=${token}`;
+    await sendPasswordResetEmail({ to: user.email, resetUrl });
   }
 
   return apiSuccess({

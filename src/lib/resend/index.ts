@@ -114,6 +114,35 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
+export async function sendPasswordResetEmail(opts: {
+  to: string;
+  resetUrl: string;
+}) {
+  const resend = getResend();
+  if (!resend) {
+    console.warn("[resend] RESEND_API_KEY not set — skipping password reset email");
+    return null;
+  }
+  const html = `
+    <div style="font-family:Inter,system-ui,sans-serif;max-width:600px;margin:auto;color:#1A1814;background:#FAFAF8;padding:24px;">
+      <h2 style="font-family:'Playfair Display',serif;color:#C9A96E;margin-bottom:8px;">Niyamah</h2>
+      <h3>Reset your password</h3>
+      <p>We received a request to reset the password for your account. Click the button below to choose a new password. This link expires in 1 hour.</p>
+      <p style="margin:24px 0;">
+        <a href="${opts.resetUrl}" style="background:#C9A96E;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;">Reset Password</a>
+      </p>
+      <p style="color:#666;font-size:13px;">If you didn't request this, you can safely ignore this email. Your password won't change.</p>
+      <p style="color:#999;font-size:12px;margin-top:16px;">Or copy this link into your browser:<br/><a href="${opts.resetUrl}" style="color:#C9A96E;">${escapeHtml(opts.resetUrl)}</a></p>
+    </div>`;
+
+  return resend.emails.send({
+    from: FROM_EMAIL,
+    to: opts.to,
+    subject: "Niyamah — Reset your password",
+    html,
+  });
+}
+
 /**
  * Generic Resend send. No-op if RESEND_API_KEY is not configured.
  */
