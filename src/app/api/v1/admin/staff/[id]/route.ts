@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { requireAdmin } from "@/lib/auth/guards";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
+import { recordAudit } from "@/lib/audit/record";
 
 interface Ctx {
   params: Promise<{ id: string }>;
@@ -35,5 +36,12 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     .where(eq(users.id, id))
     .returning();
   if (!updated) return apiError("NOT_FOUND", "User not found.", 404);
+  recordAudit({
+    actorId: guard.ctx.userId,
+    action: "staff.role.update",
+    entityType: "user",
+    entityId: id,
+    after: { role: parsed.data.role },
+  }).catch(() => {});
   return apiSuccess(updated);
 }

@@ -148,3 +148,87 @@ export type OrderStatusUpdateInput = z.infer<typeof orderStatusUpdateSchema>;
 export type ReturnRequestCreateInput = z.infer<typeof returnRequestCreateSchema>;
 export type ReturnRequestResolveInput = z.infer<typeof returnRequestResolveSchema>;
 export type ReturnRequestItem = z.infer<typeof returnRequestItemSchema>;
+
+// ─────────────────────────────────────────────
+// Cancel order (customer)
+// ─────────────────────────────────────────────
+
+export const cancelOrderSchema = z.object({
+  reason: z.string().max(500).optional(),
+});
+
+// ─────────────────────────────────────────────
+// Shipping calculator
+// ─────────────────────────────────────────────
+
+export const shippingCalculateSchema = z.object({
+  district: z.string().min(1).max(100),
+  subtotal: z.number().nonnegative(),
+});
+
+// ─────────────────────────────────────────────
+// OTP
+// ─────────────────────────────────────────────
+
+export const otpSendSchema = z
+  .object({
+    phone: z.string().min(7).max(50).optional(),
+    email: z.string().email().optional(),
+    purpose: z
+      .enum(["checkout", "phone_verification", "login"])
+      .default("checkout"),
+  })
+  .refine((d) => !!(d.phone || d.email), {
+    message: "phone or email is required",
+    path: ["phone"],
+  });
+
+export const otpVerifySchema = z
+  .object({
+    phone: z.string().min(7).max(50).optional(),
+    email: z.string().email().optional(),
+    code: z.string().regex(/^\d{4,8}$/, "Code must be 4–8 digits"),
+    purpose: z
+      .enum(["checkout", "phone_verification", "login"])
+      .default("checkout"),
+  })
+  .refine((d) => !!(d.phone || d.email), {
+    message: "phone or email is required",
+    path: ["phone"],
+  });
+
+// ─────────────────────────────────────────────
+// Courier dispatch
+// ─────────────────────────────────────────────
+
+export const courierDispatchSchema = z.object({
+  courier: z
+    .enum(["steadfast", "pathao", "redx", "sundarban", "manual"])
+    .default("steadfast"),
+  note: z.string().max(500).optional(),
+});
+
+// ─────────────────────────────────────────────
+// Customer blacklist
+// ─────────────────────────────────────────────
+
+export const blacklistAddSchema = z
+  .object({
+    phone: z.string().min(7).max(50).optional(),
+    email: z.string().email().optional(),
+    reason: z
+      .enum(["REPEATED_REFUSAL", "FAKE_ORDERS", "FRAUD", "ABUSE", "OTHER"])
+      .default("OTHER"),
+    note: z.string().max(500).optional(),
+  })
+  .refine((d) => !!(d.phone || d.email), {
+    message: "phone or email is required",
+    path: ["phone"],
+  });
+
+export type CancelOrderInput = z.infer<typeof cancelOrderSchema>;
+export type ShippingCalculateInput = z.infer<typeof shippingCalculateSchema>;
+export type OtpSendInput = z.infer<typeof otpSendSchema>;
+export type OtpVerifyInput = z.infer<typeof otpVerifySchema>;
+export type CourierDispatchInput = z.infer<typeof courierDispatchSchema>;
+export type BlacklistAddInput = z.infer<typeof blacklistAddSchema>;

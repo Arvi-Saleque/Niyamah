@@ -64,3 +64,26 @@ export async function requireUser(): Promise<
   }
   return { ctx };
 }
+
+/**
+ * Permission-aware guard. Pass any subset of UserRole values. The user must
+ * have at least one of those roles. Useful for staff-only endpoints, etc.
+ */
+export async function requireRole(
+  roles: UserRole[],
+): Promise<{ ctx: AuthContext } | { error: Response }> {
+  const ctx = await getCurrentUser();
+  if (!ctx) {
+    return { error: apiError("UNAUTHENTICATED", "Sign in required.", 401) };
+  }
+  if (!roles.includes(ctx.role)) {
+    return {
+      error: apiError(
+        "FORBIDDEN",
+        `Required role: ${roles.join(", ")}.`,
+        403,
+      ),
+    };
+  }
+  return { ctx };
+}

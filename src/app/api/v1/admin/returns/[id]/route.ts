@@ -8,6 +8,7 @@ import {
 import { returnRequestResolveSchema } from "@/lib/validations/commerce";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import { requireAdmin } from "@/lib/auth/guards";
+import { recordAudit } from "@/lib/audit/record";
 
 /**
  * GET /api/v1/admin/returns/[id]
@@ -75,6 +76,13 @@ export async function PATCH(
             adminId: guard.ctx.userId,
             adminNote: parsed.data.adminNote ?? null,
           });
+    recordAudit({
+      actorId: guard.ctx.userId,
+      action: `return.${parsed.data.status.toLowerCase()}`,
+      entityType: "return_request",
+      entityId: reqId,
+      after: parsed.data,
+    }).catch(() => {});
     return apiSuccess(updated);
   } catch (err) {
     if (err instanceof RefundError) {

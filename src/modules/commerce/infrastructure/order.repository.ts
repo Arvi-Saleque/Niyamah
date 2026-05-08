@@ -5,6 +5,7 @@ import {
   orderItems,
   orderStatusHistory,
   payments,
+  inventory,
 } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
 import type { OrderStatusUpdateInput } from "@/lib/validations/commerce";
@@ -131,15 +132,91 @@ export const orderRepository = {
     });
     if (!order) return null;
 
+    // Don't bother if state isn't actually changing
+    const fromStatus = order.status;
+    const toStatus = update.status;
+
     await db.transaction(async (tx) => {
+      // Stock movements at status boundaries
+      const reservedStatuses = ["PENDING", "CONFIRMED", "PROCESSING"] as const;
+      const wasReserved = (reservedStatuses as readonly string[]).includes(
+        fromStatus,
+      );
+
+      if (wasReserved && toStatus === "CANCELLED") {
+        // Release reservation back to available
+        const items = await tx
+          .select({
+            variantId: orderItems.variantId,
+            quantity: orderItems.quantity,
+          })
+          .from(orderItems)
+          .where(eq(orderItems.orderId, id));
+        for (const it of items) {
+          if (!it.variantId) continue;
+          await tx
+            .update(inventory)
+            .set({
+              stockReserved: sql`GREATEST(0, ${inventory.stockReserved} - ${it.quantity})`,
+              stockAvailable: sql`${inventory.stockAvailable} + ${it.quantity}`,
+            })
+            .where(eq(inventory.variantId, it.variantId));
+        }
+        // Mark unpaid payments failed
+        await tx
+          .update(payments)
+          .set({ status: "FAILED" })
+          .where(
+            and(
+              eq(payments.orderId, id),
+              sql`${payments.status} IN ('UNPAID','PENDING')`,
+            ),
+          );
+      }
+
+      if (
+        (fromStatus === "SHIPPED" || wasReserved) &&
+        toStatus === "DELIVERED"
+      ) {
+        // Convert reservation into actual stock-on-hand deduction
+        const items = await tx
+          .select({
+            variantId: orderItems.variantId,
+            quantity: orderItems.quantity,
+          })
+          .from(orderItems)
+          .where(eq(orderItems.orderId, id));
+        for (const it of items) {
+          if (!it.variantId) continue;
+          await tx
+            .update(inventory)
+            .set({
+              stockOnHand: sql`GREATEST(0, ${inventory.stockOnHand} - ${it.quantity})`,
+              stockReserved: sql`GREATEST(0, ${inventory.stockReserved} - ${it.quantity})`,
+            })
+            .where(eq(inventory.variantId, it.variantId));
+        }
+        // For COD orders: mark payment PAID at delivery
+        await tx
+          .update(payments)
+          .set({ status: "PAID" })
+          .where(
+            and(
+              eq(payments.orderId, id),
+              eq(payments.method, "COD"),
+              sql`${payments.status} IN ('UNPAID','PENDING')`,
+            ),
+          );
+      }
+
       await tx
         .update(orders)
-        .set({ status: update.status, updatedAt: new Date() })
+        .set({ status: toStatus, updatedAt: new Date() })
         .where(eq(orders.id, id));
       await tx.insert(orderStatusHistory).values({
         orderId: id,
-        fromStatus: order.status,
-        toStatus: update.status,
+        fromStatus,
+        toStatus,
         note: update.note ?? null,
         actorId,
       });

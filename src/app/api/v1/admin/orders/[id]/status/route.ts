@@ -4,6 +4,7 @@ import { orderStatusUpdateSchema } from "@/lib/validations/commerce";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import { requireAdmin } from "@/lib/auth/guards";
 import { inngest } from "@/lib/inngest/client";
+import { recordAudit } from "@/lib/audit/record";
 
 interface Ctx {
   params: Promise<{ id: string }>;
@@ -35,6 +36,14 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     guard.ctx.userId,
   );
   if (!updated) return apiError("NOT_FOUND", "Order not found.", 404);
+
+  recordAudit({
+    actorId: guard.ctx.userId,
+    action: "order.status.update",
+    entityType: "order",
+    entityId: id,
+    after: { status: parsed.data.status, note: parsed.data.note ?? null },
+  }).catch(() => {});
 
   // Best-effort status email — registered user OR guest
   let recipient: string | null = updated.guestEmail ?? null;

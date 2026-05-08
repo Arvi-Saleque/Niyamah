@@ -23,6 +23,7 @@ import {
   CouponError,
 } from "../infrastructure/coupon.repository";
 import { orderRepository } from "../infrastructure/order.repository";
+import { blacklistRepository } from "../infrastructure/blacklist.repository";
 import type { CheckoutInput } from "@/lib/validations/commerce";
 
 export class CheckoutError extends Error {
@@ -95,6 +96,26 @@ export async function placeOrderUseCase(opts: {
   if (!cart) throw new CheckoutError("CART_NOT_FOUND", "Cart not found.", 404);
   if (userId && cart.userId && cart.userId !== userId) {
     throw new CheckoutError("CART_NOT_OWNED", "Cart belongs to another user.", 403);
+  }
+
+  // ── 2a. Blacklist enforcement (COD-specific)
+  if (input.paymentMethod === "COD") {
+    const phoneToCheck =
+      input.guestPhone ?? input.shippingAddress?.phone ?? null;
+    const emailToCheck = input.guestEmail ?? null;
+    if (phoneToCheck || emailToCheck) {
+      const match = await blacklistRepository.findMatch({
+        phone: phoneToCheck,
+        email: emailToCheck,
+      });
+      if (match) {
+        throw new CheckoutError(
+          "BLACKLISTED",
+          "Cash on Delivery is not available for this contact. Please contact support.",
+          403,
+        );
+      }
+    }
   }
 
   const lines = await db

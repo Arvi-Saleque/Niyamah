@@ -117,6 +117,30 @@ export const campaignStatusEnum = pgEnum("campaign_status", [
 
 export const couponStatusEnum = pgEnum("coupon_status", ["active", "inactive"]);
 
+export const otpPurposeEnum = pgEnum("otp_purpose", [
+  "checkout",
+  "phone_verification",
+  "login",
+]);
+
+export const shipmentStatusEnum = pgEnum("shipment_status", [
+  "PENDING",
+  "DISPATCHED",
+  "IN_TRANSIT",
+  "DELIVERED",
+  "RETURNED",
+  "CANCELLED",
+  "FAILED",
+]);
+
+export const blacklistReasonEnum = pgEnum("blacklist_reason", [
+  "REPEATED_REFUSAL",
+  "FAKE_ORDERS",
+  "FRAUD",
+  "ABUSE",
+  "OTHER",
+]);
+
 // ─────────────────────────────────────────────
 // Homepage / CMS Blocks
 // ─────────────────────────────────────────────
@@ -1092,6 +1116,101 @@ export const newsletterSubscribers = pgTable(
   (table) => [
     uniqueIndex("newsletter_store_email_idx").on(table.storeId, table.email),
     index("newsletter_store_idx").on(table.storeId),
+  ],
+);
+
+// ─────────────────────────────────────────────
+// OTP codes — phone/email verification (COD fraud control)
+// ─────────────────────────────────────────────
+
+export const otpCodes = pgTable(
+  "otp_codes",
+  {
+    id: serial("id").primaryKey(),
+    storeId: integer("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    /** Either phone or email — one of the two is set. */
+    phone: varchar("phone", { length: 50 }),
+    email: varchar("email", { length: 255 }),
+    /** bcrypt-hashed code; never store plaintext. */
+    codeHash: text("code_hash").notNull(),
+    purpose: otpPurposeEnum("purpose").notNull().default("checkout"),
+    attempts: integer("attempts").notNull().default(0),
+    consumedAt: timestamp("consumed_at"),
+    expiresAt: timestamp("expires_at").notNull(),
+    requesterIp: varchar("requester_ip", { length: 50 }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("otp_codes_phone_idx").on(table.phone),
+    index("otp_codes_email_idx").on(table.email),
+    index("otp_codes_store_idx").on(table.storeId),
+    index("otp_codes_expires_idx").on(table.expiresAt),
+  ],
+);
+
+// ─────────────────────────────────────────────
+// Customer blacklist — block repeat-refusal COD phones
+// ─────────────────────────────────────────────
+
+export const customerBlacklist = pgTable(
+  "customer_blacklist",
+  {
+    id: serial("id").primaryKey(),
+    storeId: integer("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    phone: varchar("phone", { length: 50 }),
+    email: varchar("email", { length: 255 }),
+    reason: blacklistReasonEnum("reason").notNull().default("OTHER"),
+    note: text("note"),
+    createdBy: text("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("customer_blacklist_store_idx").on(table.storeId),
+    index("customer_blacklist_phone_idx").on(table.phone),
+    index("customer_blacklist_email_idx").on(table.email),
+  ],
+);
+
+// ─────────────────────────────────────────────
+// Shipments — courier dispatch tracking
+// ─────────────────────────────────────────────
+
+export const shipments = pgTable(
+  "shipments",
+  {
+    id: serial("id").primaryKey(),
+    storeId: integer("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    orderId: integer("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    /** e.g. "steadfast", "pathao", "redx", "sundarban", "manual". */
+    courier: varchar("courier", { length: 50 }).notNull(),
+    /** Provider's consignment id / tracking number. */
+    trackingCode: varchar("tracking_code", { length: 255 }),
+    consignmentId: varchar("consignment_id", { length: 255 }),
+    status: shipmentStatusEnum("status").notNull().default("PENDING"),
+    codAmount: numeric("cod_amount", { precision: 12, scale: 2 }),
+    note: text("note"),
+    /** Raw provider response for debugging. */
+    providerResponse: json("provider_response"),
+    dispatchedBy: text("dispatched_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("shipments_order_idx").on(table.orderId),
+    index("shipments_store_idx").on(table.storeId),
+    index("shipments_tracking_idx").on(table.trackingCode),
   ],
 );
 
