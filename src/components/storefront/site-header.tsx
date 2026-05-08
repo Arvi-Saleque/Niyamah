@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Heart, Menu, Phone, Search, ShoppingBag, User, X } from "lucide-react";
+import { Logo } from "@/components/shared/logo";
 import { useCartStore } from "@/stores/cart-store";
 import { cn } from "@/lib/utils";
 
@@ -250,6 +251,9 @@ const MOST_SEARCHED = [
   { label: "Under Tk 1000", href: "/search?q=under%201000", tone: "from-[#ecefe6] to-[#f7f4ee]" },
 ] as const;
 
+const premiumUnderline =
+  "relative inline-block pb-1 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-[cubic-bezier(0.22,1,0.36,1)] hover:after:scale-x-100 focus-visible:after:scale-x-100";
+
 export function SiteHeader({ className }: SiteHeaderProps) {
   const totalItems = useCartStore((s) => s.totalItems());
   const toggleCart = useCartStore((s) => s.toggleCart);
@@ -305,13 +309,11 @@ export function SiteHeader({ className }: SiteHeaderProps) {
               <Menu className="h-5 w-5" />
               <span className="hidden sm:inline">Menu</span>
             </button>
-            <Link
-              href="/"
-              className="hidden text-[24px] font-semibold uppercase leading-none tracking-normal lg:block"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
-              Niyamah
-            </Link>
+            <Logo
+              className="h-11"
+              linkClassName="hidden lg:inline-flex"
+              imageSize={40}
+            />
           </div>
 
           <nav className="hidden items-center justify-center gap-7 text-[15px] lg:flex">
@@ -320,8 +322,9 @@ export function SiteHeader({ className }: SiteHeaderProps) {
                 key={item.label}
                 href={item.href}
                 className={cn(
-                  "border-b border-transparent pb-0.5 leading-none transition-colors hover:border-black",
-                  activePanel === item.label && "border-black",
+                  premiumUnderline,
+                  "leading-none after:duration-500",
+                  activePanel === item.label && "after:scale-x-100",
                 )}
                 onMouseEnter={() => setActivePanel(item.label)}
                 onFocus={() => setActivePanel(item.label)}
@@ -331,13 +334,11 @@ export function SiteHeader({ className }: SiteHeaderProps) {
             ))}
           </nav>
 
-          <Link
-            href="/"
-            className="justify-self-center text-[24px] font-semibold uppercase leading-none tracking-normal lg:hidden"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            Niyamah
-          </Link>
+          <Logo
+            className="h-10"
+            linkClassName="justify-self-center lg:hidden"
+            imageSize={38}
+          />
 
           <div className="flex items-center justify-end gap-5">
             <button
@@ -435,12 +436,14 @@ function MegaPanel({ panel, close }: { panel: NavPanel; close: () => void }) {
                   </span>
                 </div>
               </div>
-              <p className="mt-5 text-center text-[15px] font-semibold">{item.label}</p>
+              <p className="mt-5 text-center text-[15px] font-semibold">
+                <span className={premiumUnderline}>{item.label}</span>
+              </p>
               {item.links && (
                 <div className="mt-5 space-y-3 text-center text-[15px]">
                   {item.links.map((link) => (
-                    <p key={link} className="transition-colors group-hover:text-black/70">
-                      {link}
+                    <p key={link}>
+                      <span className={cn(premiumUnderline, "text-black/80")}>{link}</span>
                     </p>
                   ))}
                 </div>
@@ -463,9 +466,9 @@ function MegaPanel({ panel, close }: { panel: NavPanel; close: () => void }) {
             <Link
               href={column.href}
               onClick={close}
-              className="mb-7 block text-[15px] font-semibold hover:underline"
+              className="mb-7 block text-[15px] font-semibold"
             >
-              {column.title}
+              <span className={premiumUnderline}>{column.title}</span>
             </Link>
             <div className="space-y-4 text-[15px]">
               {column.links.map((link) => (
@@ -473,9 +476,9 @@ function MegaPanel({ panel, close }: { panel: NavPanel; close: () => void }) {
                   key={link.href}
                   href={link.href}
                   onClick={close}
-                  className="block hover:underline"
+                  className="block"
                 >
-                  {link.label}
+                  <span className={premiumUnderline}>{link.label}</span>
                 </Link>
               ))}
             </div>
@@ -508,14 +511,9 @@ function SearchOverlay({
       aria-hidden={!open}
     >
       <div className="flex h-16 items-center justify-between px-4 md:px-6 lg:px-4">
-        <Link
-          href="/"
-          className="text-[24px] font-semibold uppercase leading-none tracking-normal"
-          style={{ fontFamily: "var(--font-heading)" }}
-          onClick={close}
-        >
-          Niyamah
-        </Link>
+        <span onClick={close}>
+          <Logo className="h-11" imageSize={40} />
+        </span>
         <button type="button" onClick={close} aria-label="Close search">
           <X className="h-5 w-5 stroke-[1.8]" />
         </button>
@@ -558,10 +556,10 @@ function SearchOverlay({
               <button
                 key={item}
                 type="button"
-                className="block text-left hover:underline"
+                className="block text-left"
                 onClick={() => submitSearch(item)}
               >
-                {item}
+                <span className={premiumUnderline}>{item}</span>
               </button>
             ))}
           </div>
@@ -569,8 +567,8 @@ function SearchOverlay({
           <p className="mb-6 mt-12 text-[15px] uppercase tracking-[0.04em]">Collections</p>
           <div className="space-y-5 text-[15px]">
             {SEARCH_COLLECTIONS.map(([label, href]) => (
-              <Link key={href} href={href} onClick={close} className="block hover:underline">
-                {label}
+              <Link key={href} href={href} onClick={close} className="block">
+                <span className={premiumUnderline}>{label}</span>
               </Link>
             ))}
           </div>
@@ -588,7 +586,9 @@ function SearchOverlay({
                     </span>
                   </div>
                 </div>
-                <p className="mt-5 truncate text-[15px] group-hover:underline">{item.label}</p>
+                <p className="mt-5 truncate text-[15px]">
+                  <span className={premiumUnderline}>{item.label}</span>
+                </p>
               </Link>
             ))}
           </div>
@@ -616,14 +616,9 @@ function MobileMenu({
       aria-hidden={!open}
     >
       <div className="flex h-16 items-center justify-between px-4">
-        <Link
-          href="/"
-          className="text-[24px] font-semibold uppercase leading-none"
-          style={{ fontFamily: "var(--font-heading)" }}
-          onClick={close}
-        >
-          Niyamah
-        </Link>
+        <span onClick={close}>
+          <Logo className="h-10" imageSize={38} />
+        </span>
         <button type="button" onClick={close} aria-label="Close menu">
           <X className="h-5 w-5" />
         </button>
@@ -646,7 +641,7 @@ function MobileMenu({
             onClick={close}
             className="block border-b border-black/10 py-5 text-xl"
           >
-            {item.label}
+            <span className={premiumUnderline}>{item.label}</span>
           </Link>
         ))}
         <div className="mt-8 space-y-5 text-[15px]">
