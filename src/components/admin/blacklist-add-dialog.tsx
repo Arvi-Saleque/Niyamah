@@ -109,7 +109,12 @@ export function BlacklistAddDialog() {
           </div>
           <div>
             <Label>Reason</Label>
-            <Select value={reason} onValueChange={setReason}>
+            <Select
+              value={reason}
+              onValueChange={(value) => {
+                if (value) setReason(value);
+              }}
+            >
               <SelectTrigger className="mt-1">
                 <SelectValue />
               </SelectTrigger>

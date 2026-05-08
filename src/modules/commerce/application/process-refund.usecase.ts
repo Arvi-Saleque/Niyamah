@@ -124,6 +124,9 @@ export async function approveReturnUseCase(opts: {
 
     return { request: updated, order };
   });
+  if (!result.request) {
+    throw new RefundError("UPDATE_FAILED", "Unable to approve return request.", 500);
+  }
 
   // Fire event for downstream notifications/email.
   const recipient =
@@ -181,5 +184,8 @@ export async function rejectReturnUseCase(opts: {
     })
     .where(eq(returnRequests.id, reqRow.id))
     .returning();
+  if (!updated) {
+    throw new RefundError("UPDATE_FAILED", "Unable to reject return request.", 500);
+  }
   return updated;
 }

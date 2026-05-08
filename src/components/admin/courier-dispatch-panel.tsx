@@ -59,7 +59,12 @@ export function CourierDispatchPanel({
       <div className="space-y-3">
         <div>
           <Label>Courier</Label>
-          <Select value={courier} onValueChange={setCourier}>
+          <Select
+            value={courier}
+            onValueChange={(value) => {
+              if (value) setCourier(value);
+            }}
+          >
             <SelectTrigger className="mt-1">
               <SelectValue />
             </SelectTrigger>

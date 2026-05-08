@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
     );
   }
   const row = await blacklistRepository.create(parsed.data, guard.ctx.userId);
+  if (!row) return apiError("CREATE_FAILED", "Unable to create blacklist entry.", 500);
   recordAudit({
     actorId: guard.ctx.userId,
     action: "blacklist.add",

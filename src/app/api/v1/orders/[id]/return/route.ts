@@ -99,6 +99,7 @@ export async function POST(
     reason: parsed.data.reason,
     items: parsed.data.items,
   });
+  if (!created) return apiError("CREATE_FAILED", "Unable to create return request.", 500);
 
   inngest
     .send({

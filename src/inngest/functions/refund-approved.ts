@@ -30,7 +30,7 @@ export const refundApproved = inngest.createFunction(
       if (!order) return null;
       let email = recipientEmail ?? order.guestEmail ?? null;
       let name: string | null = order.shippingName ?? null;
-      let userId: string | null = order.userId;
+      const userId: string | null = order.userId;
       if (!email && order.userId) {
         const user = await db.query.users.findFirst({
           where: eq(users.id, order.userId),
