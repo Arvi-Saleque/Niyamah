@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -52,6 +52,8 @@ const MOST_SEARCHED = [
   { label: "Tasbih", href: "/category/tasbih", tone: "from-[#f6f6f4] to-[#e3eadb]" },
   { label: "Dua Book", href: "/search?q=dua%20book", tone: "from-[#faf7ee] to-white" },
   { label: "Under Tk 1000", href: "/search?q=under%201000", tone: "from-[#ecefe6] to-[#f7f4ee]" },
+  { label: "Attar", href: "/search?q=attar", tone: "from-[#f8f5ef] to-[#e9eee2]" },
+  { label: "Islamic Books", href: "/search?q=islamic%20books", tone: "from-white to-[#f2f3ef]" },
 ] as const;
 
 const premiumUnderline =
@@ -375,12 +377,19 @@ function SearchOverlay({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[80] bg-white text-black transition-opacity",
-        open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
+        "fixed inset-0 z-[80] bg-white text-black transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+        open
+          ? "pointer-events-auto translate-y-0 opacity-100"
+          : "pointer-events-none -translate-y-3 opacity-0",
       )}
       aria-hidden={!open}
     >
-      <div className="flex h-16 items-center justify-between px-4 md:px-6 lg:px-4">
+      <div
+        className={cn(
+          "flex h-16 items-center justify-between px-4 transition-[opacity,transform] duration-500 md:px-6 lg:px-4",
+          open ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0",
+        )}
+      >
         <span onClick={close}>
           <Logo className="h-11" imageSize={40} />
         </span>
@@ -390,7 +399,10 @@ function SearchOverlay({
       </div>
 
       <form
-        className="mx-4 flex items-center border-b border-black md:mx-6 lg:mx-4"
+        className={cn(
+          "relative mx-4 flex items-center after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-left after:bg-black after:transition-transform after:duration-700 after:ease-[cubic-bezier(0.22,1,0.36,1)] md:mx-6 lg:mx-4",
+          open ? "after:scale-x-100" : "after:scale-x-0",
+        )}
         onSubmit={(event) => {
           event.preventDefault();
           submitSearch(query);
@@ -401,7 +413,7 @@ function SearchOverlay({
           onChange={(event) => setQuery(event.target.value)}
           autoFocus={open}
           placeholder="What are you looking for?"
-          className="h-10 flex-1 bg-transparent text-[15px] outline-none placeholder:text-black/55"
+          className="h-11 flex-1 bg-transparent text-[15px] outline-none placeholder:text-black/55"
         />
         {query && (
           <button
@@ -418,7 +430,12 @@ function SearchOverlay({
         </button>
       </form>
 
-      <div className="grid gap-6 px-4 py-9 md:grid-cols-[360px_1fr] md:px-6 lg:px-4">
+      <div
+        className={cn(
+          "grid gap-6 px-4 py-9 transition-[opacity,transform] delay-100 duration-500 md:grid-cols-[360px_1fr] md:px-6 lg:px-4",
+          open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0",
+        )}
+      >
         <aside className="border-black/15 pb-4 md:min-h-[385px] md:border-r md:pr-10">
           <p className="mb-6 text-[15px] uppercase tracking-[0.04em]">Suggestions</p>
           <div className="space-y-5 text-[15px]">
@@ -446,24 +463,73 @@ function SearchOverlay({
 
         <section className="min-w-0 md:pl-2">
           <p className="mb-5 text-[15px] uppercase tracking-[0.04em]">Most searched</p>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            {MOST_SEARCHED.map((item) => (
-              <Link key={item.href} href={item.href} onClick={close} className="group min-w-0">
-                <div className={cn("aspect-[4/5] bg-gradient-to-br", item.tone)}>
-                  <div className="flex h-full items-center justify-center px-6 text-center">
-                    <span className="text-sm uppercase tracking-[0.18em] text-black/35">
-                      Niyamah
-                    </span>
-                  </div>
-                </div>
-                <p className="mt-5 truncate text-[15px]">
-                  <span className={premiumUnderline}>{item.label}</span>
-                </p>
-              </Link>
-            ))}
-          </div>
+          <SearchProductRail close={close} />
         </section>
       </div>
+    </div>
+  );
+}
+
+function SearchProductRail({ close }: { close: () => void }) {
+  const railRef = useRef<HTMLDivElement>(null);
+  const dragState = useRef({
+    active: false,
+    pointerId: 0,
+    startX: 0,
+    scrollLeft: 0,
+  });
+
+  return (
+    <div
+      ref={railRef}
+      className="flex snap-x gap-4 overflow-x-auto pb-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      onPointerDown={(event) => {
+        const rail = railRef.current;
+        if (!rail) return;
+        dragState.current = {
+          active: true,
+          pointerId: event.pointerId,
+          startX: event.clientX,
+          scrollLeft: rail.scrollLeft,
+        };
+        rail.setPointerCapture(event.pointerId);
+      }}
+      onPointerMove={(event) => {
+        const rail = railRef.current;
+        const state = dragState.current;
+        if (!rail || !state.active || state.pointerId !== event.pointerId) return;
+        rail.scrollLeft = state.scrollLeft - (event.clientX - state.startX);
+      }}
+      onPointerUp={(event) => {
+        const rail = railRef.current;
+        const state = dragState.current;
+        if (!rail || state.pointerId !== event.pointerId) return;
+        dragState.current.active = false;
+        rail.releasePointerCapture(event.pointerId);
+      }}
+      onPointerCancel={() => {
+        dragState.current.active = false;
+      }}
+    >
+      {MOST_SEARCHED.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          onClick={close}
+          className="group min-w-[220px] snap-start md:min-w-[232px] xl:min-w-[248px]"
+        >
+          <div className={cn("aspect-[4/5] bg-gradient-to-br", item.tone)}>
+            <div className="flex h-full items-center justify-center px-6 text-center">
+              <span className="text-sm uppercase tracking-[0.18em] text-black/35">
+                Niyamah
+              </span>
+            </div>
+          </div>
+          <p className="mt-5 truncate text-[15px]">
+            <span className={premiumUnderline}>{item.label}</span>
+          </p>
+        </Link>
+      ))}
     </div>
   );
 }
