@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { orders, returnRequests } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
@@ -83,7 +83,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
       .where(
         and(
           eq(returnRequests.status, "PENDING"),
-          sql`${returnRequests.orderId} = ANY(${orderIds})`,
+          inArray(returnRequests.orderId, orderIds),
         ),
       );
     for (const r of returnsRows) pendingReturnIds.add(r.orderId);
