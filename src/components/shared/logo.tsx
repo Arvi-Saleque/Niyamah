@@ -30,14 +30,6 @@ export function Logo({ href = "/", className, variant = "both", imageSize = 36 }
       {(variant === "image" || variant === "both") && (
         <LogoMark size={imageSize} />
       )}
-      {(variant === "text" || variant === "both") && (
-        <span
-          className="text-xl font-semibold tracking-wide text-[#043D25]"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
-          Niyamah
-        </span>
-      )}
     </span>
   );
 
