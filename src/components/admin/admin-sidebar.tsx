@@ -25,6 +25,7 @@ import {
   Boxes,
   BarChart3,
   ScrollText,
+  Menu,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -83,6 +84,7 @@ const navSections: NavSection[] = [
       { label: "Campaigns", href: "/admin/campaigns", icon: Megaphone },
       { label: "Blog", href: "/admin/blog", icon: BookOpen },
       { label: "Homepage", href: "/admin/homepage", icon: Layout },
+      { label: "Navigation", href: "/admin/navigation", icon: Menu },
     ],
   },
   {

@@ -1,231 +1,24 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Heart, Menu, Phone, Search, ShoppingBag, User, X } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { useCartStore } from "@/stores/cart-store";
 import { cn } from "@/lib/utils";
+import {
+  NAVIGATION_DEFAULTS,
+  type NavPanel,
+} from "@/modules/storefront/navigation-defaults";
 
 interface SiteHeaderProps {
   className?: string;
+  /** Admin-controlled navigation panels. Falls back to built-in defaults if omitted. */
+  panels?: NavPanel[];
 }
 
-type NavPanel =
-  | {
-      label: string;
-      href: string;
-      type: "features";
-      items: Array<{ label: string; href: string; tone: string; links?: string[] }>;
-    }
-  | {
-      label: string;
-      href: string;
-      type: "columns";
-      columns: Array<{ title: string; href: string; links: Array<{ label: string; href: string }> }>;
-    };
-
-const NAV_PANELS: NavPanel[] = [
-  {
-    label: "New",
-    href: "/products",
-    type: "features",
-    items: [
-      {
-        label: "New Arrivals",
-        href: "/products?sort=new",
-        tone: "from-[#f5f1e7] via-[#e7eadf] to-[#f8f5ef]",
-        links: ["Quran", "Gift boxes", "Prayer mats", "Tasbih"],
-      },
-      {
-        label: "Ramadan Edit",
-        href: "/campaigns/ramadan",
-        tone: "from-[#eaf6dd] via-[#f7f1e5] to-white",
-        links: ["Daily recitation", "Family gifts", "Bundles"],
-      },
-      {
-        label: "Premium Sets",
-        href: "/category/gift-box",
-        tone: "from-[#f3efe7] via-[#dfe8d8] to-[#faf7ee]",
-        links: ["For parents", "For teachers", "For weddings"],
-      },
-      {
-        label: "Learning Guides",
-        href: "/blog",
-        tone: "from-[#f7f7f7] via-[#e8eee5] to-[#f9f5ec]",
-        links: ["Quran guide", "Gift guide", "Care guide"],
-      },
-    ],
-  },
-  {
-    label: "Quran",
-    href: "/category/quran",
-    type: "columns",
-    columns: [
-      {
-        title: "By Translation",
-        href: "/category/quran",
-        links: [
-          { label: "Bengali Quran", href: "/category/bengali-quran" },
-          { label: "English Quran", href: "/category/english-quran" },
-          { label: "Arabic Quran", href: "/category/arabic-quran" },
-          { label: "Word by Word", href: "/search?q=word%20by%20word%20quran" },
-        ],
-      },
-      {
-        title: "By Use",
-        href: "/category/quran",
-        links: [
-          { label: "Daily recitation", href: "/search?q=daily%20quran" },
-          { label: "For beginners", href: "/search?q=beginner%20quran" },
-          { label: "For children", href: "/search?q=children%20quran" },
-          { label: "Color coded", href: "/search?q=color%20coded%20quran" },
-        ],
-      },
-      {
-        title: "Format",
-        href: "/products",
-        links: [
-          { label: "Pocket size", href: "/search?q=pocket%20quran" },
-          { label: "Large print", href: "/search?q=large%20print%20quran" },
-          { label: "Hardcover", href: "/search?q=hardcover%20quran" },
-          { label: "Gift edition", href: "/search?q=gift%20quran" },
-        ],
-      },
-      {
-        title: "Highlights",
-        href: "/products",
-        links: [
-          { label: "Best sellers", href: "/products?sort=best" },
-          { label: "New arrivals", href: "/products?sort=new" },
-          { label: "Under Tk 1000", href: "/search?q=quran%20under%201000" },
-          { label: "View all", href: "/category/quran" },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Gifts",
-    href: "/category/gift-box",
-    type: "features",
-    items: [
-      {
-        label: "Gifts for Parents",
-        href: "/search?q=gift%20for%20parents",
-        tone: "from-[#f8f5ef] via-[#e7eadf] to-[#f1efe8]",
-        links: ["Quran sets", "Prayer sets", "Tasbih"],
-      },
-      {
-        label: "Gifts for Her",
-        href: "/search?q=islamic%20gift%20for%20her",
-        tone: "from-[#f2ebe3] via-[#f7f4ee] to-[#e4eadc]",
-        links: ["Gift box", "Hijab pins", "Pocket Quran"],
-      },
-      {
-        label: "Gifts for Him",
-        href: "/search?q=islamic%20gift%20for%20him",
-        tone: "from-[#e9eee2] via-[#f7f1e8] to-white",
-        links: ["Tasbih", "Attar", "Prayer mat"],
-      },
-      {
-        label: "Wedding Gifts",
-        href: "/search?q=islamic%20wedding%20gift",
-        tone: "from-[#faf7ee] via-[#e7eadf] to-[#f6f6f4]",
-        links: ["Premium box", "Couple set", "Made to order"],
-      },
-    ],
-  },
-  {
-    label: "Prayer",
-    href: "/category/prayer-mat",
-    type: "columns",
-    columns: [
-      {
-        title: "Prayer Mats",
-        href: "/category/prayer-mat",
-        links: [
-          { label: "View all", href: "/category/prayer-mat" },
-          { label: "Travel mats", href: "/search?q=travel%20prayer%20mat" },
-          { label: "Premium mats", href: "/search?q=premium%20prayer%20mat" },
-          { label: "Gift mats", href: "/search?q=gift%20prayer%20mat" },
-        ],
-      },
-      {
-        title: "Dhikr",
-        href: "/category/tasbih",
-        links: [
-          { label: "Tasbih", href: "/category/tasbih" },
-          { label: "Digital counters", href: "/search?q=digital%20tasbih" },
-          { label: "Stone beads", href: "/search?q=stone%20tasbih" },
-          { label: "Gift tasbih", href: "/search?q=gift%20tasbih" },
-        ],
-      },
-      {
-        title: "Essentials",
-        href: "/products",
-        links: [
-          { label: "Prayer caps", href: "/search?q=prayer%20cap" },
-          { label: "Attar", href: "/search?q=attar" },
-          { label: "Books", href: "/search?q=islamic%20books" },
-          { label: "Bundles", href: "/search?q=prayer%20bundle" },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Books",
-    href: "/category/books",
-    type: "columns",
-    columns: [
-      {
-        title: "Learning",
-        href: "/category/books",
-        links: [
-          { label: "Hadith", href: "/search?q=hadith" },
-          { label: "Dua books", href: "/search?q=dua%20book" },
-          { label: "Seerah", href: "/search?q=seerah" },
-          { label: "Children's books", href: "/search?q=islamic%20children%20books" },
-        ],
-      },
-      {
-        title: "Guides",
-        href: "/blog",
-        links: [
-          { label: "Quran buying guide", href: "/blog" },
-          { label: "Gift guide", href: "/blog" },
-          { label: "Prayer essentials", href: "/blog" },
-          { label: "Care guide", href: "/blog" },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Contact",
-    href: "/contact",
-    type: "features",
-    items: [
-      {
-        label: "WhatsApp Support",
-        href: "https://wa.me/8801760982072",
-        tone: "from-[#e8f0e2] via-white to-[#f8f5ef]",
-        links: ["Ask before ordering", "Confirm delivery", "COD support"],
-      },
-      {
-        label: "Track Order",
-        href: "/account/orders",
-        tone: "from-[#f7f4ee] via-[#e9eee2] to-white",
-        links: ["Order updates", "Courier status", "Returns"],
-      },
-      {
-        label: "Visit Help",
-        href: "/faq",
-        tone: "from-white via-[#f2f3ef] to-[#faf7ee]",
-        links: ["FAQ", "Delivery", "Refund policy"],
-      },
-    ],
-  },
-];
 
 const SEARCH_SUGGESTIONS = [
   "Color coded Quran",
@@ -254,7 +47,8 @@ const MOST_SEARCHED = [
 const premiumUnderline =
   "relative inline-block pb-1 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-[cubic-bezier(0.22,1,0.36,1)] hover:after:scale-x-100 focus-visible:after:scale-x-100";
 
-export function SiteHeader({ className }: SiteHeaderProps) {
+export function SiteHeader({ className, panels }: SiteHeaderProps) {
+  const navPanels: NavPanel[] = panels && panels.length > 0 ? panels : NAVIGATION_DEFAULTS.panels;
   const totalItems = useCartStore((s) => s.totalItems());
   const toggleCart = useCartStore((s) => s.toggleCart);
   const router = useRouter();
@@ -290,7 +84,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
     router.push(`/search?q=${encodeURIComponent(clean)}`);
   };
 
-  const panel = NAV_PANELS.find((item) => item.label === activePanel);
+  const panel = navPanels.find((item) => item.id === activePanel);
 
   return (
     <>
@@ -317,17 +111,17 @@ export function SiteHeader({ className }: SiteHeaderProps) {
           </div>
 
           <nav className="hidden items-center justify-center gap-7 text-[15px] lg:flex">
-            {NAV_PANELS.map((item) => (
+            {navPanels.map((item) => (
               <Link
-                key={item.label}
+                key={item.id}
                 href={item.href}
                 className={cn(
                   premiumUnderline,
                   "leading-none after:duration-500",
-                  activePanel === item.label && "after:scale-x-100",
+                  activePanel === item.id && "after:scale-x-100",
                 )}
-                onMouseEnter={() => setActivePanel(item.label)}
-                onFocus={() => setActivePanel(item.label)}
+                onMouseEnter={() => setActivePanel(item.id)}
+                onFocus={() => setActivePanel(item.id)}
               >
                 {item.label}
               </Link>
@@ -396,7 +190,7 @@ export function SiteHeader({ className }: SiteHeaderProps) {
               ? "pointer-events-auto translate-y-0 opacity-100"
               : "pointer-events-none -translate-y-2 opacity-0",
           )}
-          onMouseEnter={() => panel && setActivePanel(panel.label)}
+          onMouseEnter={() => panel && setActivePanel(panel.id)}
         >
           {panel && <MegaPanel panel={panel} close={() => setActivePanel(null)} />}
         </div>
@@ -417,72 +211,134 @@ export function SiteHeader({ className }: SiteHeaderProps) {
           setMobileOpen(false);
           setSearchOpen(true);
         }}
+        panels={navPanels}
       />
     </>
   );
 }
 
 function MegaPanel({ panel, close }: { panel: NavPanel; close: () => void }) {
-  if (panel.type === "features") {
+  // â”€â”€ Template 1: feature-columns (image + heading + sub-links â€” used by NEW) â”€â”€
+  if (panel.template === "feature-columns") {
     return (
       <div className="w-full px-4 pb-12 pt-9">
         <div className="mx-auto grid max-w-[1240px] gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {panel.items.map((item) => (
-            <Link key={item.label} href={item.href} onClick={close} className="group">
-              <div className={cn("aspect-[4/5] bg-gradient-to-br", item.tone)}>
-                <div className="flex h-full items-center justify-center">
-                  <span className="w-28 text-center text-sm uppercase tracking-[0.18em] text-black/35">
-                    Niyamah
-                  </span>
+          {panel.columns.map((col, idx) => (
+            <div key={`${col.title}-${idx}`} className="group">
+              <Link href={col.href} onClick={close} className="block">
+                <div
+                  className={cn(
+                    "relative aspect-[4/5] overflow-hidden bg-gradient-to-br",
+                    !col.image && (col.tone ?? "from-[#f5f1e7] to-[#e7eadf]"),
+                  )}
+                >
+                  {col.image ? (
+                    <Image
+                      src={col.image}
+                      alt={col.title}
+                      fill
+                      sizes="(max-width: 1024px) 33vw, 310px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <span className="w-28 text-center text-sm uppercase tracking-[0.18em] text-black/35">
+                        Niyamah
+                      </span>
+                    </div>
+                  )}
                 </div>
-              </div>
-              <p className="mt-5 text-center text-[15px] font-semibold">
-                <span className={premiumUnderline}>{item.label}</span>
-              </p>
-              {item.links && (
+                <p className="mt-5 text-center text-[15px] font-semibold">
+                  <span className={premiumUnderline}>{col.title}</span>
+                </p>
+              </Link>
+              {col.links.length > 0 && (
                 <div className="mt-5 space-y-3 text-center text-[15px]">
-                  {item.links.map((link) => (
-                    <p key={link}>
-                      <span className={cn(premiumUnderline, "text-black/80")}>{link}</span>
+                  {col.links.map((link) => (
+                    <p key={link.href + link.label}>
+                      <Link href={link.href} onClick={close}>
+                        <span className={cn(premiumUnderline, "text-black/80")}>{link.label}</span>
+                      </Link>
                     </p>
                   ))}
                 </div>
               )}
-            </Link>
+            </div>
           ))}
         </div>
       </div>
     );
   }
 
+  // â”€â”€ Template 2: mega-list (column heading + flat link list â€” Women / Men style) â”€â”€
+  if (panel.template === "mega-list") {
+    return (
+      <div className="w-full px-4 pb-12 pt-10">
+        <div
+          className="mx-auto grid max-w-[1660px] gap-x-14 gap-y-8"
+          style={{ gridTemplateColumns: `repeat(${Math.min(panel.columns.length, 7)}, minmax(0, 1fr))` }}
+        >
+          {panel.columns.map((column, idx) => (
+            <div key={`${column.title}-${idx}`} className="min-w-0">
+              <Link
+                href={column.href}
+                onClick={close}
+                className="mb-7 block text-[15px] font-semibold"
+              >
+                <span className={premiumUnderline}>{column.title}</span>
+              </Link>
+              <div className="space-y-4 text-[15px]">
+                {column.links.map((link) => (
+                  <Link
+                    key={link.href + link.label}
+                    href={link.href}
+                    onClick={close}
+                    className="block"
+                  >
+                    <span className={premiumUnderline}>{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // â”€â”€ Template 3: image-tiles (row of square images with label below â€” Art of Living style) â”€â”€
   return (
     <div className="w-full px-4 pb-12 pt-10">
       <div
-        className="mx-auto grid max-w-[1660px] gap-x-14 gap-y-8"
-        style={{ gridTemplateColumns: `repeat(${Math.min(panel.columns.length, 7)}, minmax(0, 1fr))` }}
+        className="mx-auto grid max-w-[1480px] gap-6"
+        style={{ gridTemplateColumns: `repeat(${Math.min(panel.tiles.length, 6)}, minmax(0, 1fr))` }}
       >
-        {panel.columns.map((column) => (
-          <div key={column.title} className="min-w-0">
-            <Link
-              href={column.href}
-              onClick={close}
-              className="mb-7 block text-[15px] font-semibold"
+        {panel.tiles.map((tile, idx) => (
+          <Link key={`${tile.label}-${idx}`} href={tile.href} onClick={close} className="group block">
+            <div
+              className={cn(
+                "relative aspect-square overflow-hidden bg-gradient-to-br",
+                !tile.image && (tile.tone ?? "from-[#f5f1e7] to-[#e7eadf]"),
+              )}
             >
-              <span className={premiumUnderline}>{column.title}</span>
-            </Link>
-            <div className="space-y-4 text-[15px]">
-              {column.links.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={close}
-                  className="block"
-                >
-                  <span className={premiumUnderline}>{link.label}</span>
-                </Link>
-              ))}
+              {tile.image ? (
+                <Image
+                  src={tile.image}
+                  alt={tile.label}
+                  fill
+                  sizes="(max-width: 1024px) 33vw, 240px"
+                  className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <span className="text-sm uppercase tracking-[0.18em] text-black/35">Niyamah</span>
+                </div>
+              )}
             </div>
-          </div>
+            <p className="mt-5 text-center text-[15px]">
+              <span className={premiumUnderline}>{tile.label}</span>
+            </p>
+          </Link>
         ))}
       </div>
     </div>
@@ -602,10 +458,12 @@ function MobileMenu({
   open,
   close,
   openSearch,
+  panels,
 }: {
   open: boolean;
   close: () => void;
   openSearch: () => void;
+  panels: NavPanel[];
 }) {
   return (
     <div
@@ -634,9 +492,9 @@ function MobileMenu({
         </button>
       </div>
       <nav className="px-4 py-5">
-        {NAV_PANELS.map((item) => (
+        {panels.map((item) => (
           <Link
-            key={item.label}
+            key={item.id}
             href={item.href}
             onClick={close}
             className="block border-b border-black/10 py-5 text-xl"
