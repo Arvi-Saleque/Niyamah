@@ -377,7 +377,7 @@ function SearchOverlay({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[80] bg-white text-black transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+        "fixed inset-0 z-[80] overflow-y-auto overscroll-contain bg-white text-black transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
         open
           ? "pointer-events-auto translate-y-0 opacity-100"
           : "pointer-events-none -translate-y-3 opacity-0",
@@ -474,6 +474,7 @@ function SearchProductRail({ close }: { close: () => void }) {
   const railRef = useRef<HTMLDivElement>(null);
   const dragState = useRef({
     active: false,
+    moved: false,
     pointerId: 0,
     startX: 0,
     scrollLeft: 0,
@@ -482,12 +483,13 @@ function SearchProductRail({ close }: { close: () => void }) {
   return (
     <div
       ref={railRef}
-      className="flex snap-x gap-4 overflow-x-auto pb-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="flex w-full max-w-full snap-x gap-4 overflow-x-auto pb-20 [-ms-overflow-style:none] [scrollbar-width:none] [touch-action:pan-x] active:cursor-grabbing md:pb-5 [&::-webkit-scrollbar]:hidden"
       onPointerDown={(event) => {
         const rail = railRef.current;
         if (!rail) return;
         dragState.current = {
           active: true,
+          moved: false,
           pointerId: event.pointerId,
           startX: event.clientX,
           scrollLeft: rail.scrollLeft,
@@ -498,7 +500,12 @@ function SearchProductRail({ close }: { close: () => void }) {
         const rail = railRef.current;
         const state = dragState.current;
         if (!rail || !state.active || state.pointerId !== event.pointerId) return;
-        rail.scrollLeft = state.scrollLeft - (event.clientX - state.startX);
+        const delta = event.clientX - state.startX;
+        if (Math.abs(delta) > 3) {
+          state.moved = true;
+          event.preventDefault();
+        }
+        rail.scrollLeft = state.scrollLeft - delta;
       }}
       onPointerUp={(event) => {
         const rail = railRef.current;
@@ -515,8 +522,15 @@ function SearchProductRail({ close }: { close: () => void }) {
         <Link
           key={item.href}
           href={item.href}
-          onClick={close}
-          className="group min-w-[220px] snap-start md:min-w-[232px] xl:min-w-[248px]"
+          onClick={(event) => {
+            if (dragState.current.moved) {
+              event.preventDefault();
+              return;
+            }
+            close();
+          }}
+          draggable={false}
+          className="group min-w-[220px] snap-start select-none md:min-w-[232px] xl:min-w-[248px]"
         >
           <div className={cn("aspect-[4/5] bg-gradient-to-br", item.tone)}>
             <div className="flex h-full items-center justify-center px-6 text-center">
