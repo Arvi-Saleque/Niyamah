@@ -60,7 +60,8 @@ export async function POST(req: NextRequest) {
     });
     return apiSuccess(result, 201);
   } catch (err) {
+    const message = err instanceof Error ? err.message : "Could not upload file.";
     console.error("[media-upload] error:", err);
-    return apiError("UPLOAD_FAILED", "Could not upload file.", 502);
+    return apiError("UPLOAD_FAILED", message, 502);
   }
 }

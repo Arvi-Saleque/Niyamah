@@ -712,9 +712,13 @@ function ImageField({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const uploadingRef = useRef(false);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
+    // Prevent re-entrant uploads (e.g. from the browser firing onChange on input reset)
+    if (uploadingRef.current) return;
+    uploadingRef.current = true;
     const file = files[0];
     setUploading(true);
     try {
@@ -737,7 +741,11 @@ function ImageField({
       toast.error(e instanceof Error ? e.message : "Upload failed");
     } finally {
       setUploading(false);
-      if (inputRef.current) inputRef.current.value = "";
+      uploadingRef.current = false;
+      // Clear the input value without triggering onChange
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
     }
   };
 
