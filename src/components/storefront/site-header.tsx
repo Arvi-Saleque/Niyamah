@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useDebounce } from "@/hooks/use-debounce";
 import {
   ChevronLeft,
   ChevronRight,
@@ -463,8 +464,14 @@ function SearchOverlay({
         </aside>
 
         <section className="min-w-0 md:pl-2">
-          <p className="mb-5 text-[15px] uppercase tracking-[0.04em]">Most searched</p>
-          <SearchProductRail close={close} />
+          {query.trim().length >= 2 ? (
+            <InstantSearchResults query={query} close={close} submitSearch={submitSearch} />
+          ) : (
+            <>
+              <p className="mb-5 text-[15px] uppercase tracking-[0.04em]">Most searched</p>
+              <SearchProductRail close={close} />
+            </>
+          )}
         </section>
       </div>
     </div>
@@ -808,6 +815,141 @@ function MobileVisual({
           </span>
         </div>
       )}
+    </div>
+  );
+}
+
+
+// ─────────────────────────────────────────────────────────────────
+// Instant search results (debounced; backed by /api/v1/search/instant)
+// ─────────────────────────────────────────────────────────────────
+
+interface InstantHit {
+  id: number;
+  slug: string;
+  name: string;
+  shortDescription: string | null;
+  price: string;
+  salePrice: string | null;
+  image: string | null;
+  categorySlug: string | null;
+}
+
+function InstantSearchResults({
+  query,
+  close,
+  submitSearch,
+}: {
+  query: string;
+  close: () => void;
+  submitSearch: (value: string) => void;
+}) {
+  const debounced = useDebounce(query.trim(), 220);
+  const [hits, setHits] = useState<InstantHit[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
+
+  useEffect(() => {
+    if (debounced.length < 2) {
+      setHits([]);
+      setHasFetched(false);
+      return;
+    }
+    const ctrl = new AbortController();
+    setLoading(true);
+    fetch(`/api/v1/search/instant?q=${encodeURIComponent(debounced)}&limit=8`, {
+      signal: ctrl.signal,
+    })
+      .then((r) => r.json())
+      .then((json) => {
+        if (json?.success) {
+          setHits((json.data?.items as InstantHit[]) ?? []);
+          setHasFetched(true);
+        }
+      })
+      .catch((err) => {
+        if (err?.name !== "AbortError") setHits([]);
+      })
+      .finally(() => setLoading(false));
+    return () => ctrl.abort();
+  }, [debounced]);
+
+  if (loading && hits.length === 0) {
+    return (
+      <div className="flex items-center gap-2 text-[15px] text-black/55">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-black/40" />
+        Searching…
+      </div>
+    );
+  }
+
+  if (hasFetched && hits.length === 0) {
+    return (
+      <div className="space-y-3 text-[15px]">
+        <p>
+          No results for <span className="font-semibold">“{debounced}”</span>.
+        </p>
+        <p className="text-black/55">Try a different word, or browse our categories.</p>
+      </div>
+    );
+  }
+
+  if (hits.length === 0) return null;
+
+  return (
+    <div>
+      <p className="mb-5 text-[15px] uppercase tracking-[0.04em]">
+        {hits.length} result{hits.length === 1 ? "" : "s"} for “{debounced}”
+      </p>
+      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {hits.map((hit) => (
+          <li key={hit.id}>
+            <Link
+              href={`/products/${hit.slug}`}
+              onClick={close}
+              className="group flex items-center gap-3"
+            >
+              <div className="relative aspect-square h-16 w-16 shrink-0 overflow-hidden bg-[var(--color-surface,#f5f1e7)]">
+                {hit.image ? (
+                  <Image
+                    src={hit.image}
+                    alt={hit.name}
+                    fill
+                    sizes="64px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-[10px] uppercase tracking-[0.18em] text-black/35">
+                    Niyamah
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[14px] font-medium">
+                  <span className={premiumUnderline}>{hit.name}</span>
+                </p>
+                <p className="text-[13px] text-black/55">
+                  {hit.salePrice ? (
+                    <>
+                      <span className="font-medium text-black">Tk {hit.salePrice}</span>{" "}
+                      <span className="line-through">Tk {hit.price}</span>
+                    </>
+                  ) : (
+                    <span>Tk {hit.price}</span>
+                  )}
+                </p>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <button
+        type="button"
+        onClick={() => submitSearch(debounced)}
+        className="mt-6 inline-flex items-center gap-1 text-[14px]"
+      >
+        <span className={premiumUnderline}>See all results for “{debounced}”</span>
+      </button>
     </div>
   );
 }
