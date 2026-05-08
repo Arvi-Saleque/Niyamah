@@ -375,6 +375,18 @@ function SearchOverlay({
   close: () => void;
   submitSearch: (value: string) => void;
 }) {
+  const [mobileGroup, setMobileGroup] = useState<"suggestions" | "collections" | null>(null);
+
+  const handleClose = () => {
+    setMobileGroup(null);
+    close();
+  };
+
+  const handleSubmitSearch = (value: string) => {
+    setMobileGroup(null);
+    submitSearch(value);
+  };
+
   return (
     <div
       className={cn(
@@ -391,10 +403,10 @@ function SearchOverlay({
           open ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0",
         )}
       >
-        <span onClick={close}>
+        <span onClick={handleClose}>
           <Logo className="h-11" imageSize={40} />
         </span>
-        <button type="button" onClick={close} aria-label="Close search">
+        <button type="button" onClick={handleClose} aria-label="Close search">
           <X className="h-5 w-5 stroke-[1.8]" />
         </button>
       </div>
@@ -406,7 +418,7 @@ function SearchOverlay({
         )}
         onSubmit={(event) => {
           event.preventDefault();
-          submitSearch(query);
+          handleSubmitSearch(query);
         }}
       >
         <input
@@ -439,24 +451,76 @@ function SearchOverlay({
         )}
       >
         <aside className="border-black/15 pb-4 md:min-h-[385px] md:border-r md:pr-10">
-          <p className="mb-6 text-[15px] uppercase tracking-[0.04em]">Suggestions</p>
-          <div className="space-y-5 text-[15px]">
+          <button
+            type="button"
+            className="mb-5 flex w-full items-center justify-between text-left text-[15px] uppercase tracking-[0.04em] md:hidden"
+            aria-expanded={mobileGroup === "suggestions"}
+            aria-controls="mobile-search-suggestions"
+            onClick={() =>
+              setMobileGroup((current) => (current === "suggestions" ? null : "suggestions"))
+            }
+          >
+            <span>Suggestions</span>
+            <ChevronRight
+              className={cn(
+                "h-4 w-4 stroke-[1.7] transition-transform duration-300",
+                mobileGroup === "suggestions" && "rotate-90",
+              )}
+            />
+          </button>
+          <p className="mb-6 hidden text-[15px] uppercase tracking-[0.04em] md:block">
+            Suggestions
+          </p>
+          <div
+            id="mobile-search-suggestions"
+            className={cn(
+              "space-y-5 text-[15px]",
+              mobileGroup === "suggestions" ? "block" : "hidden",
+              "md:block",
+            )}
+          >
             {SEARCH_SUGGESTIONS.map((item) => (
               <button
                 key={item}
                 type="button"
                 className="block text-left"
-                onClick={() => submitSearch(item)}
+                onClick={() => handleSubmitSearch(item)}
               >
                 <span className={premiumUnderline}>{item}</span>
               </button>
             ))}
           </div>
 
-          <p className="mb-6 mt-12 text-[15px] uppercase tracking-[0.04em]">Collections</p>
-          <div className="space-y-5 text-[15px]">
+          <button
+            type="button"
+            className="mb-5 mt-9 flex w-full items-center justify-between text-left text-[15px] uppercase tracking-[0.04em] md:hidden"
+            aria-expanded={mobileGroup === "collections"}
+            aria-controls="mobile-search-collections"
+            onClick={() =>
+              setMobileGroup((current) => (current === "collections" ? null : "collections"))
+            }
+          >
+            <span>Collections</span>
+            <ChevronRight
+              className={cn(
+                "h-4 w-4 stroke-[1.7] transition-transform duration-300",
+                mobileGroup === "collections" && "rotate-90",
+              )}
+            />
+          </button>
+          <p className="mb-6 mt-12 hidden text-[15px] uppercase tracking-[0.04em] md:block">
+            Collections
+          </p>
+          <div
+            id="mobile-search-collections"
+            className={cn(
+              "space-y-5 text-[15px]",
+              mobileGroup === "collections" ? "block" : "hidden",
+              "md:block",
+            )}
+          >
             {SEARCH_COLLECTIONS.map(([label, href]) => (
-              <Link key={href} href={href} onClick={close} className="block">
+              <Link key={href} href={href} onClick={handleClose} className="block">
                 <span className={premiumUnderline}>{label}</span>
               </Link>
             ))}
@@ -465,11 +529,15 @@ function SearchOverlay({
 
         <section className="min-w-0 md:pl-2">
           {query.trim().length >= 2 ? (
-            <InstantSearchResults query={query} close={close} submitSearch={submitSearch} />
+            <InstantSearchResults
+              query={query}
+              close={handleClose}
+              submitSearch={handleSubmitSearch}
+            />
           ) : (
             <>
               <p className="mb-5 text-[15px] uppercase tracking-[0.04em]">Most searched</p>
-              <SearchProductRail close={close} />
+              <SearchProductRail close={handleClose} />
             </>
           )}
         </section>
