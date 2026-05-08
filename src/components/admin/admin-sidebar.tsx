@@ -19,30 +19,81 @@ import {
   Truck,
   Percent,
   Layout,
+  Undo2,
+  ShieldOff,
+  Bell,
+  Boxes,
+  BarChart3,
+  ScrollText,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Logo } from "@/components/shared/logo";
 
-const navItems = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Homepage", href: "/admin/homepage", icon: Layout },
-  { label: "Products", href: "/admin/products", icon: Package },
-  { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
-  { label: "Customers", href: "/admin/customers", icon: Users },
-  { label: "Categories", href: "/admin/categories", icon: Tag },
-  { label: "Brands", href: "/admin/brands", icon: Store },
-  { label: "Inventory", href: "/admin/inventory", icon: Store },
-  { label: "Coupons", href: "/admin/coupons", icon: Percent },
-  { label: "Campaigns", href: "/admin/campaigns", icon: Megaphone },
-  { label: "Reviews", href: "/admin/reviews", icon: Star },
-  { label: "Blog", href: "/admin/blog", icon: BookOpen },
-  { label: "Shipping", href: "/admin/shipping", icon: Truck },
-  { label: "Media", href: "/admin/media", icon: Image },
-  { label: "Analytics", href: "/admin/analytics", icon: LayoutDashboard },
-  { label: "Staff", href: "/admin/staff", icon: Users },
-  { label: "Audit logs", href: "/admin/audit", icon: BookOpen },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
+interface NavItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const navSections: NavSection[] = [
+  {
+    title: "Overview",
+    items: [
+      { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+      { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    title: "Catalog",
+    items: [
+      { label: "Products", href: "/admin/products", icon: Package },
+      { label: "Categories", href: "/admin/categories", icon: Tag },
+      { label: "Brands", href: "/admin/brands", icon: Store },
+      { label: "Inventory", href: "/admin/inventory", icon: Boxes },
+      { label: "Media", href: "/admin/media", icon: Image },
+    ],
+  },
+  {
+    title: "Sales",
+    items: [
+      { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
+      { label: "Returns", href: "/admin/returns", icon: Undo2 },
+      { label: "Shipping", href: "/admin/shipping", icon: Truck },
+    ],
+  },
+  {
+    title: "Customers",
+    items: [
+      { label: "Customers", href: "/admin/customers", icon: Users },
+      { label: "Reviews", href: "/admin/reviews", icon: Star },
+      { label: "Blacklist", href: "/admin/blacklist", icon: ShieldOff },
+    ],
+  },
+  {
+    title: "Marketing",
+    items: [
+      { label: "Coupons", href: "/admin/coupons", icon: Percent },
+      { label: "Campaigns", href: "/admin/campaigns", icon: Megaphone },
+      { label: "Blog", href: "/admin/blog", icon: BookOpen },
+      { label: "Homepage", href: "/admin/homepage", icon: Layout },
+    ],
+  },
+  {
+    title: "System",
+    items: [
+      { label: "Notifications", href: "/admin/notifications", icon: Bell },
+      { label: "Audit logs", href: "/admin/audit", icon: ScrollText },
+      { label: "Staff", href: "/admin/staff", icon: Users },
+      { label: "Settings", href: "/admin/settings", icon: Settings },
+    ],
+  },
 ];
 
 interface AdminSidebarProps {
@@ -71,28 +122,39 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
         )}
       </div>
 
-      {/* Nav items */}
+      {/* Nav sections */}
       <nav className="flex-1 overflow-y-auto py-3">
-        {navItems.map(({ label, href, icon: Icon }) => {
-          const active = pathname === href || (href !== "/admin" && pathname.startsWith(href));
-          return (
-            <Link
-              key={href}
-              href={href}
-              title={collapsed ? label : undefined}
-              className={cn(
-                "flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors",
-                active
-                  ? "bg-[var(--color-accent-light)] text-[var(--color-accent-dark)]"
-                  : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-alt)] hover:text-[var(--color-text-primary)]",
-                collapsed && "justify-center px-0",
-              )}
-            >
-              <Icon className="h-4.5 w-4.5 shrink-0" />
-              {!collapsed && <span>{label}</span>}
-            </Link>
-          );
-        })}
+        {navSections.map((section) => (
+          <div key={section.title} className="mb-3">
+            {!collapsed && (
+              <p className="px-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                {section.title}
+              </p>
+            )}
+            {section.items.map(({ label, href, icon: Icon }) => {
+              const active =
+                pathname === href ||
+                (href !== "/admin" && pathname.startsWith(href));
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  title={collapsed ? label : undefined}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2 text-sm font-medium transition-colors",
+                    active
+                      ? "bg-[var(--color-accent-light)] text-[var(--color-accent-dark)]"
+                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-alt)] hover:text-[var(--color-text-primary)]",
+                    collapsed && "justify-center px-0",
+                  )}
+                >
+                  <Icon className="h-4.5 w-4.5 shrink-0" />
+                  {!collapsed && <span>{label}</span>}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Collapse toggle */}
