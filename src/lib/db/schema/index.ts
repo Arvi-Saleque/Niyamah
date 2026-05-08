@@ -85,6 +85,13 @@ export const reviewStatusEnum = pgEnum("review_status", [
   "REJECTED",
 ]);
 
+export const returnRequestStatusEnum = pgEnum("return_request_status", [
+  "PENDING",
+  "APPROVED",
+  "REJECTED",
+  "CANCELLED",
+]);
+
 export const blogPostStatusEnum = pgEnum("blog_post_status", [
   "draft",
   "published",
@@ -1023,6 +1030,44 @@ export const notifications = pgTable(
   (table) => [
     index("notifications_user_idx").on(table.userId),
     index("notifications_store_idx").on(table.storeId),
+  ],
+);
+
+// ─────────────────────────────────────────────
+// Return / Refund Requests
+// ─────────────────────────────────────────────
+
+export const returnRequests = pgTable(
+  "return_requests",
+  {
+    id: serial("id").primaryKey(),
+    storeId: integer("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    orderId: integer("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    userId: text("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    reason: text("reason").notNull(),
+    /** JSON array of { orderItemId: number, quantity: number }. */
+    items: json("items").notNull(),
+    status: returnRequestStatusEnum("status").notNull().default("PENDING"),
+    adminNote: text("admin_note"),
+    refundAmount: numeric("refund_amount", { precision: 12, scale: 2 }),
+    resolvedBy: text("resolved_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    resolvedAt: timestamp("resolved_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("return_requests_order_idx").on(table.orderId),
+    index("return_requests_user_idx").on(table.userId),
+    index("return_requests_status_idx").on(table.status),
+    index("return_requests_store_idx").on(table.storeId),
   ],
 );
 

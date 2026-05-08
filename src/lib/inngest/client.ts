@@ -41,4 +41,20 @@ export type InngestEvents = {
       recipientEmail?: string | null;
     };
   };
+  "commerce/return.requested": {
+    data: {
+      returnRequestId: number;
+      orderId: number;
+      userId: string | null;
+    };
+  };
+  "commerce/refund.approved": {
+    data: {
+      returnRequestId: number;
+      orderId: number;
+      refundAmount: number;
+      currency: string;
+      recipientEmail?: string | null;
+    };
+  };
 };

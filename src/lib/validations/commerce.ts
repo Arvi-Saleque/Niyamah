@@ -112,6 +112,31 @@ export const orderStatusUpdateSchema = z.object({
   note: z.string().max(1000).optional(),
 });
 
+// ─────────────────────────────────────────────
+// Returns / Refunds
+// ─────────────────────────────────────────────
+
+export const returnRequestItemSchema = z.object({
+  orderItemId: z.number().int().positive(),
+  quantity: z.number().int().positive(),
+});
+
+export const returnRequestCreateSchema = z.object({
+  reason: z.string().min(5).max(1000),
+  items: z.array(returnRequestItemSchema).min(1).max(50),
+});
+
+export const returnRequestResolveSchema = z
+  .object({
+    status: z.enum(["APPROVED", "REJECTED"]),
+    adminNote: z.string().max(1000).optional(),
+    refundAmount: z.number().nonnegative().optional(),
+  })
+  .refine(
+    (data) => data.status !== "APPROVED" || data.refundAmount !== undefined,
+    { message: "refundAmount is required when approving.", path: ["refundAmount"] },
+  );
+
 export type AddressCreateInput = z.infer<typeof addressCreateSchema>;
 export type AddressUpdateInput = z.infer<typeof addressUpdateSchema>;
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
@@ -120,3 +145,6 @@ export type CouponApplyInput = z.infer<typeof couponApplySchema>;
 export type ShippingZoneCreateInput = z.infer<typeof shippingZoneCreateSchema>;
 export type ShippingRateCreateInput = z.infer<typeof shippingRateCreateSchema>;
 export type OrderStatusUpdateInput = z.infer<typeof orderStatusUpdateSchema>;
+export type ReturnRequestCreateInput = z.infer<typeof returnRequestCreateSchema>;
+export type ReturnRequestResolveInput = z.infer<typeof returnRequestResolveSchema>;
+export type ReturnRequestItem = z.infer<typeof returnRequestItemSchema>;
