@@ -413,7 +413,7 @@ function SearchOverlay({
           onChange={(event) => setQuery(event.target.value)}
           autoFocus={open}
           placeholder="What are you looking for?"
-          className="h-11 flex-1 bg-transparent text-[15px] outline-none placeholder:text-black/55"
+          className="h-11 flex-1 rounded-none border-0 bg-transparent text-[15px] outline-none ring-0 placeholder:text-black/55 focus:border-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
         />
         {query && (
           <button
