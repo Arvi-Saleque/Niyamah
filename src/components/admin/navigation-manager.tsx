@@ -123,13 +123,17 @@ export function NavigationManager({ initial }: NavigationManagerProps) {
     setPanels((prev) => {
       const idx = prev.findIndex((p) => p.id === id);
       if (idx < 0) return prev;
+      const current = prev[idx];
+      if (!current) return prev;
       const target = idx + direction;
       // Pinned panel stays in slot 0; cannot move into slot 0 either.
-      if (prev[idx].pinned) return prev;
+      if (current.pinned) return prev;
       if (target < 0 || target >= prev.length) return prev;
-      if (prev[target].pinned) return prev;
+      const targetPanel = prev[target];
+      if (!targetPanel || targetPanel.pinned) return prev;
       const next = [...prev];
-      [next[idx], next[target]] = [next[target], next[idx]];
+      next[idx] = targetPanel;
+      next[target] = current;
       return next;
     });
   };
@@ -720,6 +724,10 @@ function ImageField({
     if (uploadingRef.current) return;
     uploadingRef.current = true;
     const file = files[0];
+    if (!file) {
+      uploadingRef.current = false;
+      return;
+    }
     setUploading(true);
     try {
       const fd = new FormData();

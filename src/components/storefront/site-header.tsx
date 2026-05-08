@@ -4,7 +4,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Heart, Menu, Phone, Search, ShoppingBag, User, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Menu,
+  Phone,
+  Search,
+  ShoppingBag,
+  User,
+  X,
+} from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { useCartStore } from "@/stores/cart-store";
 import { cn } from "@/lib/utils";
@@ -205,6 +215,7 @@ export function SiteHeader({ className, panels }: SiteHeaderProps) {
       />
 
       <MobileMenu
+        key={mobileOpen ? "mobile-open" : "mobile-closed"}
         open={mobileOpen}
         close={() => setMobileOpen(false)}
         openSearch={() => {
@@ -217,12 +228,19 @@ export function SiteHeader({ className, panels }: SiteHeaderProps) {
   );
 }
 
+function gridColumns(count: number, max: number) {
+  return `repeat(${Math.max(1, Math.min(count, max))}, minmax(0, 1fr))`;
+}
+
 function MegaPanel({ panel, close }: { panel: NavPanel; close: () => void }) {
   // â”€â”€ Template 1: feature-columns (image + heading + sub-links â€” used by NEW) â”€â”€
   if (panel.template === "feature-columns") {
     return (
       <div className="w-full px-4 pb-12 pt-9">
-        <div className="mx-auto grid max-w-[1240px] gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div
+          className="mx-auto grid max-w-[1480px] gap-4"
+          style={{ gridTemplateColumns: gridColumns(panel.columns.length, 6) }}
+        >
           {panel.columns.map((col, idx) => (
             <div key={`${col.title}-${idx}`} className="group">
               <Link href={col.href} onClick={close} className="block">
@@ -276,7 +294,7 @@ function MegaPanel({ panel, close }: { panel: NavPanel; close: () => void }) {
       <div className="w-full px-4 pb-12 pt-10">
         <div
           className="mx-auto grid max-w-[1660px] gap-x-14 gap-y-8"
-          style={{ gridTemplateColumns: `repeat(${Math.min(panel.columns.length, 7)}, minmax(0, 1fr))` }}
+          style={{ gridTemplateColumns: gridColumns(panel.columns.length, 7) }}
         >
           {panel.columns.map((column, idx) => (
             <div key={`${column.title}-${idx}`} className="min-w-0">
@@ -311,7 +329,7 @@ function MegaPanel({ panel, close }: { panel: NavPanel; close: () => void }) {
     <div className="w-full px-4 pb-12 pt-10">
       <div
         className="mx-auto grid max-w-[1480px] gap-6"
-        style={{ gridTemplateColumns: `repeat(${Math.min(panel.tiles.length, 6)}, minmax(0, 1fr))` }}
+        style={{ gridTemplateColumns: gridColumns(panel.tiles.length, 6) }}
       >
         {panel.tiles.map((tile, idx) => (
           <Link key={`${tile.label}-${idx}`} href={tile.href} onClick={close} className="group block">
@@ -465,19 +483,42 @@ function MobileMenu({
   openSearch: () => void;
   panels: NavPanel[];
 }) {
+  const [selectedPanelId, setSelectedPanelId] = useState<string | null>(null);
+  const [selectedColumnIndex, setSelectedColumnIndex] = useState<number | null>(null);
+  const selectedPanel = panels.find((panel) => panel.id === selectedPanelId) ?? null;
+
+  const choosePanel = (panel: NavPanel) => {
+    setSelectedPanelId(panel.id);
+    setSelectedColumnIndex(null);
+  };
+
+  const goBack = () => {
+    if (selectedColumnIndex !== null) {
+      setSelectedColumnIndex(null);
+      return;
+    }
+    setSelectedPanelId(null);
+  };
+
+  const closeAll = () => {
+    close();
+    setSelectedPanelId(null);
+    setSelectedColumnIndex(null);
+  };
+
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[70] bg-white text-black transition-transform lg:hidden",
+        "fixed inset-0 z-[70] bg-white text-black transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden",
         open ? "translate-x-0" : "-translate-x-full",
       )}
       aria-hidden={!open}
     >
       <div className="flex h-16 items-center justify-between px-4">
-        <span onClick={close}>
+        <span onClick={closeAll}>
           <Logo className="h-10" imageSize={38} />
         </span>
-        <button type="button" onClick={close} aria-label="Close menu">
+        <button type="button" onClick={closeAll} aria-label="Close menu">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -491,29 +532,242 @@ function MobileMenu({
           <Search className="h-5 w-5" />
         </button>
       </div>
-      <nav className="px-4 py-5">
-        {panels.map((item) => (
-          <Link
-            key={item.id}
-            href={item.href}
-            onClick={close}
-            className="block border-b border-black/10 py-5 text-xl"
-          >
-            <span className={premiumUnderline}>{item.label}</span>
+      <div className="h-[calc(100dvh-113px)] overflow-y-auto px-4 py-5">
+        {!selectedPanel && (
+          <nav>
+            {panels.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => choosePanel(item)}
+                className="flex w-full items-center justify-between border-b border-black/10 py-5 text-left text-xl"
+              >
+                <span className={premiumUnderline}>{item.label}</span>
+                <ChevronRight className="h-5 w-5 stroke-[1.6]" />
+              </button>
+            ))}
+            <div className="mt-16 space-y-5 text-[15px]">
+              <Link href="/faq" onClick={closeAll} className="block">
+                <span className={premiumUnderline}>Customer Care</span>
+              </Link>
+              <Link href="/account" onClick={closeAll} className="block">
+                <span className={premiumUnderline}>My Account</span>
+              </Link>
+              <Link href="/account/orders" onClick={closeAll} className="block">
+                <span className={premiumUnderline}>Track Order</span>
+              </Link>
+              <a href="tel:01760982072" onClick={closeAll} className="block">
+                <span className={premiumUnderline}>Call: 01760-982072</span>
+              </a>
+            </div>
+          </nav>
+        )}
+
+        {selectedPanel && (
+          <MobilePanel
+            panel={selectedPanel}
+            selectedColumnIndex={selectedColumnIndex}
+            setSelectedColumnIndex={setSelectedColumnIndex}
+            goBack={goBack}
+            close={closeAll}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function MobilePanel({
+  panel,
+  selectedColumnIndex,
+  setSelectedColumnIndex,
+  goBack,
+  close,
+}: {
+  panel: NavPanel;
+  selectedColumnIndex: number | null;
+  setSelectedColumnIndex: (index: number) => void;
+  goBack: () => void;
+  close: () => void;
+}) {
+  if (panel.template === "feature-columns") {
+    return (
+      <div>
+        <MobileBack label="Back" onClick={goBack} />
+        <div className="mt-8 flex items-center justify-between">
+          <Link href={panel.href} onClick={close} className="text-base font-semibold">
+            <span className={premiumUnderline}>{panel.label}</span>
           </Link>
-        ))}
-        <div className="mt-8 space-y-5 text-[15px]">
-          <Link href="/account" onClick={close} className="block">
-            Account
-          </Link>
-          <Link href="/account/wishlist" onClick={close} className="block">
-            Wishlist
-          </Link>
-          <a href="tel:01760982072" onClick={close} className="block">
-            Call: 01760-982072
-          </a>
         </div>
-      </nav>
+        <div className="-mx-4 mt-10 flex snap-x gap-3 overflow-x-auto px-4 pb-3">
+          {panel.columns.map((column, index) => (
+            <Link
+              key={`${column.title}-${index}`}
+              href={column.href}
+              onClick={close}
+              className="w-[28vw] min-w-[94px] max-w-[132px] shrink-0 snap-start"
+            >
+              <MobileVisual image={column.image} tone={column.tone} label={column.title} ratio="square" />
+              <p className="mt-3 text-sm">
+                <span className={premiumUnderline}>{column.title}</span>
+              </p>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-10 space-y-8">
+          {panel.columns.map((column, index) => (
+            <div key={`${column.title}-links-${index}`}>
+              <Link href={column.href} onClick={close} className="mb-5 block font-semibold">
+                <span className={premiumUnderline}>{column.title}</span>
+              </Link>
+              <div className="space-y-5 text-[15px]">
+                {column.links.map((link) => (
+                  <Link key={link.href + link.label} href={link.href} onClick={close} className="block">
+                    <span className={premiumUnderline}>{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (panel.template === "image-tiles") {
+    return (
+      <div>
+        <MobileBack label="Back" onClick={goBack} />
+        <div className="mt-8">
+          <Link href={panel.href} onClick={close} className="text-base font-semibold">
+            <span className={premiumUnderline}>{panel.label}</span>
+          </Link>
+        </div>
+        <div className="-mx-4 mt-10 flex snap-x gap-3 overflow-x-auto px-4 pb-3">
+          {panel.tiles.map((tile, index) => (
+            <Link
+              key={`${tile.label}-${index}`}
+              href={tile.href}
+              onClick={close}
+              className="w-[30vw] min-w-[104px] max-w-[140px] shrink-0 snap-start"
+            >
+              <MobileVisual image={tile.image} tone={tile.tone} label={tile.label} ratio="square" />
+              <p className="mt-3 text-sm">
+                <span className={premiumUnderline}>{tile.label}</span>
+              </p>
+            </Link>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const selectedColumn =
+    selectedColumnIndex !== null ? panel.columns[selectedColumnIndex] : null;
+
+  if (selectedColumn) {
+    return (
+      <div>
+        <MobileBack label={panel.label} onClick={goBack} />
+        <div className="mt-8">
+          <Link href={selectedColumn.href} onClick={close} className="text-base font-semibold">
+            <span className={premiumUnderline}>{selectedColumn.title}</span>
+          </Link>
+        </div>
+        <div className="mt-10 space-y-5 text-[15px]">
+          <Link href={selectedColumn.href} onClick={close} className="block">
+            <span className={premiumUnderline}>View all</span>
+          </Link>
+          {selectedColumn.links.map((link) => (
+            <Link key={link.href + link.label} href={link.href} onClick={close} className="block">
+              <span className={premiumUnderline}>{link.label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <MobileBack label="Back" onClick={goBack} />
+      <div className="mt-8">
+        <Link href={panel.href} onClick={close} className="text-base font-semibold">
+          <span className={premiumUnderline}>{panel.label}</span>
+        </Link>
+      </div>
+      <div className="-mx-4 mt-10 flex snap-x gap-3 overflow-x-auto px-4 pb-3">
+        {panel.columns.map((column, index) => (
+          <button
+            key={`${column.title}-${index}`}
+            type="button"
+            onClick={() => setSelectedColumnIndex(index)}
+            className="w-[28vw] min-w-[94px] max-w-[132px] shrink-0 snap-start text-left"
+          >
+            <MobileVisual label={column.title} tone="from-[#f5f1e7] to-[#e7eadf]" ratio="square" />
+            <p className="mt-3 text-sm">
+              <span className={premiumUnderline}>{column.title}</span>
+            </p>
+          </button>
+        ))}
+      </div>
+      <div className="mt-10 space-y-5 text-[15px]">
+        <Link href={panel.href} onClick={close} className="block">
+          <span className={premiumUnderline}>View all</span>
+        </Link>
+        {panel.columns.map((column, index) => (
+          <button
+            key={`${column.title}-button-${index}`}
+            type="button"
+            onClick={() => setSelectedColumnIndex(index)}
+            className="flex w-full items-center justify-between text-left"
+          >
+            <span className={premiumUnderline}>{column.title}</span>
+            <ChevronRight className="h-4 w-4 stroke-[1.6]" />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MobileBack({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="inline-flex items-center gap-2 text-sm">
+      <ChevronLeft className="h-4 w-4 stroke-[1.7]" />
+      {label}
+    </button>
+  );
+}
+
+function MobileVisual({
+  image,
+  tone,
+  label,
+  ratio,
+}: {
+  image?: string;
+  tone?: string;
+  label: string;
+  ratio: "square" | "portrait";
+}) {
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden bg-gradient-to-br",
+        ratio === "square" ? "aspect-square" : "aspect-[4/5]",
+        !image && (tone ?? "from-[#f5f1e7] to-[#e7eadf]"),
+      )}
+    >
+      {image ? (
+        <Image src={image} alt={label} fill sizes="140px" className="object-cover" />
+      ) : (
+        <div className="flex h-full items-center justify-center px-3 text-center">
+          <span className="text-[10px] uppercase tracking-[0.16em] text-black/35">
+            {label}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
