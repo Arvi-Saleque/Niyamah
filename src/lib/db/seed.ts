@@ -8,6 +8,7 @@ config({ path: ".env.local" });
 import { db } from "./index";
 import {
   addresses,
+  auditLogs,
   banners,
   blogCategories,
   blogPosts,
@@ -18,7 +19,10 @@ import {
   campaigns,
   categories,
   coupons,
+  customerBlacklist,
   inventory,
+  newsletterSubscribers,
+  notifications,
   orderItems,
   orders,
   orderStatusHistory,
@@ -26,7 +30,9 @@ import {
   productImages,
   products,
   productVariants,
+  returnRequests,
   reviews,
+  shipments,
   shippingRates,
   shippingZones,
   storeSettings,
@@ -35,6 +41,8 @@ import {
   users,
   variantOptionTypes,
   variantOptionValues,
+  wishlists,
+  wishlistItems,
 } from "./schema";
 
 const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? "admin@niyamah.com.bd";
@@ -894,6 +902,467 @@ async function ensureReviewsAndOrders(
   console.log("Orders, address, and reviews ready");
 }
 
+/**
+ * Seed extended operational data so every admin UI surface has content:
+ * - Multiple orders across statuses (PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED)
+ * - Shipments for shipped/delivered orders
+ * - Return requests (PENDING + APPROVED)
+ * - Customer blacklist entries
+ * - Notifications (mix of read + unread)
+ * - Newsletter subscribers
+ * - Wishlist entries for the demo customer
+ * - Audit log entries
+ * - One low-stock variant for the low-stock report
+ */
+async function ensureOperations(
+  storeId: number,
+  adminId: string,
+  customerId: string,
+  productRows: Array<{ id: number; variantId: number; name: string; price: string; image: string }>,
+) {
+  if (productRows.length < 4) return;
+
+  // 1) Diverse order set ───────────────────────────────────────────────
+  const orderSeeds: Array<{
+    key: string;
+    status: typeof orders.$inferSelect.status;
+    customer: { name: string; phone: string; email?: string };
+    address: { line1: string; area: string; district: string; city: string; postal: string };
+    items: Array<{ idx: number; qty: number }>;
+    method: "COD" | "BKASH";
+    paymentStatus: typeof payments.$inferSelect.status;
+    coupon?: string;
+    note?: string;
+    daysAgo: number;
+  }> = [
+    {
+      key: "seed-order-pending-001",
+      status: "PENDING",
+      customer: { name: "Rashed Karim", phone: "+8801712345671", email: "rashed@example.com" },
+      address: { line1: "House 7, Road 12", area: "Banani", district: "Dhaka", city: "Dhaka", postal: "1213" },
+      items: [{ idx: 1, qty: 1 }],
+      method: "COD",
+      paymentStatus: "UNPAID",
+      note: "Please call before delivery.",
+      daysAgo: 0,
+    },
+    {
+      key: "seed-order-confirmed-002",
+      status: "CONFIRMED",
+      customer: { name: "Fatima Begum", phone: "+8801712345672", email: "fatima@example.com" },
+      address: { line1: "Flat 3B, Aziz Tower", area: "Shahbagh", district: "Dhaka", city: "Dhaka", postal: "1000" },
+      items: [{ idx: 0, qty: 1 }, { idx: 3, qty: 1 }],
+      method: "COD",
+      paymentStatus: "UNPAID",
+      coupon: "WELCOME10",
+      daysAgo: 1,
+    },
+    {
+      key: "seed-order-shipped-003",
+      status: "SHIPPED",
+      customer: { name: "Mahmud Hossain", phone: "+8801712345673", email: "mahmud@example.com" },
+      address: { line1: "Plot 22, Sector 4", area: "Uttara", district: "Dhaka", city: "Dhaka", postal: "1230" },
+      items: [{ idx: 2, qty: 2 }],
+      method: "COD",
+      paymentStatus: "UNPAID",
+      daysAgo: 3,
+    },
+    {
+      key: "seed-order-delivered-004",
+      status: "DELIVERED",
+      customer: { name: "Ayesha Siddiqa", phone: "+8801712345674", email: "ayesha@example.com" },
+      address: { line1: "47/A Lake Circus", area: "Kalabagan", district: "Dhaka", city: "Dhaka", postal: "1205" },
+      items: [{ idx: 0, qty: 1 }, { idx: 1, qty: 1 }],
+      method: "BKASH",
+      paymentStatus: "PAID",
+      daysAgo: 7,
+    },
+    {
+      key: "seed-order-cancelled-005",
+      status: "CANCELLED",
+      customer: { name: "Rafiq Uddin", phone: "+8801712345675" },
+      address: { line1: "House 9, Road 3", area: "Mohammadpur", district: "Dhaka", city: "Dhaka", postal: "1207" },
+      items: [{ idx: 3, qty: 1 }],
+      method: "COD",
+      paymentStatus: "FAILED",
+      note: "Customer no longer needed item.",
+      daysAgo: 5,
+    },
+    {
+      key: "seed-order-delivered-006",
+      status: "DELIVERED",
+      customer: { name: "Nusrat Jahan", phone: "+8801712345676", email: "nusrat@example.com" },
+      address: { line1: "12 Court Road", area: "Sadar", district: "Sylhet", city: "Sylhet", postal: "3100" },
+      items: [{ idx: 4 % productRows.length, qty: 1 }],
+      method: "COD",
+      paymentStatus: "PAID",
+      daysAgo: 14,
+    },
+  ];
+
+  const createdShipped: number[] = [];
+  const createdDelivered: number[] = [];
+
+  for (const seed of orderSeeds) {
+    const existing = await db.query.orders.findFirst({
+      where: and(eq(orders.storeId, storeId), eq(orders.idempotencyKey, seed.key)),
+    });
+    if (existing) {
+      if (seed.status === "SHIPPED") createdShipped.push(existing.id);
+      if (seed.status === "DELIVERED") createdDelivered.push(existing.id);
+      continue;
+    }
+
+    const subtotal = seed.items.reduce((sum, it) => {
+      const p = productRows[it.idx]!;
+      return sum + Number(p.price) * it.qty;
+    }, 0);
+    const shipping = seed.address.district === "Dhaka" ? 70 : 130;
+    const discount = seed.coupon ? Math.round(subtotal * 0.1) : 0;
+    const total = subtotal - discount + shipping;
+    const placedAt = new Date(Date.now() - seed.daysAgo * 86400000);
+
+    const [order] = await db
+      .insert(orders)
+      .values({
+        storeId,
+        userId: seed.customer.email === "ayesha@example.com" ? customerId : null,
+        guestEmail: seed.customer.email ?? null,
+        guestPhone: seed.customer.phone,
+        shippingName: seed.customer.name,
+        shippingPhone: seed.customer.phone,
+        shippingAddressLine1: seed.address.line1,
+        shippingDistrict: seed.address.district,
+        shippingArea: seed.address.area,
+        shippingCity: seed.address.city,
+        shippingPostalCode: seed.address.postal,
+        status: seed.status,
+        subtotal: subtotal.toFixed(2),
+        discountAmount: discount.toFixed(2),
+        shippingAmount: shipping.toFixed(2),
+        total: total.toFixed(2),
+        couponCode: seed.coupon ?? null,
+        note: seed.note ?? null,
+        idempotencyKey: seed.key,
+        createdAt: placedAt,
+        updatedAt: placedAt,
+      })
+      .returning();
+    if (!order) continue;
+
+    await db.insert(orderItems).values(
+      seed.items.map((it, i) => {
+        const p = productRows[it.idx]!;
+        return {
+          orderId: order.id,
+          variantId: p.variantId,
+          productName: p.name,
+          sku: `${seed.key.toUpperCase()}-${i + 1}`,
+          quantity: it.qty,
+          unitPrice: p.price,
+          totalPrice: (Number(p.price) * it.qty).toFixed(2),
+          imageUrl: p.image,
+        };
+      }),
+    );
+
+    await db.insert(payments).values({
+      storeId,
+      orderId: order.id,
+      method: seed.method,
+      status: seed.paymentStatus,
+      amount: total.toFixed(2),
+      currency: "BDT",
+      gatewayTransactionId: seed.method === "BKASH" ? `BKASH${order.id}${Date.now() % 100000}` : null,
+    });
+
+    type S = typeof orders.$inferSelect.status;
+    const flow: S[] = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED"];
+    const targetIdx = flow.indexOf(seed.status as S);
+    if (seed.status === "CANCELLED") {
+      await db.insert(orderStatusHistory).values([
+        { orderId: order.id, fromStatus: null, toStatus: "PENDING", note: "Order placed.", actorId: null },
+        { orderId: order.id, fromStatus: "PENDING", toStatus: "CANCELLED", note: seed.note ?? "Cancelled by admin.", actorId: adminId },
+      ]);
+    } else if (targetIdx >= 0) {
+      const rows: Array<typeof orderStatusHistory.$inferInsert> = [
+        { orderId: order.id, fromStatus: null, toStatus: "PENDING", note: "Order placed.", actorId: null },
+      ];
+      for (let i = 1; i <= targetIdx; i++) {
+        rows.push({
+          orderId: order.id,
+          fromStatus: flow[i - 1] as S,
+          toStatus: flow[i] as S,
+          note: `Auto-advanced to ${flow[i]} by seed.`,
+          actorId: adminId,
+        });
+      }
+      await db.insert(orderStatusHistory).values(rows);
+    }
+
+    if (seed.status === "SHIPPED") createdShipped.push(order.id);
+    if (seed.status === "DELIVERED") createdDelivered.push(order.id);
+  }
+
+  // 2) Shipments for shipped/delivered orders ──────────────────────────
+  for (const orderId of [...createdShipped, ...createdDelivered]) {
+    const has = await db.query.shipments.findFirst({
+      where: eq(shipments.orderId, orderId),
+    });
+    if (has) continue;
+    const isDelivered = createdDelivered.includes(orderId);
+    await db.insert(shipments).values({
+      storeId,
+      orderId,
+      courier: "steadfast",
+      trackingCode: `STF${100000 + orderId}`,
+      consignmentId: `CN-${nanoid(10).toUpperCase()}`,
+      status: isDelivered ? "DELIVERED" : "IN_TRANSIT",
+      codAmount: "0.00",
+      note: isDelivered ? "Delivered to customer." : "Picked up by Steadfast rider.",
+      dispatchedBy: adminId,
+    });
+  }
+
+  // 3) Return requests ─────────────────────────────────────────────────
+  if (createdDelivered.length > 0) {
+    const targetOrderId = createdDelivered[0]!;
+    const hasReturn = await db.query.returnRequests.findFirst({
+      where: eq(returnRequests.orderId, targetOrderId),
+    });
+    if (!hasReturn) {
+      const items = await db.query.orderItems.findMany({
+        where: eq(orderItems.orderId, targetOrderId),
+      });
+      if (items.length > 0) {
+        await db.insert(returnRequests).values({
+          storeId,
+          orderId: targetOrderId,
+          userId: customerId,
+          reason: "Item arrived damaged in transit. Requesting refund.",
+          items: items.slice(0, 1).map((it) => ({
+            orderItemId: it.id,
+            quantity: 1,
+          })),
+          status: "PENDING",
+        });
+      }
+    }
+  }
+  if (createdDelivered.length > 1) {
+    const targetOrderId = createdDelivered[1]!;
+    const hasReturn = await db.query.returnRequests.findFirst({
+      where: eq(returnRequests.orderId, targetOrderId),
+    });
+    if (!hasReturn) {
+      const items = await db.query.orderItems.findMany({
+        where: eq(orderItems.orderId, targetOrderId),
+      });
+      if (items.length > 0) {
+        await db.insert(returnRequests).values({
+          storeId,
+          orderId: targetOrderId,
+          userId: null,
+          reason: "Wrong size, would like to exchange.",
+          items: items.map((it) => ({ orderItemId: it.id, quantity: 1 })),
+          status: "APPROVED",
+          adminNote: "Approved — refund processed via bKash.",
+          refundAmount: "1250.00",
+          resolvedBy: adminId,
+          resolvedAt: new Date(),
+        });
+      }
+    }
+  }
+
+  // 4) Customer blacklist ──────────────────────────────────────────────
+  const blacklistSeeds = [
+    {
+      phone: "+8801555555555",
+      reason: "REPEATED_REFUSAL" as const,
+      note: "Refused 3 COD deliveries in last 30 days.",
+    },
+    {
+      phone: "+8801666666666",
+      reason: "FAKE_ORDERS" as const,
+      note: "Placed multiple bogus orders with invalid addresses.",
+    },
+    {
+      email: "fraudster@example.com",
+      reason: "FRAUD" as const,
+      note: "Chargeback fraud reported by payment gateway.",
+    },
+  ];
+  for (const b of blacklistSeeds) {
+    const where = b.phone
+      ? and(eq(customerBlacklist.storeId, storeId), eq(customerBlacklist.phone, b.phone))
+      : and(eq(customerBlacklist.storeId, storeId), eq(customerBlacklist.email, b.email!));
+    const existing = await db.query.customerBlacklist.findFirst({ where });
+    if (existing) continue;
+    await db.insert(customerBlacklist).values({
+      storeId,
+      phone: b.phone ?? null,
+      email: b.email ?? null,
+      reason: b.reason,
+      note: b.note,
+      createdBy: adminId,
+    });
+  }
+
+  // 5) Notifications for admin (mix of read + unread) ──────────────────
+  const existingNotifs = await db.query.notifications.findMany({
+    where: eq(notifications.userId, adminId),
+    limit: 1,
+  });
+  if (existingNotifs.length === 0) {
+    const now = Date.now();
+    await db.insert(notifications).values([
+      {
+        storeId,
+        userId: adminId,
+        type: "order.created",
+        title: "New order received",
+        body: "Order #1001 from Rashed Karim — ৳1,250 (COD).",
+        read: false,
+        createdAt: new Date(now - 5 * 60_000),
+      },
+      {
+        storeId,
+        userId: adminId,
+        type: "return.requested",
+        title: "Return requested",
+        body: "Customer requested a return on order #1004 (damaged item).",
+        read: false,
+        createdAt: new Date(now - 35 * 60_000),
+      },
+      {
+        storeId,
+        userId: adminId,
+        type: "stock.low",
+        title: "Low stock warning",
+        body: "Premium Wooden Tasbih is below the low-stock threshold.",
+        read: false,
+        createdAt: new Date(now - 2 * 3600_000),
+      },
+      {
+        storeId,
+        userId: adminId,
+        type: "order.delivered",
+        title: "Order delivered",
+        body: "Order #1003 marked delivered by Steadfast.",
+        read: true,
+        createdAt: new Date(now - 26 * 3600_000),
+      },
+      {
+        storeId,
+        userId: adminId,
+        type: "refund.processed",
+        title: "Refund processed",
+        body: "Refund of ৳1,250 sent for order #1004.",
+        read: true,
+        createdAt: new Date(now - 50 * 3600_000),
+      },
+    ]);
+  }
+
+  // 6) Newsletter subscribers ──────────────────────────────────────────
+  const newsletterSeeds = [
+    "subscriber1@example.com",
+    "subscriber2@example.com",
+    "ramadan-fan@example.com",
+    "gift-shopper@example.com",
+  ];
+  for (const email of newsletterSeeds) {
+    await db
+      .insert(newsletterSubscribers)
+      .values({ storeId, email, source: "footer" })
+      .onConflictDoNothing();
+  }
+
+  // 7) Wishlist entries ────────────────────────────────────────────────
+  let wishlistId: number | undefined;
+  const existingWishlist = await db.query.wishlists.findFirst({
+    where: and(eq(wishlists.storeId, storeId), eq(wishlists.userId, customerId)),
+  });
+  if (existingWishlist) {
+    wishlistId = existingWishlist.id;
+  } else {
+    const [w] = await db
+      .insert(wishlists)
+      .values({ storeId, userId: customerId })
+      .returning();
+    wishlistId = w?.id;
+  }
+  if (wishlistId) {
+    for (const p of productRows.slice(0, 3)) {
+      await db
+        .insert(wishlistItems)
+        .values({ wishlistId, productId: p.id })
+        .onConflictDoNothing();
+    }
+  }
+
+  // 8) Audit log entries ───────────────────────────────────────────────
+  const existingAudit = await db.query.auditLogs.findFirst({
+    where: eq(auditLogs.storeId, storeId),
+  });
+  if (!existingAudit) {
+    await db.insert(auditLogs).values([
+      {
+        storeId,
+        actorId: adminId,
+        action: "order.status.updated",
+        entityType: "order",
+        entityId: "1003",
+        before: { status: "PROCESSING" },
+        after: { status: "SHIPPED" },
+        ip: "127.0.0.1",
+      },
+      {
+        storeId,
+        actorId: adminId,
+        action: "return.approved",
+        entityType: "return_request",
+        entityId: "2",
+        before: { status: "PENDING" },
+        after: { status: "APPROVED", refundAmount: "1250.00" },
+        ip: "127.0.0.1",
+      },
+      {
+        storeId,
+        actorId: adminId,
+        action: "blacklist.added",
+        entityType: "customer_blacklist",
+        entityId: "1",
+        before: null,
+        after: { phone: "+8801555555555", reason: "REPEATED_REFUSAL" },
+        ip: "127.0.0.1",
+      },
+      {
+        storeId,
+        actorId: adminId,
+        action: "courier.dispatched",
+        entityType: "shipment",
+        entityId: "1",
+        before: null,
+        after: { courier: "steadfast", orderId: 1003 },
+        ip: "127.0.0.1",
+      },
+    ]);
+  }
+
+  // 9) Force one variant into low-stock for the low-stock report ───────
+  const firstVariantId = productRows[2]?.variantId;
+  if (firstVariantId) {
+    await db
+      .update(inventory)
+      .set({ stockOnHand: 2, stockAvailable: 2, lowStockThreshold: 5 })
+      .where(eq(inventory.variantId, firstVariantId));
+  }
+
+  console.log("Operational data ready (orders, shipments, returns, blacklist, notifications, audit log)");
+}
+
 async function main() {
   console.log("Seeding Niyamah demo data...");
   const store = await ensureStore();
@@ -904,6 +1373,7 @@ async function main() {
   await ensureMarketing(store.id, productRows);
   await ensureBlog(store.id, admin.id);
   await ensureReviewsAndOrders(store.id, customer.id, productRows);
+  await ensureOperations(store.id, admin.id, customer.id, productRows);
   console.log("Seed complete.");
   console.log(`Admin login: ${ADMIN_EMAIL}`);
   console.log("Demo customer login: customer@niyamah.test / Customer@12345");
