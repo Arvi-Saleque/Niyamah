@@ -167,3 +167,125 @@ header a:not([class*="bg-"]):hover {
 .scrollbar-thin::-webkit-scrollbar { height: 4px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; border: none; }
+
+/* Allfather-inspired homepage product slider */
+@keyframes allfather-word-left {
+  0% { transform: translate3d(100vw, 0, 0); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+
+@keyframes allfather-word-right {
+  0% { transform: translate3d(-100vw, 0, 0); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+
+@keyframes allfather-copy-in {
+  0% { transform: translate3d(0, 28px, 0); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+
+.allfather-big-word {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(0.25rem, 2vw, 1.25rem);
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-size: clamp(4.25rem, 8.4vw, 8.75rem);
+  font-weight: 900;
+  line-height: 0.84;
+  letter-spacing: 0;
+  color: #000;
+}
+
+.allfather-big-word span {
+  display: block;
+  white-space: nowrap;
+  padding-left: clamp(1.5rem, 3vw, 3.25rem);
+}
+
+.allfather-big-word span:first-child {
+  animation: allfather-word-left 1000ms ease 750ms both;
+}
+
+.allfather-big-word span:last-child {
+  align-self: flex-end;
+  padding-left: 0;
+  padding-right: clamp(1.5rem, 2.5vw, 2.5rem);
+  animation: allfather-word-right 1000ms ease 750ms both;
+}
+
+.allfather-big-word-front {
+  z-index: 40;
+  color: var(--slider-green);
+  opacity: 0.32;
+  mix-blend-mode: multiply;
+}
+
+.allfather-big-word-back {
+  z-index: 3;
+  color: rgb(11 74 52 / 0.82);
+}
+
+.allfather-copy {
+  animation: allfather-copy-in 850ms ease 520ms both;
+}
+
+.allfather-copy h1 {
+  color: #fff;
+}
+
+.allfather-product-image {
+  filter: drop-shadow(18px 24px 22px rgb(0 0 0 / 0.14));
+}
+
+.allfather-card-rail {
+  transform: translate3d(0, var(--slider-rail-y), 0);
+}
+
+@media (max-width: 1023px) {
+  .allfather-card-rail {
+    top: 6rem;
+    height: 22vh;
+    width: auto;
+    min-width: max-content;
+    flex-direction: row;
+    gap: 5vw;
+    padding: 0;
+    transform: translate3d(var(--slider-rail-x), 0, 0);
+  }
+
+  .allfather-card-rail > button {
+    width: 42vw;
+    height: 100%;
+  }
+
+  .allfather-big-word {
+    justify-content: flex-start;
+    padding-top: 1.5rem;
+    font-size: clamp(3.5rem, 14vw, 7rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .allfather-product-slider {
+    min-height: 760px;
+  }
+
+  .allfather-card-rail {
+    top: 5.5rem;
+    height: 16vh;
+  }
+
+  .allfather-card-rail > button {
+    width: 48vw;
+  }
+
+  .allfather-big-word {
+    font-size: 18vw;
+  }
+}

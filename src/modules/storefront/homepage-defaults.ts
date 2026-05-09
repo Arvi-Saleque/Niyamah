@@ -16,6 +16,22 @@ export interface HeroSlideData {
   badge?: string;
   ctaPrimary: { label: string; href: string };
   ctaSecondary?: { label: string; href: string };
+  productName?: string;
+  cardName?: string;
+  subheading?: string;
+  productImage?: string;
+  productImageAlt?: string;
+  infoItems?: { label: string; value: string }[];
+  colors?: {
+    purple: string;
+    lightBlue: string;
+    green: string;
+    infoGreen: string;
+    white: string;
+    orange: string;
+    accent: string;
+    shadow: string;
+  };
   rightGradient: string;
   decoration: string;
   popularLinks?: { label: string; href: string }[];
@@ -135,13 +151,33 @@ export const HOMEPAGE_DEFAULTS = {
       eyebrow: "Premium Islamic Essentials",
       title: "Bring Barakah",
       highlight: "Into Daily Life",
+      subheading: "Color-coded Quran",
       subtitle:
         "Shop authentic Quran, prayer essentials, tasbih, and Islamic gifts with Cash on Delivery and trusted support across Bangladesh.",
       badge: "COD Available",
       ctaPrimary: { label: "Shop Quran Collection", href: "/category/quran" },
       ctaSecondary: { label: "Explore Gift Boxes", href: "/category/gift-box" },
+      productName: "Premium Quran",
+      cardName: "Quran",
+      productImage: "/logo.png",
+      productImageAlt: "Niyamah product feature",
+      infoItems: [
+        { label: "Delivery", value: "1-3 days" },
+        { label: "Payment", value: "COD" },
+        { label: "Return", value: "7 days" },
+      ],
+      colors: {
+        purple: "#123d2d",
+        lightBlue: "#f1ead9",
+        green: "#0b4a34",
+        infoGreen: "#073827",
+        white: "#f1ead9",
+        orange: "#f1ead9",
+        accent: "#c6a05d",
+        shadow: "rgba(4, 36, 25, 0.22)",
+      },
       rightGradient: "from-[#EAF4D5] via-[#FAF7EE] to-[#EFE6D2]",
-      decoration: "QURAN",
+      decoration: "Quran",
       popularLinks: [
         { label: "Quran", href: "/category/quran" },
         { label: "Bengali Quran", href: "/category/bengali-quran" },
@@ -154,13 +190,33 @@ export const HOMEPAGE_DEFAULTS = {
       eyebrow: "Meaningful Islamic Gifts",
       title: "Gift Boxes",
       highlight: "Made with Love",
+      subheading: "Ready to gift",
       subtitle:
         "Curated Quran, tasbih, and prayer essentials packaged beautifully \u2014 a thoughtful gift for parents, teachers, and loved ones.",
       badge: "Gift Ready",
       ctaPrimary: { label: "Shop Gift Boxes", href: "/category/gift-box" },
       ctaSecondary: { label: "Build a Gift", href: "#gift-builder" },
+      productName: "Islamic Gift Box",
+      cardName: "Gift Box",
+      productImage: "/logo.png",
+      productImageAlt: "Niyamah gift box feature",
+      infoItems: [
+        { label: "Packaging", value: "Gift ready" },
+        { label: "Support", value: "WhatsApp" },
+        { label: "Delivery", value: "Nationwide" },
+      ],
+      colors: {
+        purple: "#123d2d",
+        lightBlue: "#f1ead9",
+        green: "#0d5138",
+        infoGreen: "#073827",
+        white: "#f1ead9",
+        orange: "#f1ead9",
+        accent: "#c6a05d",
+        shadow: "rgba(4, 36, 25, 0.22)",
+      },
       rightGradient: "from-[#EAF4D5] via-[#FAF7EE] to-[#EFE6D2]",
-      decoration: "GIFT",
+      decoration: "Gift",
       popularLinks: [
         { label: "For Parents", href: "/products?intent=parents" },
         { label: "For Teachers", href: "/products?intent=teacher" },
@@ -172,12 +228,32 @@ export const HOMEPAGE_DEFAULTS = {
       eyebrow: "Daily Worship Essentials",
       title: "Prayer Mats",
       highlight: "& Tasbih",
+      subheading: "Daily worship essentials",
       subtitle:
         "Soft prayer mats, premium tasbih, and worship essentials selected for everyday use \u2014 with Cash on Delivery and easy returns.",
       ctaPrimary: { label: "Shop Prayer Mats", href: "/category/prayer-mat" },
       ctaSecondary: { label: "Shop Tasbih", href: "/category/tasbih" },
+      productName: "Prayer Essentials",
+      cardName: "Prayer",
+      productImage: "/logo.png",
+      productImageAlt: "Niyamah prayer essentials feature",
+      infoItems: [
+        { label: "Use", value: "Daily" },
+        { label: "Quality", value: "Selected" },
+        { label: "Help", value: "Live chat" },
+      ],
+      colors: {
+        purple: "#123d2d",
+        lightBlue: "#f1ead9",
+        green: "#0b4a34",
+        infoGreen: "#073827",
+        white: "#f1ead9",
+        orange: "#f1ead9",
+        accent: "#c6a05d",
+        shadow: "rgba(4, 36, 25, 0.22)",
+      },
       rightGradient: "from-[#EAF4D5] via-[#FAF7EE] to-[#EFE6D2]",
-      decoration: "PRAYER",
+      decoration: "Prayer",
       popularLinks: [
         { label: "Premium Tasbih", href: "/category/tasbih" },
         { label: "Travel Mat", href: "/category/prayer-mat" },

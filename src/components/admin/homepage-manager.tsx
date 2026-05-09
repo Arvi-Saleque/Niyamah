@@ -21,7 +21,7 @@ import {
   Save,
   Search,
   ShieldCheck,
-  Sparkles,
+  SlidersHorizontal,
   Tag,
   Timer,
   Trash2,
@@ -30,6 +30,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ProductImageUploader } from "@/components/admin/product-image-uploader";
 import {
   Select,
   SelectContent,
@@ -81,11 +82,11 @@ const BLOCK_META: Record<
   }
 > = {
   hero: {
-    title: "Hero Slides",
-    shortTitle: "Hero",
-    description: "The large first screen customers see when they enter the store.",
-    plainHelp: "Edit the headline, offer badge, buttons, and quick links for each slide.",
-    icon: Sparkles,
+    title: "Homepage Slider",
+    shortTitle: "Slider",
+    description: "The Allfather-style product slider customers see first.",
+    plainHelp: "Edit each slide's product image, card label, copy, big overlay text, colors, button, and product facts.",
+    icon: SlidersHorizontal,
   },
   ticker: {
     title: "Top Trust Ticker",
@@ -161,9 +162,12 @@ function makeId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export function HomepageManager() {
+const DEFAULT_HERO_SLIDE = HOMEPAGE_DEFAULTS.hero[0] as HeroSlideData;
+const DEFAULT_HERO_COLORS = DEFAULT_HERO_SLIDE.colors as NonNullable<HeroSlideData["colors"]>;
+
+export function HomepageManager({ initialBlock = "hero" }: { initialBlock?: HomepageBlockKey } = {}) {
   const [blocks, setBlocks] = useState<Block[] | null>(null);
-  const [active, setActive] = useState<HomepageBlockKey>("hero");
+  const [active, setActive] = useState<HomepageBlockKey>(initialBlock);
   const [draftData, setDraftData] = useState<unknown>(null);
   const [draftActive, setDraftActive] = useState(true);
   const [jsonDraft, setJsonDraft] = useState("");
@@ -208,7 +212,7 @@ export function HomepageManager() {
     );
     setBlocks(list);
 
-    const nextKey = preferredKey ?? active;
+    const nextKey = preferredKey ?? active ?? initialBlock;
     const current =
       list.find((block) => block.blockKey === nextKey) ??
       list.find((block) => block.blockKey === "hero") ??
@@ -221,7 +225,7 @@ export function HomepageManager() {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
+    void load(initialBlock);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -644,14 +648,40 @@ function HeroEditor({
     onChange(slides.map((slide, i) => (i === index ? { ...slide, ...patch } : slide)));
   };
 
+  const updateColors = (
+    index: number,
+    patch: Partial<NonNullable<HeroSlideData["colors"]>>,
+  ) => {
+    const fallback = DEFAULT_HERO_COLORS;
+    const slide = slides[index];
+    updateSlide(index, { colors: { ...(fallback ?? {}), ...(slide?.colors ?? {}), ...patch } });
+  };
+
+  const updateInfoItem = (
+    slideIndex: number,
+    itemIndex: number,
+    patch: Partial<{ label: string; value: string }>,
+  ) => {
+    const items = slides[slideIndex]?.infoItems ?? [];
+    updateSlide(slideIndex, {
+      infoItems: items.map((item, index) =>
+        index === itemIndex ? { ...item, ...patch } : item,
+      ),
+    });
+  };
+
   const addSlide = () => {
-    const base = cloneData(HOMEPAGE_DEFAULTS.hero[0]) as HeroSlideData;
+    const base = cloneData(DEFAULT_HERO_SLIDE);
     const nextSlide: HeroSlideData = {
       ...base,
       id: makeId("hero"),
-      eyebrow: "New Campaign",
-      title: "Homepage",
-      highlight: "Feature",
+      eyebrow: "New Product Feature",
+      title: "Product",
+      highlight: "Collection",
+      subheading: "Short product promise",
+      productName: "Featured Product",
+      cardName: "Product",
+      decoration: "Product",
       subtitle: "Write a short customer-friendly message for this slide.",
     };
     onChange([
@@ -663,8 +693,8 @@ function HeroEditor({
   return (
     <div className="space-y-4">
       <EditorIntro
-        title="Hero slide builder"
-        body="Create the first impression: big promise, clear offer, and simple buttons."
+        title="Slider builder"
+        body="Control the Allfather-style homepage slider: left cards, product copy, image, big overlay text, bottom facts, and colors."
       />
       {slides.map((slide, index) => (
         <EditablePanel
@@ -674,17 +704,29 @@ function HeroEditor({
           onDuplicate={() => onChange([...slides, { ...cloneData(slide), id: makeId("hero") }])}
           onRemove={slides.length > 1 ? () => onChange(slides.filter((_, i) => i !== index)) : undefined}
         >
+          <div className="grid gap-4 md:grid-cols-3">
+            <FormField label="Left card corner name">
+              <Input value={slide.cardName ?? ""} onChange={(event) => updateSlide(index, { cardName: event.target.value })} />
+            </FormField>
+            <FormField label="Light-blue product name">
+              <Input value={slide.productName ?? ""} onChange={(event) => updateSlide(index, { productName: event.target.value })} />
+            </FormField>
+            <FormField label="Big orange text">
+              <Input value={slide.decoration ?? ""} onChange={(event) => updateSlide(index, { decoration: event.target.value })} />
+            </FormField>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2">
-            <FormField label="Small label" hint="Example: New Collection or Limited Time">
+            <FormField label="Small label" hint="Appears above the heading in the green copy area">
               <Input value={slide.eyebrow ?? ""} onChange={(event) => updateSlide(index, { eyebrow: event.target.value })} />
             </FormField>
-            <FormField label="Offer badge" hint="Short badge near the hero content">
-              <Input value={slide.badge ?? ""} onChange={(event) => updateSlide(index, { badge: event.target.value })} />
+            <FormField label="Subheading">
+              <Input value={slide.subheading ?? ""} onChange={(event) => updateSlide(index, { subheading: event.target.value })} />
             </FormField>
             <FormField label="Main title">
               <Input value={slide.title ?? ""} onChange={(event) => updateSlide(index, { title: event.target.value })} />
             </FormField>
-            <FormField label="Highlighted word">
+            <FormField label="Overlay second line / highlighted word">
               <Input value={slide.highlight ?? ""} onChange={(event) => updateSlide(index, { highlight: event.target.value })} />
             </FormField>
             <FormField label="Primary button text">
@@ -693,34 +735,106 @@ function HeroEditor({
             <FormField label="Primary button link">
               <Input value={slide.ctaPrimary?.href ?? ""} onChange={(event) => updateSlide(index, { ctaPrimary: { ...(slide.ctaPrimary ?? { label: "Shop Now" }), href: event.target.value } })} />
             </FormField>
-            <FormField label="Secondary button text">
-              <Input value={slide.ctaSecondary?.label ?? ""} onChange={(event) => updateSlide(index, { ctaSecondary: { ...(slide.ctaSecondary ?? { href: "/products" }), label: event.target.value } })} />
-            </FormField>
-            <FormField label="Secondary button link">
-              <Input value={slide.ctaSecondary?.href ?? ""} onChange={(event) => updateSlide(index, { ctaSecondary: { ...(slide.ctaSecondary ?? { label: "Learn More" }), href: event.target.value } })} />
-            </FormField>
           </div>
-          <FormField label="Subtitle" hint="One or two sentences. Keep it warm and direct.">
+          <FormField label="Paragraph" hint="One or two sentences. Keep it warm and direct.">
             <Textarea value={slide.subtitle ?? ""} onChange={(event) => updateSlide(index, { subtitle: event.target.value })} className="min-h-24" />
           </FormField>
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField label="Right side gradient" hint="Tailwind gradient classes">
-              <Input value={slide.rightGradient ?? ""} onChange={(event) => updateSlide(index, { rightGradient: event.target.value })} />
+
+          <div className="grid gap-4 md:grid-cols-[260px,1fr]">
+            <FormField label="Upload / choose product image" hint="Uploads to the admin media endpoint and uses the uploaded image for this slide.">
+              <ProductImageUploader
+                value={slide.productImage ? [slide.productImage] : []}
+                maxImages={1}
+                onChange={(urls) => updateSlide(index, { productImage: urls[0] ?? "" })}
+              />
             </FormField>
-            <FormField label="Large decoration text">
-              <Input value={slide.decoration ?? ""} onChange={(event) => updateSlide(index, { decoration: event.target.value })} />
-            </FormField>
+            <div className="space-y-4">
+              <FormField label="Product image URL" hint="You can also paste an existing Cloudinary URL or local path.">
+                <Input value={slide.productImage ?? ""} onChange={(event) => updateSlide(index, { productImage: event.target.value })} />
+              </FormField>
+              <FormField label="Product image alt text">
+                <Input value={slide.productImageAlt ?? ""} onChange={(event) => updateSlide(index, { productImageAlt: event.target.value })} />
+              </FormField>
+            </div>
           </div>
-          <LinkListEditor
-            title="Popular quick links"
-            items={slide.popularLinks ?? []}
-            onChange={(popularLinks) => updateSlide(index, { popularLinks })}
-          />
+
+          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold">Right-bottom product information</h4>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  updateSlide(index, {
+                    infoItems: [...(slide.infoItems ?? []), { label: "Label", value: "Value" }],
+                  })
+                }
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {(slide.infoItems ?? []).map((item, itemIndex) => (
+                <InlineRow
+                  key={itemIndex}
+                  onRemove={() =>
+                    updateSlide(index, {
+                      infoItems: (slide.infoItems ?? []).filter((_, i) => i !== itemIndex),
+                    })
+                  }
+                >
+                  <Input
+                    value={item.label}
+                    onChange={(event) => updateInfoItem(index, itemIndex, { label: event.target.value })}
+                    placeholder="Label"
+                  />
+                  <Input
+                    value={item.value}
+                    onChange={(event) => updateInfoItem(index, itemIndex, { value: event.target.value })}
+                    placeholder="Value"
+                  />
+                </InlineRow>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
+            <h4 className="mb-3 text-sm font-semibold">Slider colors</h4>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <FormField label="Top accent">
+                <Input type="color" value={slide.colors?.purple ?? DEFAULT_HERO_COLORS.purple} onChange={(event) => updateColors(index, { purple: event.target.value })} />
+              </FormField>
+              <FormField label="Product-name strip">
+                <Input type="color" value={slide.colors?.lightBlue ?? DEFAULT_HERO_COLORS.lightBlue} onChange={(event) => updateColors(index, { lightBlue: event.target.value })} />
+              </FormField>
+              <FormField label="Left green">
+                <Input type="color" value={slide.colors?.green ?? DEFAULT_HERO_COLORS.green} onChange={(event) => updateColors(index, { green: event.target.value })} />
+              </FormField>
+              <FormField label="Bottom green">
+                <Input type="color" value={slide.colors?.infoGreen ?? DEFAULT_HERO_COLORS.infoGreen} onChange={(event) => updateColors(index, { infoGreen: event.target.value })} />
+              </FormField>
+              <FormField label="Product white">
+                <Input type="color" value={slide.colors?.white ?? DEFAULT_HERO_COLORS.white} onChange={(event) => updateColors(index, { white: event.target.value })} />
+              </FormField>
+              <FormField label="Orange text area">
+                <Input type="color" value={slide.colors?.orange ?? DEFAULT_HERO_COLORS.orange} onChange={(event) => updateColors(index, { orange: event.target.value })} />
+              </FormField>
+              <FormField label="Overlay accent">
+                <Input type="color" value={slide.colors?.accent ?? DEFAULT_HERO_COLORS.accent} onChange={(event) => updateColors(index, { accent: event.target.value })} />
+              </FormField>
+              <FormField label="Card shadow" hint="CSS color value">
+                <Input value={slide.colors?.shadow ?? DEFAULT_HERO_COLORS.shadow} onChange={(event) => updateColors(index, { shadow: event.target.value })} />
+              </FormField>
+            </div>
+          </div>
         </EditablePanel>
       ))}
       <Button variant="outline" onClick={addSlide} className="gap-2">
         <Plus className="h-4 w-4" />
-        Add hero slide
+        Add slider slide
       </Button>
     </div>
   );
@@ -1129,54 +1243,6 @@ function SectionCopyFields({
   );
 }
 
-function LinkListEditor({
-  title,
-  items,
-  onChange,
-}: {
-  title: string;
-  items: { label: string; href: string }[];
-  onChange: (items: { label: string; href: string }[]) => void;
-}) {
-  return (
-    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h4 className="text-sm font-semibold">{title}</h4>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => onChange([...items, { label: "New Link", href: "/products" }])}
-          className="gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add
-        </Button>
-      </div>
-      <div className="space-y-2">
-        {items.map((item, index) => (
-          <InlineRow key={index} onRemove={() => onChange(items.filter((_, i) => i !== index))}>
-            <Input
-              value={item.label}
-              onChange={(event) =>
-                onChange(items.map((link, i) => (i === index ? { ...link, label: event.target.value } : link)))
-              }
-              placeholder="Label"
-            />
-            <Input
-              value={item.href}
-              onChange={(event) =>
-                onChange(items.map((link, i) => (i === index ? { ...link, href: event.target.value } : link)))
-              }
-              placeholder="/products"
-            />
-          </InlineRow>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function ChipEditor({
   title,
   items,
@@ -1424,24 +1490,54 @@ function SectionPreview({
 
 function HeroPreview({ data }: { data: HeroSlideData[] }) {
   const slide = Array.isArray(data) ? data[0] : null;
+  const colors = {
+    purple: slide?.colors?.purple ?? "#123d2d",
+    lightBlue: slide?.colors?.lightBlue ?? "#f1ead9",
+    green: slide?.colors?.green ?? "#0b4a34",
+    infoGreen: slide?.colors?.infoGreen ?? "#073827",
+    white: slide?.colors?.white ?? "#fffdf6",
+    orange: slide?.colors?.orange ?? "#c6a05d",
+    accent: slide?.colors?.accent ?? "#dcebd1",
+  };
   return (
-    <div className="bg-[#1a1814] p-5 text-white">
-      <Badge className="mb-4 bg-white/15 text-white">{slide?.badge || "Hero badge"}</Badge>
-      <p className="mb-2 text-xs uppercase tracking-[0.2em] text-white/50">{slide?.eyebrow}</p>
-      <h3 className="text-3xl font-semibold text-white">
-        {slide?.title} <span className="text-[var(--color-accent-light)]">{slide?.highlight}</span>
-      </h3>
-      <p className="mt-3 text-sm leading-6 text-white/70">{slide?.subtitle}</p>
-      <div className="mt-5 flex flex-wrap gap-2">
-        <Badge className="bg-[var(--color-accent)] text-white">{slide?.ctaPrimary?.label}</Badge>
-        {slide?.ctaSecondary?.label && <Badge variant="outline" className="border-white/20 text-white">{slide.ctaSecondary.label}</Badge>}
+    <div className="overflow-hidden bg-white">
+      <div className="grid h-12 grid-cols-[42%,58%] text-xs font-bold uppercase tracking-[0.14em]">
+        <div style={{ backgroundColor: colors.purple }} />
+        <div className="flex items-center px-3" style={{ backgroundColor: colors.lightBlue }}>
+          <span className="truncate">{slide?.productName || "Product name"}</span>
+        </div>
       </div>
-      <div className="mt-5 flex flex-wrap gap-2">
-        {(slide?.popularLinks ?? []).slice(0, 4).map((link) => (
-          <span key={link.label} className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/75">
-            {link.label}
-          </span>
-        ))}
+      <div className="grid min-h-72 grid-cols-[44%,56%]">
+        <div className="p-4 text-white" style={{ backgroundColor: colors.green }}>
+          <div className="mb-4 flex h-24 items-start justify-between border-2 border-white p-2 text-sm font-bold" style={{ backgroundColor: colors.lightBlue, color: "#111" }}>
+            <span>{slide?.cardName || "Card"}</span>
+            <span>01</span>
+          </div>
+          <p className="text-[10px] uppercase tracking-[0.18em] text-white/65">{slide?.eyebrow}</p>
+          <h3 className="mt-2 text-2xl font-semibold text-white">{slide?.title}</h3>
+          <p className="mt-1 text-sm font-semibold" style={{ color: colors.accent }}>
+            {slide?.subheading || slide?.highlight}
+          </p>
+          <p className="mt-2 line-clamp-3 text-xs leading-5 text-white/78">{slide?.subtitle}</p>
+          <Badge className="mt-3 bg-white text-black">{slide?.ctaPrimary?.label || "Button"}</Badge>
+        </div>
+        <div className="relative overflow-hidden" style={{ backgroundColor: colors.orange }}>
+          <div className="absolute inset-0 flex flex-col justify-center text-5xl font-black leading-[0.9] text-black/80">
+            <span className="pl-4">{slide?.decoration || "Product"}</span>
+            <span className="self-end pr-3" style={{ color: colors.accent }}>
+              {slide?.highlight || "Text"}
+            </span>
+          </div>
+          <div className="absolute inset-y-10 right-0 w-[72%]" style={{ backgroundColor: colors.white }} />
+          <div className="absolute bottom-0 right-0 grid w-full grid-cols-3 gap-1 p-2 text-[10px] text-white" style={{ backgroundColor: colors.infoGreen }}>
+            {(slide?.infoItems ?? []).slice(0, 3).map((item, index) => (
+              <div key={index}>
+                <span className="block uppercase opacity-60">{item.label}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

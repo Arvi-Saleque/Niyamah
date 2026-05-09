@@ -26,6 +26,7 @@ import {
   BarChart3,
   ScrollText,
   Menu,
+  SlidersHorizontal,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -83,6 +84,7 @@ const navSections: NavSection[] = [
       { label: "Coupons", href: "/admin/coupons", icon: Percent },
       { label: "Campaigns", href: "/admin/campaigns", icon: Megaphone },
       { label: "Blog", href: "/admin/blog", icon: BookOpen },
+      { label: "Slider", href: "/admin/slider", icon: SlidersHorizontal },
       { label: "Homepage", href: "/admin/homepage", icon: Layout },
       { label: "Navigation", href: "/admin/navigation", icon: Menu },
     ],
