@@ -273,7 +273,7 @@ header a:not([class*="bg-"]):hover {
 
 @media (max-width: 640px) {
   .allfather-product-slider {
-    min-height: 760px;
+    min-height: 930px;
   }
 
   .allfather-card-rail {

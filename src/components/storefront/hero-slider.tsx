@@ -153,6 +153,7 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
   const safeSlides = useMemo(() => getVisibleSlides(slides), [slides]);
   const [current, setCurrent] = useState(0);
   const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const mobileThumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const max = safeSlides.length;
   const safeCurrent = max > 0 ? current % max : 0;
   const active = safeSlides[safeCurrent];
@@ -179,6 +180,11 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
       inline: "center",
       behavior: "smooth",
     });
+    mobileThumbnailRefs.current[safeCurrent]?.scrollIntoView({
+      block: "nearest",
+      inline: "center",
+      behavior: "smooth",
+    });
   }, [safeCurrent]);
 
   if (!active) return null;
@@ -199,7 +205,7 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
   return (
     <section
       className={cn(
-        "allfather-product-slider relative isolate min-h-[calc(100svh-64px)] overflow-hidden bg-[var(--hero-bg)] text-[var(--hero-text)]",
+        "allfather-product-slider relative isolate min-h-[930px] overflow-hidden bg-[var(--hero-bg)] text-[var(--hero-text)] sm:min-h-[980px] lg:min-h-[calc(100svh-64px)]",
         className,
       )}
       style={rootStyle}
@@ -207,7 +213,7 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
       <div className="pointer-events-none absolute inset-0 opacity-[0.055] [background-image:linear-gradient(30deg,currentColor_1px,transparent_1px),linear-gradient(150deg,currentColor_1px,transparent_1px)] [background-size:38px_38px]" />
       <div className="pointer-events-none absolute right-[7%] top-[10%] hidden h-[520px] w-[360px] rounded-t-full border border-[var(--hero-accent)]/35 lg:block" />
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         <motion.div
           key={active.id ?? safeCurrent}
           initial={{ opacity: 0 }}
@@ -216,7 +222,7 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           className="absolute inset-0"
         >
-          <div className="pointer-events-none absolute inset-0 flex flex-col justify-center overflow-hidden pb-24 pt-20 md:pb-28">
+          <div className="pointer-events-none absolute inset-0 flex flex-col justify-end overflow-hidden pb-28 pt-72 sm:pt-80 lg:justify-center lg:pb-28 lg:pt-20">
             {[active.bigWord1, active.bigWord1, active.bigWord2, active.bigWord2].map((word, index) => (
               <motion.span
                 key={`${word}-${index}`}
@@ -225,7 +231,7 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
                 transition={{ duration: 1.05, delay: 0.08 + index * 0.08, ease: [0.22, 1, 0.36, 1] }}
                 className={cn(
                   "block whitespace-nowrap font-black uppercase leading-[0.78] tracking-normal text-[var(--hero-word)]",
-                  "text-[18vw] md:text-[13vw]",
+                  "text-[24vw] sm:text-[18vw] md:text-[15vw] lg:text-[13vw]",
                   index % 2 === 1 && "self-end",
                 )}
               >
@@ -234,23 +240,28 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
             ))}
           </div>
 
-          <div className="relative z-10 mx-auto grid min-h-[calc(100svh-64px)] w-full max-w-[1500px] grid-rows-[auto_auto_1fr] gap-5 px-4 pb-28 pt-6 sm:px-6 lg:grid-cols-[minmax(320px,0.95fr)_minmax(440px,1fr)_minmax(270px,0.85fr)] lg:grid-rows-1 lg:gap-x-8 lg:px-8 lg:pb-32 lg:pt-8 xl:px-10">
+          <div className="relative z-10 mx-auto grid min-h-[930px] w-full max-w-[1500px] grid-rows-[auto_auto_auto] gap-4 px-4 pb-24 pt-28 sm:min-h-[980px] sm:px-6 sm:pt-36 lg:min-h-[calc(100svh-64px)] lg:grid-cols-[minmax(320px,0.95fr)_minmax(440px,1fr)_minmax(270px,0.85fr)] lg:grid-rows-1 lg:gap-5 lg:gap-x-8 lg:px-8 lg:pb-32 lg:pt-8 xl:px-10">
             <motion.aside
               initial={{ y: 24, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.7, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-              className="flex flex-wrap items-start justify-between gap-4 lg:col-start-3 lg:row-start-1 lg:block lg:pt-16"
+              className="row-start-1 flex flex-wrap items-start justify-between gap-3 border-b border-[var(--hero-text)]/10 pb-3 lg:col-start-3 lg:row-start-1 lg:block lg:border-b-0 lg:pb-0 lg:pt-16"
             >
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--hero-muted)]">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[var(--hero-muted)] lg:text-[11px] lg:tracking-[0.24em]">
                   {active.eyebrow}
                 </p>
-                <p className="mt-3 max-w-[15rem] text-xl font-semibold leading-tight text-[var(--hero-text)]">
+                <p className="mt-2 max-w-[15rem] text-lg font-semibold leading-tight text-[var(--hero-text)] lg:mt-3 lg:text-xl">
                   {active.productName}
                 </p>
-                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--hero-accent)]">
+                <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--hero-accent)] lg:text-xs lg:tracking-[0.2em]">
                   {active.metadataLine}
                 </p>
+              </div>
+              <div className="text-right text-xs font-black tracking-[0.18em] text-[var(--hero-muted)] lg:hidden">
+                {slideNumber(safeCurrent)}
+                <span className="mx-1 text-[var(--hero-accent)]">/</span>
+                {slideNumber(max - 1)}
               </div>
               <div className="hidden h-px w-24 bg-[var(--hero-accent)] lg:mt-8 lg:block" />
             </motion.aside>
@@ -259,11 +270,11 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
               initial={{ opacity: 0, y: 42, scale: 0.94 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.85, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-              className="relative row-start-2 flex min-h-[320px] items-center justify-center sm:min-h-[430px] lg:col-start-1 lg:row-start-1 lg:min-h-[620px]"
+              className="relative row-start-2 flex min-h-[205px] items-center justify-center sm:min-h-[300px] lg:col-start-1 lg:row-start-1 lg:min-h-[620px]"
             >
-              <div className="absolute h-[280px] w-[280px] rounded-full bg-[var(--hero-accent)]/25 blur-[86px] sm:h-[360px] sm:w-[360px]" />
+              <div className="absolute h-[240px] w-[240px] rounded-full bg-[var(--hero-accent)]/25 blur-[76px] sm:h-[320px] sm:w-[320px] lg:h-[360px] lg:w-[360px] lg:blur-[86px]" />
               <div className="absolute inset-x-[18%] bottom-[12%] h-12 rounded-full bg-black/15 blur-2xl" />
-              <div className="relative h-[330px] w-full max-w-[620px] sm:h-[500px] lg:h-[580px] lg:max-w-[540px]">
+              <div className="relative h-[215px] w-full max-w-[440px] sm:h-[320px] lg:h-[580px] lg:max-w-[540px]">
                 <ImageWithFallback
                   src={active.productImage}
                   alt={active.productImageAlt || active.productName}
@@ -282,10 +293,10 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
               className="row-start-3 flex flex-col justify-center lg:col-start-2 lg:row-start-1 lg:pt-16"
             >
               <div className="max-w-xl lg:max-w-md">
-                <p className="mb-3 text-sm font-bold text-[var(--hero-accent)]">
+                <p className="mb-2 text-sm font-bold text-[var(--hero-accent)] lg:mb-3">
                   {active.subheading || active.productName}
                 </p>
-                <h1 className="font-black uppercase leading-[0.9] tracking-normal text-[clamp(3rem,11vw,5.7rem)] text-[var(--hero-text)] lg:text-[clamp(3.4rem,4.6vw,5.2rem)]">
+                <h1 className="font-black uppercase leading-[0.9] tracking-normal text-[clamp(2rem,9.8vw,4rem)] text-[var(--hero-text)] lg:text-[clamp(3.4rem,4.6vw,5.2rem)]">
                   <motion.span
                     initial={{ y: 24, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -303,29 +314,33 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
                     {active.titleLine2}
                   </motion.span>
                 </h1>
-                <p className="mt-5 line-clamp-3 max-w-md text-base font-medium leading-7 text-[var(--hero-muted)]">
+                <p className="mt-4 line-clamp-2 max-w-md text-sm font-medium leading-6 text-[var(--hero-muted)] sm:line-clamp-3 sm:text-base sm:leading-7 lg:mt-5">
                   {active.description}
                 </p>
                 <motion.div
                   initial={{ y: 18, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.65, delay: 0.62, ease: [0.22, 1, 0.36, 1] }}
-                  className="mt-7"
+                    className="mt-3 lg:mt-7"
                 >
                   <Link
                     href={active.primaryButtonLink}
-                    className="inline-flex h-12 items-center justify-center bg-[var(--hero-button-bg)] px-6 text-sm font-black uppercase tracking-[0.18em] text-[var(--hero-button-text)] shadow-[0_18px_42px_rgba(0,0,0,0.14)] transition-transform duration-300 hover:-translate-y-0.5"
+                    style={{
+                      backgroundColor: "var(--hero-button-bg)",
+                      color: "var(--hero-button-text)",
+                    }}
+                    className="ml-12 inline-flex h-10 items-center justify-center px-4 text-xs font-black uppercase tracking-[0.14em] shadow-[0_18px_42px_rgba(0,0,0,0.14)] transition-transform duration-300 hover:-translate-y-0.5 sm:h-12 sm:px-6 sm:text-sm lg:ml-0 lg:tracking-[0.18em]"
                   >
                     {active.primaryButtonText}
                   </Link>
                 </motion.div>
-                <div className="mt-6 grid grid-cols-3 gap-3 border-t border-[var(--hero-text)]/15 pt-4">
+                <div className="mt-3 grid grid-cols-3 gap-2 border-t border-[var(--hero-text)]/15 pt-3 lg:mt-6 lg:gap-3 lg:pt-4">
                   {active.infoItems.slice(0, 3).map((spec, index) => (
                     <div key={`${spec.label}-${index}`} className="min-w-0">
-                      <p className="truncate text-[10px] font-black uppercase tracking-[0.22em] text-[var(--hero-muted)]">
+                      <p className="truncate text-[9px] font-black uppercase tracking-[0.16em] text-[var(--hero-muted)] sm:text-[10px] lg:tracking-[0.22em]">
                         {spec.label}
                       </p>
-                      <p className="mt-1 truncate text-sm font-semibold text-[var(--hero-text)] md:text-base">
+                      <p className="mt-1 truncate text-xs font-semibold text-[var(--hero-text)] sm:text-sm md:text-base">
                         {spec.value}
                       </p>
                     </div>
@@ -339,6 +354,49 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
 
       {max > 1 && (
         <>
+          <div className="absolute inset-x-0 top-3 z-40 px-4 lg:hidden">
+            <div className="overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex w-max gap-3 pr-4">
+                {safeSlides.map((slide, index) => {
+                  const selected = index === safeCurrent;
+                  return (
+                    <button
+                      key={slide.id ?? index}
+                      ref={(node) => {
+                        mobileThumbnailRefs.current[index] = node;
+                      }}
+                      type="button"
+                      onClick={() => setCurrent(index)}
+                      className={cn(
+                        "group relative flex h-20 min-w-[142px] overflow-hidden border p-3 text-left backdrop-blur transition-all duration-500 sm:h-24 sm:min-w-[180px]",
+                        selected
+                          ? "min-w-[170px] border-[var(--hero-accent)] bg-white/72 shadow-[0_16px_36px_rgba(0,0,0,0.13)] sm:min-w-[210px]"
+                          : "border-[var(--hero-text)]/12 bg-white/28 opacity-65",
+                      )}
+                      aria-label={`Show ${slide.shortName}`}
+                    >
+                      <div className="absolute inset-0 opacity-20">
+                        <ImageWithFallback
+                          src={slide.productImage}
+                          alt=""
+                          fill
+                          sizes="180px"
+                          className="object-contain p-2"
+                        />
+                      </div>
+                      <span className="relative z-10 max-w-[6.5rem] text-sm font-black text-[var(--hero-text)]">
+                        {slide.shortName}
+                      </span>
+                      <span className="relative z-10 ml-auto text-sm font-black tracking-[0.16em] text-[var(--hero-text)]">
+                        {slideNumber(index)}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
           <button
             type="button"
             onClick={prev}
@@ -401,23 +459,41 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
             </div>
           </div>
 
-          <div className="absolute inset-x-0 bottom-3 z-40 flex justify-center gap-2 lg:hidden">
-            {safeSlides.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => setCurrent(index)}
-                className={cn(
-                  "h-9 min-w-9 border px-3 text-xs font-black tracking-[0.16em] backdrop-blur transition-all",
-                  index === safeCurrent
-                    ? "border-[var(--hero-accent)] bg-[var(--hero-button-bg)] text-[var(--hero-button-text)]"
-                    : "border-[var(--hero-text)]/15 bg-[var(--hero-panel)] text-[var(--hero-text)]",
-                )}
-                aria-label={`Show slide ${index + 1}`}
-              >
-                {slideNumber(index)}
-              </button>
-            ))}
+          <div className="absolute inset-x-4 bottom-4 z-40 grid grid-cols-[2.75rem_1fr_2.75rem] items-center gap-2 lg:hidden">
+            <button
+              type="button"
+              onClick={prev}
+              aria-label="Previous slide"
+              className="flex h-11 w-11 items-center justify-center border border-[var(--hero-accent)]/45 bg-[var(--hero-panel)] text-[var(--hero-accent)] backdrop-blur"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <div className="flex min-w-0 justify-center gap-2 overflow-hidden">
+              {safeSlides.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setCurrent(index)}
+                  className={cn(
+                    "h-8 min-w-8 border px-2 text-[11px] font-black tracking-[0.14em] backdrop-blur transition-all",
+                    index === safeCurrent
+                    ? "border-[var(--hero-accent)] bg-[var(--hero-button-bg)] text-[color:var(--hero-button-text)]"
+                      : "border-[var(--hero-text)]/15 bg-[var(--hero-panel)] text-[var(--hero-text)]",
+                  )}
+                  aria-label={`Show slide ${index + 1}`}
+                >
+                  {slideNumber(index)}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={next}
+              aria-label="Next slide"
+              className="flex h-11 w-11 items-center justify-center justify-self-end border border-[var(--hero-accent)]/45 bg-[var(--hero-panel)] text-[var(--hero-accent)] backdrop-blur"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
         </>
       )}
