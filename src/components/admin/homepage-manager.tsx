@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -85,7 +86,8 @@ const BLOCK_META: Record<
     title: "Homepage Slider",
     shortTitle: "Slider",
     description: "The Allfather-style product slider customers see first.",
-    plainHelp: "Edit each slide's product image, card label, copy, big overlay text, colors, button, and product facts.",
+    plainHelp:
+      "Edit each slide's product image, card label, copy, big overlay text, colors, button, and product facts.",
     icon: SlidersHorizontal,
   },
   ticker: {
@@ -165,7 +167,13 @@ function makeId(prefix: string) {
 const DEFAULT_HERO_SLIDE = HOMEPAGE_DEFAULTS.hero[0] as HeroSlideData;
 const DEFAULT_HERO_COLORS = DEFAULT_HERO_SLIDE.colors as NonNullable<HeroSlideData["colors"]>;
 
-export function HomepageManager({ initialBlock = "hero" }: { initialBlock?: HomepageBlockKey } = {}) {
+export function HomepageManager({
+  initialBlock = "hero",
+  sliderOnly = false,
+}: {
+  initialBlock?: HomepageBlockKey;
+  sliderOnly?: boolean;
+} = {}) {
   const [blocks, setBlocks] = useState<Block[] | null>(null);
   const [active, setActive] = useState<HomepageBlockKey>(initialBlock);
   const [draftData, setDraftData] = useState<unknown>(null);
@@ -207,9 +215,7 @@ export function HomepageManager({ initialBlock = "hero" }: { initialBlock?: Home
     }
 
     const json = await res.json();
-    const list: Block[] = (json?.data ?? []).filter((block: Block) =>
-      isBlockKey(block.blockKey),
-    );
+    const list: Block[] = (json?.data ?? []).filter((block: Block) => isBlockKey(block.blockKey));
     setBlocks(list);
 
     const nextKey = preferredKey ?? active ?? initialBlock;
@@ -326,133 +332,135 @@ export function HomepageManager({ initialBlock = "hero" }: { initialBlock?: Home
 
   return (
     <div className="space-y-5">
-      <section className="overflow-hidden rounded-2xl border border-[#2f2a22] bg-[#1a1814] text-white shadow-lg">
-        <div className="grid gap-6 p-5 lg:grid-cols-[1fr,360px] lg:p-6">
-          <div className="space-y-5">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge className="bg-[var(--color-accent)] text-white">
-                Homepage command center
-              </Badge>
-              <Badge variant="outline" className="border-white/20 text-white">
-                {blocks.filter((block) => block.isActive).length} sections live
-              </Badge>
-              {hasUnsavedChanges && (
-                <Badge className="bg-[#f5b94f] text-[#1a1814]">Unsaved changes</Badge>
-              )}
-            </div>
-
-            <div>
-              <h2 className="max-w-3xl text-2xl font-semibold text-white md:text-3xl">
-                Edit the storefront like a simple checklist, not a code file.
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/70">
-                Pick a section, change the visible words, preview the result, then save.
-                The advanced JSON editor is still here, but normal editing stays friendly.
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              <MiniStat label="Current section" value={meta.shortTitle} icon={ActiveIcon} />
-              <MiniStat
-                label="Position"
-                value={`${activeIndex} of ${HOMEPAGE_BLOCK_KEYS.length}`}
-                icon={GripVertical}
-              />
-              <MiniStat
-                label="Storefront"
-                value={draftActive ? "Visible" : "Hidden"}
-                icon={draftActive ? CheckCircle2 : Circle}
-              />
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-white/45">Selected</p>
-                <h3 className="mt-1 text-lg font-semibold text-white">{meta.title}</h3>
+      {!sliderOnly && (
+        <section className="overflow-hidden rounded-2xl border border-[#2f2a22] bg-[#1a1814] text-white shadow-lg">
+          <div className="grid gap-6 p-5 lg:grid-cols-[1fr,360px] lg:p-6">
+            <div className="space-y-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="bg-[var(--color-accent)] text-white">
+                  Homepage command center
+                </Badge>
+                <Badge variant="outline" className="border-white/20 text-white">
+                  {blocks.filter((block) => block.isActive).length} sections live
+                </Badge>
+                {hasUnsavedChanges && (
+                  <Badge className="bg-[#f5b94f] text-[#1a1814]">Unsaved changes</Badge>
+                )}
               </div>
-              <ActiveIcon className="h-6 w-6 text-[var(--color-accent-light)]" />
+
+              <div>
+                <h2 className="max-w-3xl text-2xl font-semibold text-white md:text-3xl">
+                  Edit the storefront like a simple checklist, not a code file.
+                </h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/70">
+                  Pick a section, change the visible words, preview the result, then save. The
+                  advanced JSON editor is still here, but normal editing stays friendly.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <MiniStat label="Current section" value={meta.shortTitle} icon={ActiveIcon} />
+                <MiniStat
+                  label="Position"
+                  value={`${activeIndex} of ${HOMEPAGE_BLOCK_KEYS.length}`}
+                  icon={GripVertical}
+                />
+                <MiniStat
+                  label="Storefront"
+                  value={draftActive ? "Visible" : "Hidden"}
+                  icon={draftActive ? CheckCircle2 : Circle}
+                />
+              </div>
             </div>
-            <p className="text-sm leading-6 text-white/70">{meta.plainHelp}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button asChild variant="secondary" size="sm" className="gap-2">
-                <a href="/" target="_blank" rel="noreferrer">
-                  <Eye className="h-4 w-4" />
-                  View storefront
-                </a>
-              </Button>
-              <Button
-                size="sm"
-                className="gap-2"
-                onClick={save}
-                disabled={saving || !hasUnsavedChanges}
-              >
-                <Save className="h-4 w-4" />
-                {saving ? "Saving..." : "Save"}
-              </Button>
+
+            <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <p className="text-xs tracking-[0.2em] text-white/45 uppercase">Selected</p>
+                  <h3 className="mt-1 text-lg font-semibold text-white">{meta.title}</h3>
+                </div>
+                <ActiveIcon className="h-6 w-6 text-[var(--color-accent-light)]" />
+              </div>
+              <p className="text-sm leading-6 text-white/70">{meta.plainHelp}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button asChild variant="secondary" size="sm" className="gap-2">
+                  <a href="/" target="_blank" rel="noreferrer">
+                    <Eye className="h-4 w-4" />
+                    View storefront
+                  </a>
+                </Button>
+                <Button
+                  size="sm"
+                  className="gap-2"
+                  onClick={save}
+                  disabled={saving || !hasUnsavedChanges}
+                >
+                  <Save className="h-4 w-4" />
+                  {saving ? "Saving..." : "Save"}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <div className="grid gap-5 xl:grid-cols-[300px,1fr]">
-        <aside className="space-y-3">
-          <div className="rounded-2xl border border-[var(--color-border)] bg-white p-3 shadow-sm">
-            <div className="mb-3 px-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
-                Homepage sections
-              </p>
-            </div>
-            <div className="space-y-1.5">
-              {HOMEPAGE_BLOCK_KEYS.map((key, index) => {
-                const item = blocks.find((block) => block.blockKey === key);
-                const itemMeta = BLOCK_META[key];
-                const ItemIcon = itemMeta.icon;
-                const isActive = active === key;
+      <div className={cn("grid gap-5", sliderOnly ? "grid-cols-1" : "xl:grid-cols-[300px,1fr]")}>
+        {!sliderOnly && (
+          <aside className="space-y-3">
+            <div className="rounded-2xl border border-[var(--color-border)] bg-white p-3 shadow-sm">
+              <div className="mb-3 px-2">
+                <p className="text-xs font-semibold tracking-[0.18em] text-[var(--color-text-muted)] uppercase">
+                  Homepage sections
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                {HOMEPAGE_BLOCK_KEYS.map((key, index) => {
+                  const item = blocks.find((block) => block.blockKey === key);
+                  const itemMeta = BLOCK_META[key];
+                  const ItemIcon = itemMeta.icon;
+                  const isActive = active === key;
 
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => selectBlock(key)}
-                    className={cn(
-                      "flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all",
-                      isActive
-                        ? "border-[var(--color-accent)] bg-[var(--color-accent-light)]/35 shadow-sm"
-                        : "border-transparent hover:border-[var(--color-border)] hover:bg-[var(--color-surface-alt)]",
-                    )}
-                  >
-                    <div
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => selectBlock(key)}
                       className={cn(
-                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                        "flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all",
                         isActive
-                          ? "bg-[var(--color-accent)] text-white"
-                          : "bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)]",
+                          ? "border-[var(--color-accent)] bg-[var(--color-accent-light)]/35 shadow-sm"
+                          : "border-transparent hover:border-[var(--color-border)] hover:bg-[var(--color-surface-alt)]",
                       )}
                     >
-                      <ItemIcon className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-[var(--color-text-muted)]">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                        <span className="truncate text-sm font-semibold">
-                          {itemMeta.title}
-                        </span>
+                      <div
+                        className={cn(
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                          isActive
+                            ? "bg-[var(--color-accent)] text-white"
+                            : "bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)]",
+                        )}
+                      >
+                        <ItemIcon className="h-4 w-4" />
                       </div>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
-                        <span>{item?.isActive ? "Visible" : "Hidden"}</span>
-                        {item?.isCustomized && <span>Edited</span>}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-[var(--color-text-muted)]">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <span className="truncate text-sm font-semibold">{itemMeta.title}</span>
+                        </div>
+                        <div className="mt-1 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+                          <span>{item?.isActive ? "Visible" : "Hidden"}</span>
+                          {item?.isCustomized && <span>Edited</span>}
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </aside>
+          </aside>
+        )}
 
         <section className="min-w-0 space-y-5">
           <div className="rounded-2xl border border-[var(--color-border)] bg-white shadow-sm">
@@ -471,59 +479,60 @@ export function HomepageManager({ initialBlock = "hero" }: { initialBlock?: Home
 
               <div className="flex flex-wrap items-center gap-2">
                 <label className="flex h-9 items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 text-sm">
-                  <Switch
-                    checked={draftActive}
-                    onCheckedChange={setDraftActive}
-                    size="sm"
-                  />
+                  <Switch checked={draftActive} onCheckedChange={setDraftActive} size="sm" />
                   Show section
                 </label>
-                <Button
-                  variant={viewMode === "design" ? "default" : "secondary"}
-                  size="sm"
-                  onClick={() => setViewMode("design")}
-                  className="gap-2"
-                >
-                  <PencilLine className="h-4 w-4" />
-                  Easy edit
-                </Button>
-                <Button
-                  variant={viewMode === "json" ? "default" : "secondary"}
-                  size="sm"
-                  onClick={() => setViewMode("json")}
-                  className="gap-2"
-                >
-                  <FileJson className="h-4 w-4" />
-                  JSON
-                </Button>
+                {!sliderOnly && (
+                  <Button
+                    variant={viewMode === "design" ? "default" : "secondary"}
+                    size="sm"
+                    onClick={() => setViewMode("design")}
+                    className="gap-2"
+                  >
+                    <PencilLine className="h-4 w-4" />
+                    Easy edit
+                  </Button>
+                )}
+                {!sliderOnly && (
+                  <Button
+                    variant={viewMode === "json" ? "default" : "secondary"}
+                    size="sm"
+                    onClick={() => setViewMode("json")}
+                    className="gap-2"
+                  >
+                    <FileJson className="h-4 w-4" />
+                    JSON
+                  </Button>
+                )}
               </div>
             </div>
 
             {viewMode === "design" ? (
-              <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr),360px]">
+              <div
+                className={cn(
+                  "grid gap-0",
+                  sliderOnly
+                    ? "xl:grid-cols-[minmax(0,1fr),420px]"
+                    : "lg:grid-cols-[minmax(0,1fr),360px]",
+                )}
+              >
                 <div className="min-w-0 p-4 md:p-5">
-                  <SectionEditor
-                    blockKey={active}
-                    data={draftData}
-                    onChange={updateDraft}
-                  />
+                  <SectionEditor blockKey={active} data={draftData} onChange={updateDraft} />
                 </div>
-                <div className="border-t border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 lg:border-l lg:border-t-0 md:p-5">
+                <div className="border-t border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 md:p-5 lg:border-t-0 lg:border-l">
                   <div className="sticky top-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
+                        <p className="text-xs font-semibold tracking-[0.18em] text-[var(--color-text-muted)] uppercase">
                           Live feel
                         </p>
-                        <h3 className="mt-1 text-base font-semibold">Simple preview</h3>
+                        <h3 className="mt-1 text-base font-semibold">
+                          {sliderOnly ? "Slider preview" : "Simple preview"}
+                        </h3>
                       </div>
                       <MonitorSmartphone className="h-5 w-5 text-[var(--color-accent-dark)]" />
                     </div>
-                    <SectionPreview
-                      blockKey={active}
-                      data={draftData}
-                      isActive={draftActive}
-                    />
+                    <SectionPreview blockKey={active} data={draftData} isActive={draftActive} />
                   </div>
                 </div>
               </div>
@@ -541,9 +550,7 @@ export function HomepageManager({ initialBlock = "hero" }: { initialBlock?: Home
                   spellCheck={false}
                   className="min-h-[520px] resize-y bg-white font-mono text-xs leading-relaxed"
                 />
-                {parseError && (
-                  <ErrorBox message={parseError} />
-                )}
+                {parseError && <ErrorBox message={parseError} />}
                 <Button variant="secondary" onClick={applyJsonToDesigner} className="gap-2">
                   <FileJson className="h-4 w-4" />
                   Apply JSON to easy editor
@@ -648,13 +655,34 @@ function HeroEditor({
     onChange(slides.map((slide, i) => (i === index ? { ...slide, ...patch } : slide)));
   };
 
-  const updateColors = (
+  const updateTwoColorTheme = (
     index: number,
-    patch: Partial<NonNullable<HeroSlideData["colors"]>>,
+    patch: { left?: string; right?: string; overlay?: string },
   ) => {
     const fallback = DEFAULT_HERO_COLORS;
     const slide = slides[index];
-    updateSlide(index, { colors: { ...(fallback ?? {}), ...(slide?.colors ?? {}), ...patch } });
+    const current = { ...(fallback ?? {}), ...(slide?.colors ?? {}) };
+
+    updateSlide(index, {
+      colors: {
+        ...current,
+        ...(patch.left
+          ? {
+              purple: patch.left,
+              green: patch.left,
+              infoGreen: patch.left,
+            }
+          : {}),
+        ...(patch.right
+          ? {
+              lightBlue: patch.right,
+              white: patch.right,
+              orange: patch.right,
+            }
+          : {}),
+        ...(patch.overlay ? { accent: patch.overlay } : {}),
+      },
+    });
   };
 
   const updateInfoItem = (
@@ -664,9 +692,7 @@ function HeroEditor({
   ) => {
     const items = slides[slideIndex]?.infoItems ?? [];
     updateSlide(slideIndex, {
-      infoItems: items.map((item, index) =>
-        index === itemIndex ? { ...item, ...patch } : item,
-      ),
+      infoItems: items.map((item, index) => (index === itemIndex ? { ...item, ...patch } : item)),
     });
   };
 
@@ -684,154 +710,243 @@ function HeroEditor({
       decoration: "Product",
       subtitle: "Write a short customer-friendly message for this slide.",
     };
-    onChange([
-      ...slides,
-      nextSlide,
-    ]);
+    onChange([...slides, nextSlide]);
   };
 
   return (
     <div className="space-y-4">
       <EditorIntro
         title="Slider builder"
-        body="Control the Allfather-style homepage slider: left cards, product copy, image, big overlay text, bottom facts, and colors."
+        body="Control the two-color homepage slider: left cards, product copy, image, large overlay text, bottom facts, and theme colors."
       />
-      {slides.map((slide, index) => (
-        <EditablePanel
-          key={slide.id ?? index}
-          title={`Slide ${index + 1}`}
-          subtitle={slide.title || "Untitled hero slide"}
-          onDuplicate={() => onChange([...slides, { ...cloneData(slide), id: makeId("hero") }])}
-          onRemove={slides.length > 1 ? () => onChange(slides.filter((_, i) => i !== index)) : undefined}
-        >
-          <div className="grid gap-4 md:grid-cols-3">
-            <FormField label="Left card corner name">
-              <Input value={slide.cardName ?? ""} onChange={(event) => updateSlide(index, { cardName: event.target.value })} />
-            </FormField>
-            <FormField label="Light-blue product name">
-              <Input value={slide.productName ?? ""} onChange={(event) => updateSlide(index, { productName: event.target.value })} />
-            </FormField>
-            <FormField label="Big orange text">
-              <Input value={slide.decoration ?? ""} onChange={(event) => updateSlide(index, { decoration: event.target.value })} />
-            </FormField>
-          </div>
+      {slides.map((slide, index) => {
+        const infoItems = slide.infoItems ?? [];
+        const hasThreeFacts = infoItems.length >= 3;
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField label="Small label" hint="Appears above the heading in the green copy area">
-              <Input value={slide.eyebrow ?? ""} onChange={(event) => updateSlide(index, { eyebrow: event.target.value })} />
-            </FormField>
-            <FormField label="Subheading">
-              <Input value={slide.subheading ?? ""} onChange={(event) => updateSlide(index, { subheading: event.target.value })} />
-            </FormField>
-            <FormField label="Main title">
-              <Input value={slide.title ?? ""} onChange={(event) => updateSlide(index, { title: event.target.value })} />
-            </FormField>
-            <FormField label="Overlay second line / highlighted word">
-              <Input value={slide.highlight ?? ""} onChange={(event) => updateSlide(index, { highlight: event.target.value })} />
-            </FormField>
-            <FormField label="Primary button text">
-              <Input value={slide.ctaPrimary?.label ?? ""} onChange={(event) => updateSlide(index, { ctaPrimary: { ...(slide.ctaPrimary ?? { href: "/products" }), label: event.target.value } })} />
-            </FormField>
-            <FormField label="Primary button link">
-              <Input value={slide.ctaPrimary?.href ?? ""} onChange={(event) => updateSlide(index, { ctaPrimary: { ...(slide.ctaPrimary ?? { label: "Shop Now" }), href: event.target.value } })} />
-            </FormField>
-          </div>
-          <FormField label="Paragraph" hint="One or two sentences. Keep it warm and direct.">
-            <Textarea value={slide.subtitle ?? ""} onChange={(event) => updateSlide(index, { subtitle: event.target.value })} className="min-h-24" />
-          </FormField>
-
-          <div className="grid gap-4 md:grid-cols-[260px,1fr]">
-            <FormField label="Upload / choose product image" hint="Uploads to the admin media endpoint and uses the uploaded image for this slide.">
-              <ProductImageUploader
-                value={slide.productImage ? [slide.productImage] : []}
-                maxImages={1}
-                onChange={(urls) => updateSlide(index, { productImage: urls[0] ?? "" })}
-              />
-            </FormField>
-            <div className="space-y-4">
-              <FormField label="Product image URL" hint="You can also paste an existing Cloudinary URL or local path.">
-                <Input value={slide.productImage ?? ""} onChange={(event) => updateSlide(index, { productImage: event.target.value })} />
+        return (
+          <EditablePanel
+            key={slide.id ?? index}
+            title={`Slide ${index + 1}`}
+            subtitle={slide.title || "Untitled hero slide"}
+            onDuplicate={() => onChange([...slides, { ...cloneData(slide), id: makeId("hero") }])}
+            onRemove={
+              slides.length > 1 ? () => onChange(slides.filter((_, i) => i !== index)) : undefined
+            }
+          >
+            <div className="grid gap-4 md:grid-cols-3">
+              <FormField label="Left card corner name">
+                <Input
+                  value={slide.cardName ?? ""}
+                  onChange={(event) => updateSlide(index, { cardName: event.target.value })}
+                />
               </FormField>
-              <FormField label="Product image alt text">
-                <Input value={slide.productImageAlt ?? ""} onChange={(event) => updateSlide(index, { productImageAlt: event.target.value })} />
+              <FormField label="Top product label">
+                <Input
+                  value={slide.productName ?? ""}
+                  onChange={(event) => updateSlide(index, { productName: event.target.value })}
+                />
+              </FormField>
+              <FormField label="Large overlay text">
+                <Input
+                  value={slide.decoration ?? ""}
+                  onChange={(event) => updateSlide(index, { decoration: event.target.value })}
+                />
               </FormField>
             </div>
-          </div>
 
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
-            <div className="mb-3 flex items-center justify-between gap-2">
-              <h4 className="text-sm font-semibold">Right-bottom product information</h4>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  updateSlide(index, {
-                    infoItems: [...(slide.infoItems ?? []), { label: "Label", value: "Value" }],
-                  })
-                }
-                className="gap-2"
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField
+                label="Small label"
+                hint="Appears above the heading in the green copy area"
               >
-                <Plus className="h-4 w-4" />
-                Add
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {(slide.infoItems ?? []).map((item, itemIndex) => (
-                <InlineRow
-                  key={itemIndex}
-                  onRemove={() =>
+                <Input
+                  value={slide.eyebrow ?? ""}
+                  onChange={(event) => updateSlide(index, { eyebrow: event.target.value })}
+                />
+              </FormField>
+              <FormField label="Subheading">
+                <Input
+                  value={slide.subheading ?? ""}
+                  onChange={(event) => updateSlide(index, { subheading: event.target.value })}
+                />
+              </FormField>
+              <FormField label="Main title">
+                <Input
+                  value={slide.title ?? ""}
+                  onChange={(event) => updateSlide(index, { title: event.target.value })}
+                />
+              </FormField>
+              <FormField label="Overlay second line / highlighted word">
+                <Input
+                  value={slide.highlight ?? ""}
+                  onChange={(event) => updateSlide(index, { highlight: event.target.value })}
+                />
+              </FormField>
+              <FormField label="Primary button text">
+                <Input
+                  value={slide.ctaPrimary?.label ?? ""}
+                  onChange={(event) =>
                     updateSlide(index, {
-                      infoItems: (slide.infoItems ?? []).filter((_, i) => i !== itemIndex),
+                      ctaPrimary: {
+                        ...(slide.ctaPrimary ?? { href: "/products" }),
+                        label: event.target.value,
+                      },
                     })
                   }
-                >
-                  <Input
-                    value={item.label}
-                    onChange={(event) => updateInfoItem(index, itemIndex, { label: event.target.value })}
-                    placeholder="Label"
-                  />
-                  <Input
-                    value={item.value}
-                    onChange={(event) => updateInfoItem(index, itemIndex, { value: event.target.value })}
-                    placeholder="Value"
-                  />
-                </InlineRow>
-              ))}
+                />
+              </FormField>
+              <FormField label="Primary button link">
+                <Input
+                  value={slide.ctaPrimary?.href ?? ""}
+                  onChange={(event) =>
+                    updateSlide(index, {
+                      ctaPrimary: {
+                        ...(slide.ctaPrimary ?? { label: "Shop Now" }),
+                        href: event.target.value,
+                      },
+                    })
+                  }
+                />
+              </FormField>
             </div>
-          </div>
+            <FormField label="Paragraph" hint="One or two sentences. Keep it warm and direct.">
+              <Textarea
+                value={slide.subtitle ?? ""}
+                onChange={(event) => updateSlide(index, { subtitle: event.target.value })}
+                className="min-h-24"
+              />
+            </FormField>
 
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
-            <h4 className="mb-3 text-sm font-semibold">Slider colors</h4>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              <FormField label="Top accent">
-                <Input type="color" value={slide.colors?.purple ?? DEFAULT_HERO_COLORS.purple} onChange={(event) => updateColors(index, { purple: event.target.value })} />
+            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
+              <div className="mb-3">
+                <h4 className="text-sm font-semibold">Product image</h4>
+                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                  This is the large image on the right side of the slider.
+                </p>
+              </div>
+              <FormField
+                label="Upload / choose product image"
+                hint="Uploads to the admin media endpoint and uses the uploaded image for this slide."
+              >
+                <ProductImageUploader
+                  value={slide.productImage ? [slide.productImage] : []}
+                  maxImages={1}
+                  onChange={(urls) => updateSlide(index, { productImage: urls[0] ?? "" })}
+                />
               </FormField>
-              <FormField label="Product-name strip">
-                <Input type="color" value={slide.colors?.lightBlue ?? DEFAULT_HERO_COLORS.lightBlue} onChange={(event) => updateColors(index, { lightBlue: event.target.value })} />
-              </FormField>
-              <FormField label="Left green">
-                <Input type="color" value={slide.colors?.green ?? DEFAULT_HERO_COLORS.green} onChange={(event) => updateColors(index, { green: event.target.value })} />
-              </FormField>
-              <FormField label="Bottom green">
-                <Input type="color" value={slide.colors?.infoGreen ?? DEFAULT_HERO_COLORS.infoGreen} onChange={(event) => updateColors(index, { infoGreen: event.target.value })} />
-              </FormField>
-              <FormField label="Product white">
-                <Input type="color" value={slide.colors?.white ?? DEFAULT_HERO_COLORS.white} onChange={(event) => updateColors(index, { white: event.target.value })} />
-              </FormField>
-              <FormField label="Orange text area">
-                <Input type="color" value={slide.colors?.orange ?? DEFAULT_HERO_COLORS.orange} onChange={(event) => updateColors(index, { orange: event.target.value })} />
-              </FormField>
-              <FormField label="Overlay accent">
-                <Input type="color" value={slide.colors?.accent ?? DEFAULT_HERO_COLORS.accent} onChange={(event) => updateColors(index, { accent: event.target.value })} />
-              </FormField>
-              <FormField label="Card shadow" hint="CSS color value">
-                <Input value={slide.colors?.shadow ?? DEFAULT_HERO_COLORS.shadow} onChange={(event) => updateColors(index, { shadow: event.target.value })} />
-              </FormField>
+
+              <details className="mt-3 rounded-lg border border-[var(--color-border)] bg-white p-3">
+                <summary className="cursor-pointer text-sm font-semibold text-[var(--color-text-secondary)]">
+                  Advanced image fields
+                </summary>
+                <div className="mt-3 grid gap-4 md:grid-cols-2">
+                  <FormField label="Image URL">
+                    <Input
+                      value={slide.productImage ?? ""}
+                      onChange={(event) => updateSlide(index, { productImage: event.target.value })}
+                    />
+                  </FormField>
+                  <FormField label="Product image alt text">
+                    <Input
+                      value={slide.productImageAlt ?? ""}
+                      onChange={(event) =>
+                        updateSlide(index, { productImageAlt: event.target.value })
+                      }
+                    />
+                  </FormField>
+                </div>
+              </details>
             </div>
-          </div>
-        </EditablePanel>
-      ))}
+
+            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div>
+                  <h4 className="text-sm font-semibold">Bottom product facts</h4>
+                  <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                    Shown on the bottom-right bar. Keep this to three short facts.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    !hasThreeFacts &&
+                    updateSlide(index, {
+                      infoItems: [...infoItems, { label: "Label", value: "Value" }],
+                    })
+                  }
+                  disabled={hasThreeFacts}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add fact
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {infoItems.map((item, itemIndex) => (
+                  <InlineRow
+                    key={itemIndex}
+                    onRemove={() =>
+                      updateSlide(index, {
+                        infoItems: infoItems.filter((_, i) => i !== itemIndex),
+                      })
+                    }
+                  >
+                    <Input
+                      value={item.label}
+                      onChange={(event) =>
+                        updateInfoItem(index, itemIndex, { label: event.target.value })
+                      }
+                      placeholder="Label"
+                    />
+                    <Input
+                      value={item.value}
+                      onChange={(event) =>
+                        updateInfoItem(index, itemIndex, { value: event.target.value })
+                      }
+                      placeholder="Value"
+                    />
+                  </InlineRow>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
+              <h4 className="text-sm font-semibold">Two-color slider theme</h4>
+              <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                The frontend uses one left-side color and one right-side color, with a separate
+                overlay text color.
+              </p>
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
+                <FormField label="Left background">
+                  <Input
+                    type="color"
+                    value={slide.colors?.green ?? DEFAULT_HERO_COLORS.green}
+                    onChange={(event) => updateTwoColorTheme(index, { left: event.target.value })}
+                  />
+                </FormField>
+                <FormField label="Right background">
+                  <Input
+                    type="color"
+                    value={slide.colors?.orange ?? DEFAULT_HERO_COLORS.orange}
+                    onChange={(event) => updateTwoColorTheme(index, { right: event.target.value })}
+                  />
+                </FormField>
+                <FormField label="Overlay text">
+                  <Input
+                    type="color"
+                    value={slide.colors?.accent ?? DEFAULT_HERO_COLORS.accent}
+                    onChange={(event) =>
+                      updateTwoColorTheme(index, { overlay: event.target.value })
+                    }
+                  />
+                </FormField>
+              </div>
+            </div>
+          </EditablePanel>
+        );
+      })}
       <Button variant="outline" onClick={addSlide} className="gap-2">
         <Plus className="h-4 w-4" />
         Add slider slide
@@ -857,12 +972,21 @@ function TickerEditor({
       title="Ticker messages"
       body="Short trust messages that move across the top of the site."
       addLabel="Add message"
-      onAdd={() => onChange({ items: [...items, { icon: "truck", text: "Free delivery over Tk 2000" }] })}
+      onAdd={() =>
+        onChange({ items: [...items, { icon: "truck", text: "Free delivery over Tk 2000" }] })
+      }
     >
       {items.map((item, index) => (
-        <InlineRow key={index} onRemove={() => onChange({ items: items.filter((_, i) => i !== index) })}>
+        <InlineRow
+          key={index}
+          onRemove={() => onChange({ items: items.filter((_, i) => i !== index) })}
+        >
           <IconSelect value={item.icon} onChange={(icon) => update(index, { icon })} />
-          <Input value={item.text} onChange={(event) => update(index, { text: event.target.value })} placeholder="Ticker message" />
+          <Input
+            value={item.text}
+            onChange={(event) => update(index, { text: event.target.value })}
+            placeholder="Ticker message"
+          />
         </InlineRow>
       ))}
     </ListEditorShell>
@@ -886,17 +1010,30 @@ function DiscoveryEditor({
       />
       <div className="grid gap-4 md:grid-cols-2">
         <FormField label="Small label">
-          <Input value={data.eyebrow ?? ""} onChange={(event) => update({ eyebrow: event.target.value })} />
+          <Input
+            value={data.eyebrow ?? ""}
+            onChange={(event) => update({ eyebrow: event.target.value })}
+          />
         </FormField>
         <FormField label="Search placeholder">
-          <Input value={data.placeholder ?? ""} onChange={(event) => update({ placeholder: event.target.value })} />
+          <Input
+            value={data.placeholder ?? ""}
+            onChange={(event) => update({ placeholder: event.target.value })}
+          />
         </FormField>
       </div>
       <FormField label="Title">
-        <Input value={data.title ?? ""} onChange={(event) => update({ title: event.target.value })} />
+        <Input
+          value={data.title ?? ""}
+          onChange={(event) => update({ title: event.target.value })}
+        />
       </FormField>
       <FormField label="Subtitle">
-        <Textarea value={data.subtitle ?? ""} onChange={(event) => update({ subtitle: event.target.value })} className="min-h-20" />
+        <Textarea
+          value={data.subtitle ?? ""}
+          onChange={(event) => update({ subtitle: event.target.value })}
+          className="min-h-20"
+        />
       </FormField>
       <ChipEditor
         title="Trending searches"
@@ -940,16 +1077,31 @@ function NeedsEditor({
           >
             <div className="grid gap-4 md:grid-cols-2">
               <FormField label="Tile label">
-                <Input value={tile.label ?? ""} onChange={(event) => updateTile(index, { label: event.target.value })} />
+                <Input
+                  value={tile.label ?? ""}
+                  onChange={(event) => updateTile(index, { label: event.target.value })}
+                />
               </FormField>
               <FormField label="Link">
-                <Input value={tile.href ?? ""} onChange={(event) => updateTile(index, { href: event.target.value })} />
+                <Input
+                  value={tile.href ?? ""}
+                  onChange={(event) => updateTile(index, { href: event.target.value })}
+                />
               </FormField>
               <FormField label="Icon">
-                <IconSelect value={tile.icon} onChange={(icon) => updateTile(index, { icon })} className="w-full" />
+                <IconSelect
+                  value={tile.icon}
+                  onChange={(icon) => updateTile(index, { icon })}
+                  className="w-full"
+                />
               </FormField>
               <FormField label="Tone">
-                <Select value={tile.tone ?? "default"} onValueChange={(tone) => updateTile(index, { tone: tone as NeedTileData["tone"] })}>
+                <Select
+                  value={tile.tone ?? "default"}
+                  onValueChange={(tone) =>
+                    updateTile(index, { tone: tone as NeedTileData["tone"] })
+                  }
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -961,13 +1113,22 @@ function NeedsEditor({
                 </Select>
               </FormField>
               <FormField label="Small badge" hint="Optional">
-                <Input value={tile.badge ?? ""} onChange={(event) => updateTile(index, { badge: event.target.value })} />
+                <Input
+                  value={tile.badge ?? ""}
+                  onChange={(event) => updateTile(index, { badge: event.target.value })}
+                />
               </FormField>
             </div>
           </EditablePanel>
         ))}
       </div>
-      <Button variant="outline" onClick={() => update({ tiles: [...tiles, { label: "New Need", href: "/products", icon: "sparkles" }] })} className="gap-2">
+      <Button
+        variant="outline"
+        onClick={() =>
+          update({ tiles: [...tiles, { label: "New Need", href: "/products", icon: "sparkles" }] })
+        }
+        className="gap-2"
+      >
         <Plus className="h-4 w-4" />
         Add need tile
       </Button>
@@ -1001,26 +1162,59 @@ function TrustEditor({
           title={`Badge ${index + 1}`}
           subtitle={item.title || "Untitled trust badge"}
           compact
-          onDuplicate={() => update({ items: [...items, { ...cloneData(item), id: makeId("trust") }] })}
+          onDuplicate={() =>
+            update({ items: [...items, { ...cloneData(item), id: makeId("trust") }] })
+          }
           onRemove={() => update({ items: items.filter((_, i) => i !== index) })}
         >
           <div className="grid gap-4 md:grid-cols-2">
             <FormField label="Title">
-              <Input value={item.title ?? ""} onChange={(event) => updateItem(index, { title: event.target.value })} />
+              <Input
+                value={item.title ?? ""}
+                onChange={(event) => updateItem(index, { title: event.target.value })}
+              />
             </FormField>
             <FormField label="Short line">
-              <Input value={item.short ?? ""} onChange={(event) => updateItem(index, { short: event.target.value })} />
+              <Input
+                value={item.short ?? ""}
+                onChange={(event) => updateItem(index, { short: event.target.value })}
+              />
             </FormField>
             <FormField label="Icon">
-              <IconSelect value={item.icon} onChange={(icon) => updateItem(index, { icon })} className="w-full" />
+              <IconSelect
+                value={item.icon}
+                onChange={(icon) => updateItem(index, { icon })}
+                className="w-full"
+              />
             </FormField>
           </div>
           <FormField label="Details shown when clicked">
-            <Textarea value={item.details ?? ""} onChange={(event) => updateItem(index, { details: event.target.value })} className="min-h-24" />
+            <Textarea
+              value={item.details ?? ""}
+              onChange={(event) => updateItem(index, { details: event.target.value })}
+              className="min-h-24"
+            />
           </FormField>
         </EditablePanel>
       ))}
-      <Button variant="outline" onClick={() => update({ items: [...items, { id: makeId("trust"), icon: "shield", title: "New Promise", short: "Short customer promise", details: "Explain this promise in simple words." }] })} className="gap-2">
+      <Button
+        variant="outline"
+        onClick={() =>
+          update({
+            items: [
+              ...items,
+              {
+                id: makeId("trust"),
+                icon: "shield",
+                title: "New Promise",
+                short: "Short customer promise",
+                details: "Explain this promise in simple words.",
+              },
+            ],
+          })
+        }
+        className="gap-2"
+      >
         <Plus className="h-4 w-4" />
         Add trust badge
       </Button>
@@ -1059,34 +1253,79 @@ function EditorialEditor({
         >
           <div className="grid gap-4 md:grid-cols-2">
             <FormField label="Small label">
-              <Input value={card.eyebrow ?? ""} onChange={(event) => updateCard(index, { eyebrow: event.target.value })} />
+              <Input
+                value={card.eyebrow ?? ""}
+                onChange={(event) => updateCard(index, { eyebrow: event.target.value })}
+              />
             </FormField>
             <FormField label="Title">
-              <Input value={card.title ?? ""} onChange={(event) => updateCard(index, { title: event.target.value })} />
+              <Input
+                value={card.title ?? ""}
+                onChange={(event) => updateCard(index, { title: event.target.value })}
+              />
             </FormField>
             <FormField label="Button text">
-              <Input value={card.cta ?? ""} onChange={(event) => updateCard(index, { cta: event.target.value })} />
+              <Input
+                value={card.cta ?? ""}
+                onChange={(event) => updateCard(index, { cta: event.target.value })}
+              />
             </FormField>
             <FormField label="Link">
-              <Input value={card.href ?? ""} onChange={(event) => updateCard(index, { href: event.target.value })} />
+              <Input
+                value={card.href ?? ""}
+                onChange={(event) => updateCard(index, { href: event.target.value })}
+              />
             </FormField>
             <FormField label="Gradient classes">
-              <Input value={card.gradient ?? ""} onChange={(event) => updateCard(index, { gradient: event.target.value })} />
+              <Input
+                value={card.gradient ?? ""}
+                onChange={(event) => updateCard(index, { gradient: event.target.value })}
+              />
             </FormField>
             <FormField label="Decoration text">
-              <Input value={card.decoration ?? ""} onChange={(event) => updateCard(index, { decoration: event.target.value })} />
+              <Input
+                value={card.decoration ?? ""}
+                onChange={(event) => updateCard(index, { decoration: event.target.value })}
+              />
             </FormField>
           </div>
           <FormField label="Description">
-            <Textarea value={card.description ?? ""} onChange={(event) => updateCard(index, { description: event.target.value })} className="min-h-24" />
+            <Textarea
+              value={card.description ?? ""}
+              onChange={(event) => updateCard(index, { description: event.target.value })}
+              className="min-h-24"
+            />
           </FormField>
           <label className="flex w-fit items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-2 text-sm">
-            <Switch checked={!!card.isDark} onCheckedChange={(isDark) => updateCard(index, { isDark })} size="sm" />
+            <Switch
+              checked={!!card.isDark}
+              onCheckedChange={(isDark) => updateCard(index, { isDark })}
+              size="sm"
+            />
             Dark text style
           </label>
         </EditablePanel>
       ))}
-      <Button variant="outline" onClick={() => update({ cards: [...cards, { eyebrow: "New", title: "New Collection", description: "Write a short story for this collection.", href: "/products", cta: "Shop Now", gradient: "from-[#f3efe6] via-[#ebe5d6] to-[#e2dccc]", decoration: "EDIT" }] })} className="gap-2">
+      <Button
+        variant="outline"
+        onClick={() =>
+          update({
+            cards: [
+              ...cards,
+              {
+                eyebrow: "New",
+                title: "New Collection",
+                description: "Write a short story for this collection.",
+                href: "/products",
+                cta: "Shop Now",
+                gradient: "from-[#f3efe6] via-[#ebe5d6] to-[#e2dccc]",
+                decoration: "EDIT",
+              },
+            ],
+          })
+        }
+        className="gap-2"
+      >
         <Plus className="h-4 w-4" />
         Add collection
       </Button>
@@ -1111,7 +1350,20 @@ function TestimonialsEditor({
       title="Customer quotes"
       body="Short quotes look more believable and fit better on mobile."
       addLabel="Add testimonial"
-      onAdd={() => onChange({ items: [...items, { id: makeId("review"), name: "Customer Name", rating: 5, body: "Write the customer's short quote here.", location: "Dhaka" }] })}
+      onAdd={() =>
+        onChange({
+          items: [
+            ...items,
+            {
+              id: makeId("review"),
+              name: "Customer Name",
+              rating: 5,
+              body: "Write the customer's short quote here.",
+              location: "Dhaka",
+            },
+          ],
+        })
+      }
     >
       {items.map((item, index) => (
         <EditablePanel
@@ -1119,22 +1371,40 @@ function TestimonialsEditor({
           title={`Review ${index + 1}`}
           subtitle={item.name || "Customer"}
           compact
-          onDuplicate={() => onChange({ items: [...items, { ...cloneData(item), id: makeId("review") }] })}
+          onDuplicate={() =>
+            onChange({ items: [...items, { ...cloneData(item), id: makeId("review") }] })
+          }
           onRemove={() => onChange({ items: items.filter((_, i) => i !== index) })}
         >
           <div className="grid gap-4 md:grid-cols-3">
             <FormField label="Customer name">
-              <Input value={item.name ?? ""} onChange={(event) => updateItem(index, { name: event.target.value })} />
+              <Input
+                value={item.name ?? ""}
+                onChange={(event) => updateItem(index, { name: event.target.value })}
+              />
             </FormField>
             <FormField label="Location">
-              <Input value={item.location ?? ""} onChange={(event) => updateItem(index, { location: event.target.value })} />
+              <Input
+                value={item.location ?? ""}
+                onChange={(event) => updateItem(index, { location: event.target.value })}
+              />
             </FormField>
             <FormField label="Rating">
-              <Input type="number" min={1} max={5} value={item.rating ?? 5} onChange={(event) => updateItem(index, { rating: Number(event.target.value) })} />
+              <Input
+                type="number"
+                min={1}
+                max={5}
+                value={item.rating ?? 5}
+                onChange={(event) => updateItem(index, { rating: Number(event.target.value) })}
+              />
             </FormField>
           </div>
           <FormField label="Quote">
-            <Textarea value={item.body ?? ""} onChange={(event) => updateItem(index, { body: event.target.value })} className="min-h-24" />
+            <Textarea
+              value={item.body ?? ""}
+              onChange={(event) => updateItem(index, { body: event.target.value })}
+              className="min-h-24"
+            />
           </FormField>
         </EditablePanel>
       ))}
@@ -1158,31 +1428,61 @@ function WhatsAppEditor({
         body="Make it easy for customers to ask before buying, confirm COD, or share a cart."
       />
       <label className="flex w-fit items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-2 text-sm">
-        <Switch checked={!!data.enabled} onCheckedChange={(enabled) => update({ enabled })} size="sm" />
+        <Switch
+          checked={!!data.enabled}
+          onCheckedChange={(enabled) => update({ enabled })}
+          size="sm"
+        />
         Enable WhatsApp section and floating button
       </label>
       <div className="grid gap-4 md:grid-cols-2">
-        <FormField label="Phone number" hint="Use country code, no plus sign. Example: 8801700000000">
-          <Input value={data.phoneNumber ?? ""} onChange={(event) => update({ phoneNumber: event.target.value })} />
+        <FormField
+          label="Phone number"
+          hint="Use country code, no plus sign. Example: 8801700000000"
+        >
+          <Input
+            value={data.phoneNumber ?? ""}
+            onChange={(event) => update({ phoneNumber: event.target.value })}
+          />
         </FormField>
         <FormField label="Primary button text">
-          <Input value={data.ctaPrimaryLabel ?? ""} onChange={(event) => update({ ctaPrimaryLabel: event.target.value })} />
+          <Input
+            value={data.ctaPrimaryLabel ?? ""}
+            onChange={(event) => update({ ctaPrimaryLabel: event.target.value })}
+          />
         </FormField>
         <FormField label="Secondary button text">
-          <Input value={data.ctaSecondaryLabel ?? ""} onChange={(event) => update({ ctaSecondaryLabel: event.target.value })} />
+          <Input
+            value={data.ctaSecondaryLabel ?? ""}
+            onChange={(event) => update({ ctaSecondaryLabel: event.target.value })}
+          />
         </FormField>
         <FormField label="Secondary button link">
-          <Input value={data.ctaSecondaryHref ?? ""} onChange={(event) => update({ ctaSecondaryHref: event.target.value })} />
+          <Input
+            value={data.ctaSecondaryHref ?? ""}
+            onChange={(event) => update({ ctaSecondaryHref: event.target.value })}
+          />
         </FormField>
       </div>
       <FormField label="Section title">
-        <Input value={data.ctaTitle ?? ""} onChange={(event) => update({ ctaTitle: event.target.value })} />
+        <Input
+          value={data.ctaTitle ?? ""}
+          onChange={(event) => update({ ctaTitle: event.target.value })}
+        />
       </FormField>
       <FormField label="Section subtitle">
-        <Textarea value={data.ctaSubtitle ?? ""} onChange={(event) => update({ ctaSubtitle: event.target.value })} className="min-h-24" />
+        <Textarea
+          value={data.ctaSubtitle ?? ""}
+          onChange={(event) => update({ ctaSubtitle: event.target.value })}
+          className="min-h-24"
+        />
       </FormField>
       <FormField label="Default WhatsApp message">
-        <Textarea value={data.defaultMessage ?? ""} onChange={(event) => update({ defaultMessage: event.target.value })} className="min-h-20" />
+        <Textarea
+          value={data.defaultMessage ?? ""}
+          onChange={(event) => update({ defaultMessage: event.target.value })}
+          className="min-h-20"
+        />
       </FormField>
     </div>
   );
@@ -1204,15 +1504,27 @@ function FlashSaleEditor({
         body="Keep this campaign sharp: a clear title and a countdown that feels active."
       />
       <label className="flex w-fit items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-2 text-sm">
-        <Switch checked={!!data.enabled} onCheckedChange={(enabled) => update({ enabled })} size="sm" />
+        <Switch
+          checked={!!data.enabled}
+          onCheckedChange={(enabled) => update({ enabled })}
+          size="sm"
+        />
         Enable flash sale
       </label>
       <div className="grid gap-4 md:grid-cols-2">
         <FormField label="Sale title">
-          <Input value={data.title ?? ""} onChange={(event) => update({ title: event.target.value })} />
+          <Input
+            value={data.title ?? ""}
+            onChange={(event) => update({ title: event.target.value })}
+          />
         </FormField>
         <FormField label="Countdown hours">
-          <Input type="number" min={1} value={data.hoursFromNow ?? 24} onChange={(event) => update({ hoursFromNow: Number(event.target.value) })} />
+          <Input
+            type="number"
+            min={1}
+            value={data.hoursFromNow ?? 24}
+            onChange={(event) => update({ hoursFromNow: Number(event.target.value) })}
+          />
         </FormField>
       </div>
     </div>
@@ -1230,14 +1542,24 @@ function SectionCopyFields({
     <div className="grid gap-4">
       <div className="grid gap-4 md:grid-cols-2">
         <FormField label="Small label">
-          <Input value={data.eyebrow ?? ""} onChange={(event) => onChange({ eyebrow: event.target.value })} />
+          <Input
+            value={data.eyebrow ?? ""}
+            onChange={(event) => onChange({ eyebrow: event.target.value })}
+          />
         </FormField>
         <FormField label="Title">
-          <Input value={data.title ?? ""} onChange={(event) => onChange({ title: event.target.value })} />
+          <Input
+            value={data.title ?? ""}
+            onChange={(event) => onChange({ title: event.target.value })}
+          />
         </FormField>
       </div>
       <FormField label="Subtitle">
-        <Textarea value={data.subtitle ?? ""} onChange={(event) => onChange({ subtitle: event.target.value })} className="min-h-20" />
+        <Textarea
+          value={data.subtitle ?? ""}
+          onChange={(event) => onChange({ subtitle: event.target.value })}
+          className="min-h-20"
+        />
       </FormField>
     </div>
   );
@@ -1278,7 +1600,10 @@ function ChipEditor({
                 onChange(items.map((value, i) => (i === index ? event.target.value : value)))
               }
             />
-            <IconButton label="Remove chip" onClick={() => onChange(items.filter((_, i) => i !== index))}>
+            <IconButton
+              label="Remove chip"
+              onClick={() => onChange(items.filter((_, i) => i !== index))}
+            >
               <Trash2 className="h-4 w-4" />
             </IconButton>
           </div>
@@ -1313,13 +1638,7 @@ function ListEditorShell({
   );
 }
 
-function InlineRow({
-  children,
-  onRemove,
-}: {
-  children: React.ReactNode;
-  onRemove: () => void;
-}) {
+function InlineRow({ children, onRemove }: { children: React.ReactNode; onRemove: () => void }) {
   return (
     <div className="grid gap-2 rounded-xl border border-[var(--color-border)] bg-white p-2 sm:grid-cols-[auto,1fr,auto] sm:items-center">
       {children}
@@ -1442,7 +1761,14 @@ function IconButton({
   children: React.ReactNode;
 }) {
   return (
-    <Button type="button" variant="ghost" size="icon" aria-label={label} title={label} onClick={onClick}>
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+    >
       {children}
     </Button>
   );
@@ -1469,7 +1795,12 @@ function SectionPreview({
   isActive: boolean;
 }) {
   return (
-    <div className={cn("overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-sm", !isActive && "opacity-55")}>
+    <div
+      className={cn(
+        "overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-sm",
+        !isActive && "opacity-55",
+      )}
+    >
       {!isActive && (
         <div className="border-b border-[var(--color-border)] bg-[var(--color-surface-alt)] px-4 py-2 text-xs font-semibold text-[var(--color-text-secondary)]">
           Hidden on storefront
@@ -1491,29 +1822,28 @@ function SectionPreview({
 function HeroPreview({ data }: { data: HeroSlideData[] }) {
   const slide = Array.isArray(data) ? data[0] : null;
   const colors = {
-    purple: slide?.colors?.purple ?? "#123d2d",
-    lightBlue: slide?.colors?.lightBlue ?? "#f1ead9",
-    green: slide?.colors?.green ?? "#0b4a34",
-    infoGreen: slide?.colors?.infoGreen ?? "#073827",
-    white: slide?.colors?.white ?? "#fffdf6",
-    orange: slide?.colors?.orange ?? "#c6a05d",
-    accent: slide?.colors?.accent ?? "#dcebd1",
+    green: slide?.colors?.green ?? DEFAULT_HERO_COLORS.green,
+    orange: slide?.colors?.orange ?? DEFAULT_HERO_COLORS.orange,
+    accent: slide?.colors?.accent ?? DEFAULT_HERO_COLORS.accent,
   };
   return (
     <div className="overflow-hidden bg-white">
-      <div className="grid h-12 grid-cols-[42%,58%] text-xs font-bold uppercase tracking-[0.14em]">
-        <div style={{ backgroundColor: colors.purple }} />
-        <div className="flex items-center px-3" style={{ backgroundColor: colors.lightBlue }}>
+      <div className="grid h-12 grid-cols-[42%,58%] text-xs font-bold tracking-[0.14em] uppercase">
+        <div style={{ backgroundColor: colors.green }} />
+        <div className="flex items-center px-3" style={{ backgroundColor: colors.orange }}>
           <span className="truncate">{slide?.productName || "Product name"}</span>
         </div>
       </div>
       <div className="grid min-h-72 grid-cols-[44%,56%]">
         <div className="p-4 text-white" style={{ backgroundColor: colors.green }}>
-          <div className="mb-4 flex h-24 items-start justify-between border-2 border-white p-2 text-sm font-bold" style={{ backgroundColor: colors.lightBlue, color: "#111" }}>
+          <div
+            className="mb-4 flex h-24 items-start justify-between border-2 border-white p-2 text-sm font-bold"
+            style={{ backgroundColor: colors.orange, color: "#111" }}
+          >
             <span>{slide?.cardName || "Card"}</span>
             <span>01</span>
           </div>
-          <p className="text-[10px] uppercase tracking-[0.18em] text-white/65">{slide?.eyebrow}</p>
+          <p className="text-[10px] tracking-[0.18em] text-white/65 uppercase">{slide?.eyebrow}</p>
           <h3 className="mt-2 text-2xl font-semibold text-white">{slide?.title}</h3>
           <p className="mt-1 text-sm font-semibold" style={{ color: colors.accent }}>
             {slide?.subheading || slide?.highlight}
@@ -1522,14 +1852,37 @@ function HeroPreview({ data }: { data: HeroSlideData[] }) {
           <Badge className="mt-3 bg-white text-black">{slide?.ctaPrimary?.label || "Button"}</Badge>
         </div>
         <div className="relative overflow-hidden" style={{ backgroundColor: colors.orange }}>
-          <div className="absolute inset-0 flex flex-col justify-center text-5xl font-black leading-[0.9] text-black/80">
+          <div className="absolute inset-0 z-0 flex flex-col justify-center text-5xl leading-[0.9] font-black text-[var(--preview-word)] opacity-25 [--preview-word:#0b4a34]">
             <span className="pl-4">{slide?.decoration || "Product"}</span>
-            <span className="self-end pr-3" style={{ color: colors.accent }}>
-              {slide?.highlight || "Text"}
-            </span>
+            <span className="self-end pr-3">{slide?.highlight || "Text"}</span>
           </div>
-          <div className="absolute inset-y-10 right-0 w-[72%]" style={{ backgroundColor: colors.white }} />
-          <div className="absolute bottom-0 right-0 grid w-full grid-cols-3 gap-1 p-2 text-[10px] text-white" style={{ backgroundColor: colors.infoGreen }}>
+          {slide?.productImage ? (
+            <div className="absolute top-8 right-2 z-10 h-44 w-[78%]">
+              <Image
+                src={slide.productImage}
+                alt={slide.productImageAlt || slide.title || "Slider product"}
+                fill
+                sizes="420px"
+                unoptimized
+                className="object-contain drop-shadow-xl"
+              />
+            </div>
+          ) : (
+            <div className="absolute top-12 right-5 z-10 flex h-36 w-[68%] items-center justify-center rounded-xl bg-white/45 text-xs font-semibold text-black/45">
+              Product image
+            </div>
+          )}
+          <div
+            className="absolute inset-0 z-20 flex flex-col justify-center text-5xl leading-[0.9] font-black opacity-35 mix-blend-multiply"
+            style={{ color: colors.green }}
+          >
+            <span className="pl-4">{slide?.decoration || "Product"}</span>
+            <span className="self-end pr-3">{slide?.highlight || "Text"}</span>
+          </div>
+          <div
+            className="absolute right-0 bottom-0 z-30 grid w-full grid-cols-3 gap-1 p-2 text-[10px] text-white"
+            style={{ backgroundColor: colors.green }}
+          >
             {(slide?.infoItems ?? []).slice(0, 3).map((item, index) => (
               <div key={index}>
                 <span className="block uppercase opacity-60">{item.label}</span>
@@ -1558,7 +1911,9 @@ function TickerPreview({ data }: { data: { items: TickerItem[] } }) {
 function DiscoveryPreview({ data }: { data: DiscoveryData }) {
   return (
     <div className="p-5">
-      <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-accent-dark)]">{data.eyebrow}</p>
+      <p className="text-xs tracking-[0.18em] text-[var(--color-accent-dark)] uppercase">
+        {data.eyebrow}
+      </p>
       <h3 className="mt-2 text-2xl font-semibold">{data.title}</h3>
       <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{data.subtitle}</p>
       <div className="mt-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-2 text-sm text-[var(--color-text-muted)]">
@@ -1566,7 +1921,9 @@ function DiscoveryPreview({ data }: { data: DiscoveryData }) {
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {(data.trending ?? []).slice(0, 6).map((item) => (
-          <Badge key={item} variant="secondary">{item}</Badge>
+          <Badge key={item} variant="secondary">
+            {item}
+          </Badge>
         ))}
       </div>
     </div>
@@ -1579,9 +1936,14 @@ function NeedsPreview({ data }: { data: NeedsData }) {
       <PreviewHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
       <div className="mt-4 grid grid-cols-2 gap-2">
         {(data.tiles ?? []).slice(0, 6).map((tile) => (
-          <div key={tile.label} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
+          <div
+            key={tile.label}
+            className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3"
+          >
             <p className="text-sm font-semibold">{tile.label}</p>
-            {tile.badge && <p className="mt-1 text-xs text-[var(--color-accent-dark)]">{tile.badge}</p>}
+            {tile.badge && (
+              <p className="mt-1 text-xs text-[var(--color-accent-dark)]">{tile.badge}</p>
+            )}
           </div>
         ))}
       </div>
@@ -1612,7 +1974,7 @@ function EditorialPreview({ data }: { data: EditorialData }) {
       <div className="mt-4 space-y-2">
         {(data.cards ?? []).slice(0, 3).map((card) => (
           <div key={card.title} className="rounded-xl bg-[#1a1814] p-4 text-white">
-            <p className="text-xs uppercase tracking-[0.16em] text-white/50">{card.eyebrow}</p>
+            <p className="text-xs tracking-[0.16em] text-white/50 uppercase">{card.eyebrow}</p>
             <p className="mt-2 font-semibold">{card.title}</p>
             <p className="mt-1 text-xs text-white/65">{card.cta}</p>
           </div>
@@ -1658,7 +2020,10 @@ function FlashSalePreview({ data }: { data: FlashSaleData }) {
       </p>
       <div className="mt-4 grid grid-cols-3 gap-2 text-center">
         {["02d", "14h", "22m"].map((value) => (
-          <div key={value} className="rounded-xl bg-[var(--color-surface-alt)] px-3 py-2 font-semibold">
+          <div
+            key={value}
+            className="rounded-xl bg-[var(--color-surface-alt)] px-3 py-2 font-semibold"
+          >
             {value}
           </div>
         ))}
@@ -1678,7 +2043,9 @@ function PreviewHeader({
 }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-accent-dark)]">{eyebrow}</p>
+      <p className="text-xs tracking-[0.18em] text-[var(--color-accent-dark)] uppercase">
+        {eyebrow}
+      </p>
       <h3 className="mt-2 text-2xl font-semibold">{title}</h3>
       <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{subtitle}</p>
     </div>
