@@ -1,6 +1,6 @@
 import { SiteHeader } from "@/components/storefront/site-header";
 import { SiteFooter } from "@/components/storefront/site-footer";
-import { WhatsAppFloat } from "@/components/storefront/whatsapp-float";
+// import { WhatsAppFloat } from "@/components/storefront/whatsapp-float";
 import { getHomepageContent } from "@/modules/storefront/homepage-content";
 import { getNavigationContent } from "@/modules/storefront/navigation-content";
 
@@ -21,12 +21,12 @@ export default async function StorefrontLayout({
       <SiteHeader panels={navigation.panels} />
       <main className="flex-1">{children}</main>
       <SiteFooter />
-      {content.whatsapp.enabled && (
+      {/* content.whatsapp.enabled && (
         <WhatsAppFloat
           phoneNumber={content.whatsapp.phoneNumber}
           message={content.whatsapp.defaultMessage}
         />
-      )}
+      ) */}
     </div>
   );
 }
