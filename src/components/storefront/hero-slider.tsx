@@ -1,11 +1,17 @@
 "use client";
 
-import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ImageWithFallback } from "@/components/shared/image-with-fallback";
 import { cn } from "@/lib/utils";
-import type { HeroSlideData } from "@/modules/storefront/homepage-defaults";
+import {
+  HERO_THEME_PRESETS,
+  HOMEPAGE_DEFAULTS,
+  type HeroSlideData,
+  type HeroThemeName,
+} from "@/modules/storefront/homepage-defaults";
 
 interface HeroSliderProps {
   slides: HeroSlideData[];
@@ -13,70 +19,143 @@ interface HeroSliderProps {
   className?: string;
 }
 
-const FALLBACK_COLORS: NonNullable<HeroSlideData["colors"]> = {
-  purple: "#123d2d",
-  lightBlue: "#f1ead9",
-  green: "#0b4a34",
-  infoGreen: "#073827",
-  white: "#f1ead9",
-  orange: "#f1ead9",
-  accent: "#c6a05d",
-  shadow: "rgba(4, 36, 25, 0.22)",
+type NormalizedHeroSlide = HeroSlideData & {
+  eyebrow: string;
+  productName: string;
+  titleLine1: string;
+  titleLine2: string;
+  description: string;
+  primaryButtonText: string;
+  primaryButtonLink: string;
+  bigWord1: string;
+  bigWord2: string;
+  shortName: string;
+  metadataLine: string;
+  productImage: string;
+  theme: HeroThemeName;
+  infoItems: { label: string; value: string }[];
 };
 
-const LEGACY_COLOR_MAP: Record<string, string> = {
-  "#7552c7": FALLBACK_COLORS.purple,
-  "#6f57c9": FALLBACK_COLORS.purple,
-  "#7258bf": FALLBACK_COLORS.purple,
-  "#c9f0ff": FALLBACK_COLORS.lightBlue,
-  "#d6f4ff": FALLBACK_COLORS.lightBlue,
-  "#c8effa": FALLBACK_COLORS.lightBlue,
-  "#0b6b47": FALLBACK_COLORS.green,
-  "#0c704b": FALLBACK_COLORS.green,
-  "#0a6345": FALLBACK_COLORS.green,
-  "#07583b": FALLBACK_COLORS.infoGreen,
-  "#095b3e": FALLBACK_COLORS.infoGreen,
-  "#074f38": FALLBACK_COLORS.infoGreen,
-  "#ffb15c": FALLBACK_COLORS.orange,
-  "#ffa35f": FALLBACK_COLORS.orange,
-  "#f7a84f": FALLBACK_COLORS.orange,
-  "#bfe8c6": FALLBACK_COLORS.accent,
-  "#ffe2b8": FALLBACK_COLORS.accent,
-  "#d9f4dc": FALLBACK_COLORS.accent,
-  "rgba(0, 0, 0, 0.18)": FALLBACK_COLORS.shadow,
-  "rgba(0,0,0,0.18)": FALLBACK_COLORS.shadow,
-};
+const PLACEHOLDER_TEXT = new Set(
+  [
+    "new product feature",
+    "product",
+    "featured product",
+    "short product promise",
+    "write a short customer-friendly message for this slide.",
+  ].map((value) => value.toLowerCase()),
+);
 
-function cleanColor(value: string | undefined, fallback: string) {
-  if (!value) return fallback;
-  return LEGACY_COLOR_MAP[value.trim().toLowerCase()] ?? value;
+function isPlaceholder(value?: string | null) {
+  if (!value) return false;
+  const clean = value.trim().toLowerCase();
+  return PLACEHOLDER_TEXT.has(clean) || clean.includes("write a short");
 }
 
-function colorsFor(slide: HeroSlideData) {
-  const colors = { ...FALLBACK_COLORS, ...(slide.colors ?? {}) };
+function limitText(value: string | undefined, fallback: string, max: number) {
+  const clean = value?.trim();
+  const safe = clean && !isPlaceholder(clean) ? clean : fallback;
+  return safe.length > max ? `${safe.slice(0, Math.max(0, max - 1)).trim()}...` : safe;
+}
+
+function nonDraftSlide(slide: HeroSlideData) {
+  return slide.status !== "draft";
+}
+
+function firstUsable(...values: Array<string | undefined>) {
+  return values.find((value) => value?.trim() && !isPlaceholder(value))?.trim();
+}
+
+function imageForSlide(slide: HeroSlideData, fallback: HeroSlideData) {
+  const image = slide.productImage?.trim();
+  if (image) return image;
+
+  const key = `${slide.id} ${slide.productName ?? ""} ${slide.cardName ?? ""} ${slide.title ?? ""}`.toLowerCase();
+  if (key.includes("gift")) return "/images/hero/hero-gift-box.png";
+  if (key.includes("prayer") || key.includes("tasbih")) return "/images/hero/hero-prayer-mat.png";
+  if (key.includes("quran") || key.includes("barakah")) return "/images/hero/hero-quran.png";
+
+  return fallback.productImage || "/logo.png";
+}
+
+function legacyFallbackText(value: string | undefined, fallback: string) {
+  const clean = value?.trim();
+  return clean && !isPlaceholder(clean) ? clean : fallback;
+}
+
+function normalizeSlide(slide: HeroSlideData, index: number): NormalizedHeroSlide {
+  const fallback = HOMEPAGE_DEFAULTS.hero[index % HOMEPAGE_DEFAULTS.hero.length] as HeroSlideData;
+  const titleLine1 = limitText(
+    firstUsable(slide.titleLine1, slide.title),
+    fallback.titleLine1 || fallback.title,
+    22,
+  );
+  const titleLine2 = limitText(
+    firstUsable(slide.titleLine2, slide.highlight),
+    fallback.titleLine2 || fallback.highlight || "With Meaning",
+    22,
+  );
+  const description = limitText(
+    firstUsable(slide.description, slide.subtitle),
+    fallback.description || fallback.subtitle,
+    120,
+  );
+  const productName = limitText(
+    firstUsable(slide.productName, slide.subheading, slide.cardName),
+    fallback.productName || "Islamic Essentials",
+    30,
+  );
+  const cta = slide.ctaPrimary ?? fallback.ctaPrimary;
+
   return {
-    purple: cleanColor(colors.purple, FALLBACK_COLORS.purple),
-    lightBlue: cleanColor(colors.lightBlue, FALLBACK_COLORS.lightBlue),
-    green: cleanColor(colors.green, FALLBACK_COLORS.green),
-    infoGreen: cleanColor(colors.infoGreen, FALLBACK_COLORS.infoGreen),
-    white: cleanColor(colors.white, FALLBACK_COLORS.white),
-    orange: cleanColor(colors.orange, FALLBACK_COLORS.orange),
-    accent: cleanColor(colors.accent, FALLBACK_COLORS.accent),
-    shadow: cleanColor(colors.shadow, FALLBACK_COLORS.shadow),
+    ...slide,
+    eyebrow: limitText(firstUsable(slide.eyebrow), fallback.eyebrow || "Niyamah Collection", 28),
+    productName,
+    titleLine1,
+    titleLine2,
+    title: titleLine1,
+    highlight: titleLine2,
+    description,
+    subtitle: description,
+    primaryButtonText: limitText(firstUsable(slide.primaryButtonText, cta?.label), "Shop Now", 18),
+    primaryButtonLink: slide.primaryButtonLink || cta?.href || "/products",
+    bigWord1: limitText(firstUsable(slide.bigWord1, slide.decoration, productName), "NIYAMAH", 12).toUpperCase(),
+    bigWord2: limitText(firstUsable(slide.bigWord2, slide.highlight), "COLLECTION", 12).toUpperCase(),
+    shortName: limitText(firstUsable(slide.shortName, slide.cardName, productName), productName, 18),
+    metadataLine: limitText(firstUsable(slide.metadataLine, slide.badge), "Collection / New Arrival", 30),
+    productImage: imageForSlide(slide, fallback),
+    productImageAlt: slide.productImageAlt || productName,
+    subheading: legacyFallbackText(slide.subheading, fallback.subheading || productName),
+    theme: slide.theme && slide.theme in HERO_THEME_PRESETS ? slide.theme : fallback.theme || "cream",
+    infoItems:
+      slide.infoItems && slide.infoItems.length > 0
+        ? slide.infoItems.slice(0, 3)
+        : [
+            { label: "Delivery", value: "1-3 days" },
+            { label: "Payment", value: "COD" },
+            { label: "Support", value: "WhatsApp" },
+          ],
   };
+}
+
+function getVisibleSlides(slides: HeroSlideData[]) {
+  const source = Array.isArray(slides) ? slides.filter(Boolean) : [];
+  const visible = source.filter(nonDraftSlide);
+  const curatedFallback = (HOMEPAGE_DEFAULTS.hero as HeroSlideData[]).filter(nonDraftSlide);
+  return (visible.length > 0 ? visible : curatedFallback).map(normalizeSlide);
 }
 
 function slideNumber(index: number) {
   return String(index + 1).padStart(2, "0");
 }
 
-export function HeroSlider({ slides, autoPlayMs = 6500, className }: HeroSliderProps) {
-  const safeSlides = Array.isArray(slides) ? slides.filter(Boolean) : [];
+export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderProps) {
+  const safeSlides = useMemo(() => getVisibleSlides(slides), [slides]);
   const [current, setCurrent] = useState(0);
-
+  const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const max = safeSlides.length;
   const safeCurrent = max > 0 ? current % max : 0;
-  const active = safeSlides[safeCurrent] ?? safeSlides[0];
+  const active = safeSlides[safeCurrent];
 
   const prev = useCallback(() => {
     if (max < 2) return;
@@ -94,191 +173,169 @@ export function HeroSlider({ slides, autoPlayMs = 6500, className }: HeroSliderP
     return () => window.clearInterval(id);
   }, [autoPlayMs, max, next]);
 
-  const activeColors = active ? colorsFor(active) : FALLBACK_COLORS;
-  const railStyle = useMemo(
-    () =>
-      ({
-        "--slider-rail-y": `${safeCurrent * -272}px`,
-        "--slider-rail-x": `${safeCurrent * -50}vw`,
-      }) as CSSProperties,
-    [safeCurrent],
-  );
+  useEffect(() => {
+    thumbnailRefs.current[safeCurrent]?.scrollIntoView({
+      block: "nearest",
+      inline: "center",
+      behavior: "smooth",
+    });
+  }, [safeCurrent]);
 
   if (!active) return null;
 
+  const theme = HERO_THEME_PRESETS[active.theme];
   const rootStyle = {
-    "--slider-purple": activeColors.purple,
-    "--slider-blue": activeColors.lightBlue,
-    "--slider-green": activeColors.green,
-    "--slider-info-green": activeColors.infoGreen,
-    "--slider-white": activeColors.white,
-    "--slider-orange": activeColors.orange,
-    "--slider-accent": activeColors.accent,
-    "--slider-shadow": activeColors.shadow,
+    "--hero-bg": theme.bg,
+    "--hero-text": theme.text,
+    "--hero-muted": theme.muted,
+    "--hero-accent": theme.accent,
+    "--hero-button-bg": theme.buttonBg,
+    "--hero-button-text": theme.buttonText,
+    "--hero-panel": theme.panel,
+    "--hero-word": theme.word,
+    "--hero-shadow": theme.shadow,
   } as CSSProperties;
 
   return (
     <section
       className={cn(
-        "allfather-product-slider relative isolate min-h-[calc(100svh-64px)] overflow-hidden bg-[var(--slider-green)] text-black",
+        "allfather-product-slider relative isolate min-h-[calc(100svh-64px)] overflow-hidden bg-[var(--hero-bg)] text-[var(--hero-text)]",
         className,
       )}
       style={rootStyle}
     >
-      <div className="absolute left-0 top-0 z-10 h-20 w-[50%] bg-[var(--slider-green)] md:h-24" />
-      <div className="absolute left-[50%] right-0 top-0 z-20 flex h-20 items-center bg-[var(--slider-orange)] px-5 text-sm font-bold uppercase tracking-[0.2em] md:h-24 md:px-10 md:text-base">
-        <span className="truncate">{active.productName || active.cardName || active.title}</span>
-      </div>
+      <div className="pointer-events-none absolute inset-0 opacity-[0.055] [background-image:linear-gradient(30deg,currentColor_1px,transparent_1px),linear-gradient(150deg,currentColor_1px,transparent_1px)] [background-size:38px_38px]" />
+      <div className="pointer-events-none absolute right-[7%] top-[10%] hidden h-[520px] w-[360px] rounded-t-full border border-[var(--hero-accent)]/35 lg:block" />
 
-      <div
-        className="allfather-card-rail pointer-events-auto absolute left-4 top-[34vh] z-40 flex w-[220px] flex-col gap-[22px] transition-transform duration-500 ease-out md:left-8 lg:left-14 lg:w-[250px]"
-        style={railStyle}
-      >
-        {safeSlides.map((slide, index) => {
-          const colors = colorsFor(slide);
-          const selected = index === safeCurrent;
-          return (
-            <button
-              key={slide.id ?? index}
-              type="button"
-              onClick={() => setCurrent(index)}
-              className={cn(
-                "group relative flex h-[250px] w-full shrink-0 overflow-hidden border-2 border-white p-3 text-left shadow-[11px_11px_0_var(--slider-shadow)] transition-all duration-300",
-                selected ? "opacity-100" : "opacity-75 hover:opacity-100",
-              )}
-              style={{
-                backgroundColor: colors.orange,
-                color: "#061b14",
-              }}
-              aria-label={`Show slide ${index + 1}`}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={active.id ?? safeCurrent}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-0"
+        >
+          <div className="pointer-events-none absolute inset-0 flex flex-col justify-center overflow-hidden pb-24 pt-20 md:pb-28">
+            {[active.bigWord1, active.bigWord1, active.bigWord2, active.bigWord2].map((word, index) => (
+              <motion.span
+                key={`${word}-${index}`}
+                initial={{ x: index % 2 === 0 ? -80 : 80, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 1.05, delay: 0.08 + index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                className={cn(
+                  "block whitespace-nowrap font-black uppercase leading-[0.78] tracking-normal text-[var(--hero-word)]",
+                  "text-[18vw] md:text-[13vw]",
+                  index % 2 === 1 && "self-end",
+                )}
+              >
+                {word}
+              </motion.span>
+            ))}
+          </div>
+
+          <div className="relative z-10 mx-auto grid min-h-[calc(100svh-64px)] w-full max-w-[1500px] grid-rows-[auto_auto_1fr] gap-5 px-4 pb-28 pt-6 sm:px-6 lg:grid-cols-[minmax(320px,0.95fr)_minmax(440px,1fr)_minmax(270px,0.85fr)] lg:grid-rows-1 lg:gap-x-8 lg:px-8 lg:pb-32 lg:pt-8 xl:px-10">
+            <motion.aside
+              initial={{ y: 24, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.7, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+              className="flex flex-wrap items-start justify-between gap-4 lg:col-start-3 lg:row-start-1 lg:block lg:pt-16"
             >
-              <span className="relative z-10 text-lg font-bold leading-none">
-                {slide.cardName || slide.productName || slide.title}
-              </span>
-              <span className="relative z-10 ml-auto text-lg font-bold tracking-[0.14em]">
-                {slideNumber(index)}
-              </span>
-              {slide.productImage ? (
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--hero-muted)]">
+                  {active.eyebrow}
+                </p>
+                <p className="mt-3 max-w-[15rem] text-xl font-semibold leading-tight text-[var(--hero-text)]">
+                  {active.productName}
+                </p>
+                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--hero-accent)]">
+                  {active.metadataLine}
+                </p>
+              </div>
+              <div className="hidden h-px w-24 bg-[var(--hero-accent)] lg:mt-8 lg:block" />
+            </motion.aside>
+
+            <motion.div
+              initial={{ opacity: 0, y: 42, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.85, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+              className="relative row-start-2 flex min-h-[320px] items-center justify-center sm:min-h-[430px] lg:col-start-1 lg:row-start-1 lg:min-h-[620px]"
+            >
+              <div className="absolute h-[280px] w-[280px] rounded-full bg-[var(--hero-accent)]/25 blur-[86px] sm:h-[360px] sm:w-[360px]" />
+              <div className="absolute inset-x-[18%] bottom-[12%] h-12 rounded-full bg-black/15 blur-2xl" />
+              <div className="relative h-[330px] w-full max-w-[620px] sm:h-[500px] lg:h-[580px] lg:max-w-[540px]">
                 <ImageWithFallback
-                  src={slide.productImage}
-                  alt={slide.productImageAlt || slide.productName || slide.title}
+                  src={active.productImage}
+                  alt={active.productImageAlt || active.productName}
                   fill
-                  sizes="260px"
-                  className={cn(
-                    "object-contain p-8 mix-blend-soft-light transition-all duration-500 group-hover:mix-blend-normal",
-                    selected && "mix-blend-normal",
-                  )}
+                  priority={safeCurrent === 0}
+                  sizes="(max-width: 768px) 92vw, (max-width: 1200px) 48vw, 620px"
+                  className="scale-[1.08] object-contain drop-shadow-[0_35px_60px_var(--hero-shadow)] sm:scale-[1.12] lg:scale-[1.08]"
                 />
-              ) : (
-                <span className="absolute inset-x-6 bottom-8 text-center text-xs font-black uppercase tracking-[0.28em] opacity-30">
-                  Niyamah
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+              </div>
+            </motion.div>
 
-      <div className="relative min-h-[calc(100svh-64px)]">
-        {safeSlides.map((slide, index) => {
-          const selected = index === safeCurrent;
-          const colors = colorsFor(slide);
-          return (
-            <div
-              key={slide.id ?? index}
-              className={cn(
-                "absolute inset-0 transition-opacity duration-1000 ease-out",
-                selected ? "opacity-100" : "pointer-events-none opacity-0",
-              )}
-              aria-hidden={!selected}
-              style={
-                {
-                  "--slider-orange": colors.orange,
-                  "--slider-white": colors.white,
-                  "--slider-green": colors.green,
-                  "--slider-info-green": colors.infoGreen,
-                  "--slider-accent": colors.accent,
-                } as CSSProperties
-              }
+            <motion.div
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.78, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="row-start-3 flex flex-col justify-center lg:col-start-2 lg:row-start-1 lg:pt-16"
             >
-              <div className="absolute bottom-0 left-0 top-0 w-full bg-[var(--slider-green)] lg:w-[50%]" />
-
-              <div className="absolute bottom-0 right-0 top-24 hidden w-full overflow-hidden bg-[var(--slider-orange)] md:block lg:w-[50%]">
-                <div className="allfather-big-word allfather-big-word-back" key={`back-${safeCurrent}`}>
-                  <span>{slide.decoration || slide.productName || slide.title}</span>
-                  <span>{slide.highlight || slide.cardName || "Collection"}</span>
-                </div>
-              </div>
-
-              <div className="absolute bottom-20 right-0 top-24 z-20 hidden w-[50%] md:block">
-                <div className="relative h-full overflow-hidden">
-                  {slide.productImage ? (
-                    <ImageWithFallback
-                      src={slide.productImage}
-                      alt={slide.productImageAlt || slide.productName || slide.title}
-                      fill
-                      priority={index === 0}
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="allfather-product-image object-contain px-16 pb-20 pt-14 lg:px-24"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center px-8 text-center text-sm font-black uppercase tracking-[0.28em] text-black/25">
-                      Product image
+              <div className="max-w-xl lg:max-w-md">
+                <p className="mb-3 text-sm font-bold text-[var(--hero-accent)]">
+                  {active.subheading || active.productName}
+                </p>
+                <h1 className="font-black uppercase leading-[0.9] tracking-normal text-[clamp(3rem,11vw,5.7rem)] text-[var(--hero-text)] lg:text-[clamp(3.4rem,4.6vw,5.2rem)]">
+                  <motion.span
+                    initial={{ y: 24, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.65, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                    className="block"
+                  >
+                    {active.titleLine1}
+                  </motion.span>
+                  <motion.span
+                    initial={{ y: 24, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.65, delay: 0.48, ease: [0.22, 1, 0.36, 1] }}
+                    className="block text-[var(--hero-accent)]"
+                  >
+                    {active.titleLine2}
+                  </motion.span>
+                </h1>
+                <p className="mt-5 line-clamp-3 max-w-md text-base font-medium leading-7 text-[var(--hero-muted)]">
+                  {active.description}
+                </p>
+                <motion.div
+                  initial={{ y: 18, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.65, delay: 0.62, ease: [0.22, 1, 0.36, 1] }}
+                  className="mt-7"
+                >
+                  <Link
+                    href={active.primaryButtonLink}
+                    className="inline-flex h-12 items-center justify-center bg-[var(--hero-button-bg)] px-6 text-sm font-black uppercase tracking-[0.18em] text-[var(--hero-button-text)] shadow-[0_18px_42px_rgba(0,0,0,0.14)] transition-transform duration-300 hover:-translate-y-0.5"
+                  >
+                    {active.primaryButtonText}
+                  </Link>
+                </motion.div>
+                <div className="mt-6 grid grid-cols-3 gap-3 border-t border-[var(--hero-text)]/15 pt-4">
+                  {active.infoItems.slice(0, 3).map((spec, index) => (
+                    <div key={`${spec.label}-${index}`} className="min-w-0">
+                      <p className="truncate text-[10px] font-black uppercase tracking-[0.22em] text-[var(--hero-muted)]">
+                        {spec.label}
+                      </p>
+                      <p className="mt-1 truncate text-sm font-semibold text-[var(--hero-text)] md:text-base">
+                        {spec.value}
+                      </p>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
-
-              <div className="pointer-events-none absolute bottom-0 right-0 top-24 z-40 hidden w-full overflow-hidden md:block lg:w-[50%]">
-                <div className="allfather-big-word allfather-big-word-front" key={`front-${safeCurrent}`}>
-                  <span>{slide.decoration || slide.productName || slide.title}</span>
-                  <span>{slide.highlight || slide.cardName || "Collection"}</span>
-                </div>
-              </div>
-
-              <div className="relative z-20 flex min-h-[calc(100svh-64px)] items-start px-5 pb-28 pt-[21rem] md:items-end md:px-8 md:pb-32 md:pt-28 lg:px-10 xl:pl-[360px] xl:pr-[58%]">
-                <div className="allfather-copy max-w-xl text-white" key={`copy-${safeCurrent}`}>
-                  {slide.eyebrow && (
-                    <p className="text-sm font-bold uppercase tracking-[0.22em] text-white/75">
-                      {slide.eyebrow}
-                    </p>
-                  )}
-                  <h1 className="mt-4 text-5xl font-black leading-[0.96] text-white md:text-7xl">
-                    {slide.title}
-                  </h1>
-                  {(slide.subheading || slide.highlight) && (
-                    <p className="mt-4 text-2xl font-bold leading-tight text-[var(--slider-accent)] md:text-3xl">
-                      {slide.subheading || slide.highlight}
-                    </p>
-                  )}
-                  <p className="mt-5 max-w-lg text-base font-medium leading-7 text-white/86 md:text-lg">
-                    {slide.subtitle}
-                  </p>
-                  {slide.ctaPrimary?.href && slide.ctaPrimary.label && (
-                    <Link
-                      href={slide.ctaPrimary.href}
-                      className="mt-7 inline-flex h-12 items-center justify-center border-b-2 border-white px-1 text-sm font-black uppercase tracking-[0.2em] text-white transition-colors hover:text-[var(--slider-accent)]"
-                    >
-                      {slide.ctaPrimary.label}
-                    </Link>
-                  )}
-                </div>
-              </div>
-
-              <div className="absolute bottom-0 right-0 z-30 grid min-h-20 w-full grid-cols-3 bg-[var(--slider-green)] px-4 py-4 text-white md:px-8 lg:w-[58vw] lg:px-10">
-                {(slide.infoItems ?? []).slice(0, 3).map((item, infoIndex) => (
-                  <div key={`${item.label}-${infoIndex}`} className="flex flex-col justify-center px-2 text-left md:items-center md:text-center">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/55">
-                      {item.label}
-                    </span>
-                    <strong className="mt-1 truncate text-sm md:text-base">{item.value}</strong>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            </motion.div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
 
       {max > 1 && (
         <>
@@ -286,18 +343,82 @@ export function HeroSlider({ slides, autoPlayMs = 6500, className }: HeroSliderP
             type="button"
             onClick={prev}
             aria-label="Previous slide"
-            className="absolute bottom-4 left-5 z-50 flex h-14 w-14 items-center justify-center bg-[var(--slider-orange)] text-[var(--slider-purple)] shadow-[4px_4px_0_var(--slider-shadow)] transition-all duration-300 hover:bg-black hover:shadow-[-4px_-4px_0_var(--slider-shadow)] md:left-8 lg:left-10"
+            className="absolute left-4 top-[46%] z-40 hidden h-11 w-11 items-center justify-center border border-[var(--hero-text)]/15 bg-[var(--hero-panel)] text-[var(--hero-text)] backdrop-blur transition-colors hover:border-[var(--hero-accent)] lg:flex"
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             type="button"
             onClick={next}
             aria-label="Next slide"
-            className="absolute bottom-4 right-5 z-50 flex h-14 w-14 items-center justify-center bg-[var(--slider-orange)] text-[var(--slider-purple)] shadow-[4px_4px_0_var(--slider-shadow)] transition-all duration-300 hover:bg-black hover:shadow-[-4px_-4px_0_var(--slider-shadow)] md:right-8 lg:right-10"
+            className="absolute right-4 top-[46%] z-40 hidden h-11 w-11 items-center justify-center border border-[var(--hero-text)]/15 bg-[var(--hero-panel)] text-[var(--hero-text)] backdrop-blur transition-colors hover:border-[var(--hero-accent)] lg:flex"
           >
-            <ChevronRight className="h-6 w-6" />
+            <ChevronRight className="h-5 w-5" />
           </button>
+
+          <div className="absolute bottom-5 right-4 z-40 hidden w-[min(38rem,calc(100vw-2rem))] overflow-hidden lg:block xl:right-6">
+            <div className="overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex w-max gap-3 pr-1">
+              {safeSlides.slice(0, 6).map((slide, index) => {
+                const selected = index === safeCurrent;
+                return (
+                  <button
+                    key={slide.id ?? index}
+                    ref={(node) => {
+                      thumbnailRefs.current[index] = node;
+                    }}
+                    type="button"
+                    onClick={() => setCurrent(index)}
+                    className={cn(
+                      "group flex min-w-[152px] items-center gap-3 border p-2 text-left backdrop-blur transition-all duration-500",
+                      selected
+                        ? "min-w-[190px] border-[var(--hero-accent)] bg-white/70 shadow-[0_18px_45px_rgba(0,0,0,0.12)]"
+                        : "border-[var(--hero-text)]/10 bg-white/25 opacity-60 hover:opacity-100",
+                    )}
+                    aria-label={`Show ${slide.shortName}`}
+                  >
+                    <div className="relative h-14 w-14 shrink-0 bg-[var(--hero-panel)]">
+                      <ImageWithFallback
+                        src={slide.productImage}
+                        alt=""
+                        fill
+                        sizes="56px"
+                        className="object-contain p-1.5"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="line-clamp-1 text-sm font-semibold text-[var(--hero-text)]">
+                        {slide.shortName}
+                      </p>
+                      <p className="mt-1 text-xs font-black tracking-[0.2em] text-[var(--hero-muted)]">
+                        {slideNumber(index)}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute inset-x-0 bottom-3 z-40 flex justify-center gap-2 lg:hidden">
+            {safeSlides.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setCurrent(index)}
+                className={cn(
+                  "h-9 min-w-9 border px-3 text-xs font-black tracking-[0.16em] backdrop-blur transition-all",
+                  index === safeCurrent
+                    ? "border-[var(--hero-accent)] bg-[var(--hero-button-bg)] text-[var(--hero-button-text)]"
+                    : "border-[var(--hero-text)]/15 bg-[var(--hero-panel)] text-[var(--hero-text)]",
+                )}
+                aria-label={`Show slide ${index + 1}`}
+              >
+                {slideNumber(index)}
+              </button>
+            ))}
+          </div>
         </>
       )}
     </section>

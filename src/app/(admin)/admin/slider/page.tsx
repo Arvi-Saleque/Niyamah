@@ -12,8 +12,8 @@ export default function AdminSliderPage() {
           </p>
           <h1 className="mt-2 text-3xl font-bold">Homepage Slider</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--color-text-secondary)]">
-            Edit the first-screen product slider: cards, product name, image, copy, big overlay
-            text, bottom facts, links, and colors.
+            Edit the first-screen product slider: order, status, thumbnail cards, product image,
+            headline, copy, big background words, links, facts, and theme presets.
           </p>
         </div>
       </header>

@@ -7,21 +7,99 @@
 // Types
 // ─────────────────────────────────────────────
 
+export type HeroThemeName = "cream" | "emerald" | "gold" | "dark";
+
+export const HERO_THEME_PRESETS: Record<
+  HeroThemeName,
+  {
+    label: string;
+    bg: string;
+    text: string;
+    muted: string;
+    accent: string;
+    buttonBg: string;
+    buttonText: string;
+    panel: string;
+    word: string;
+    shadow: string;
+  }
+> = {
+  cream: {
+    label: "Cream",
+    bg: "#f8f1e3",
+    text: "#123d2a",
+    muted: "rgba(18, 61, 42, 0.64)",
+    accent: "#c9a24d",
+    buttonBg: "#123d2a",
+    buttonText: "#ffffff",
+    panel: "rgba(255, 255, 255, 0.56)",
+    word: "rgba(18, 61, 42, 0.075)",
+    shadow: "rgba(18, 61, 42, 0.35)",
+  },
+  emerald: {
+    label: "Emerald",
+    bg: "#123d2a",
+    text: "#f8f1e3",
+    muted: "rgba(248, 241, 227, 0.68)",
+    accent: "#d9b86c",
+    buttonBg: "#d9b86c",
+    buttonText: "#123d2a",
+    panel: "rgba(248, 241, 227, 0.1)",
+    word: "rgba(248, 241, 227, 0.075)",
+    shadow: "rgba(0, 0, 0, 0.38)",
+  },
+  gold: {
+    label: "Gold",
+    bg: "#e8d3a3",
+    text: "#18392b",
+    muted: "rgba(24, 57, 43, 0.65)",
+    accent: "#8a6422",
+    buttonBg: "#18392b",
+    buttonText: "#ffffff",
+    panel: "rgba(255, 255, 255, 0.42)",
+    word: "rgba(24, 57, 43, 0.08)",
+    shadow: "rgba(24, 57, 43, 0.32)",
+  },
+  dark: {
+    label: "Dark",
+    bg: "#07160f",
+    text: "#f8f1e3",
+    muted: "rgba(248, 241, 227, 0.62)",
+    accent: "#c9a24d",
+    buttonBg: "#c9a24d",
+    buttonText: "#07160f",
+    panel: "rgba(248, 241, 227, 0.08)",
+    word: "rgba(248, 241, 227, 0.07)",
+    shadow: "rgba(0, 0, 0, 0.5)",
+  },
+};
+
 export interface HeroSlideData {
   id: string;
+  status?: "active" | "draft";
   eyebrow: string;
   title: string;
   highlight: string;
   subtitle: string;
+  titleLine1?: string;
+  titleLine2?: string;
+  description?: string;
   badge?: string;
   ctaPrimary: { label: string; href: string };
+  primaryButtonText?: string;
+  primaryButtonLink?: string;
   ctaSecondary?: { label: string; href: string };
   productName?: string;
+  metadataLine?: string;
   cardName?: string;
+  shortName?: string;
   subheading?: string;
   productImage?: string;
   productImageAlt?: string;
   infoItems?: { label: string; value: string }[];
+  bigWord1?: string;
+  bigWord2?: string;
+  theme?: HeroThemeName;
   colors?: {
     purple: string;
     lightBlue: string;
@@ -148,23 +226,35 @@ export const HOMEPAGE_DEFAULTS = {
   hero: [
     {
       id: "barakah",
-      eyebrow: "Premium Islamic Essentials",
+      status: "active",
+      eyebrow: "Premium Quran",
       title: "Bring Barakah",
       highlight: "Into Daily Life",
+      titleLine1: "Bring Barakah",
+      titleLine2: "Into Daily Life",
       subheading: "Color-coded Quran",
       subtitle:
-        "Shop authentic Quran, prayer essentials, tasbih, and Islamic gifts with Cash on Delivery and trusted support across Bangladesh.",
+        "A meaningful Quran collection for daily recitation, learning, and gifting, delivered across Bangladesh with COD.",
+      description:
+        "A meaningful Quran collection for daily recitation, learning, and gifting, delivered across Bangladesh with COD.",
       badge: "COD Available",
       ctaPrimary: { label: "Shop Quran Collection", href: "/category/quran" },
+      primaryButtonText: "Shop Quran Collection",
+      primaryButtonLink: "/category/quran",
       ctaSecondary: { label: "Explore Gift Boxes", href: "/category/gift-box" },
       productName: "Premium Quran",
+      metadataLine: "Collection / New Arrival",
       cardName: "Quran",
-      productImage: "/logo.png",
-      productImageAlt: "Niyamah product feature",
+      shortName: "Quran",
+      productImage: "/images/hero/hero-quran.png",
+      productImageAlt: "Premium Quran with emerald and gold cover",
+      bigWord1: "BARAKAH",
+      bigWord2: "DAILY",
+      theme: "cream",
       infoItems: [
         { label: "Delivery", value: "1-3 days" },
         { label: "Payment", value: "COD" },
-        { label: "Return", value: "7 days" },
+        { label: "Support", value: "WhatsApp" },
       ],
       colors: {
         purple: "#123d2d",
@@ -187,19 +277,31 @@ export const HOMEPAGE_DEFAULTS = {
     },
     {
       id: "gift",
+      status: "active",
       eyebrow: "Meaningful Islamic Gifts",
       title: "Gift Boxes",
       highlight: "Made with Love",
+      titleLine1: "Gift Boxes",
+      titleLine2: "Made with Love",
       subheading: "Ready to gift",
       subtitle:
-        "Curated Quran, tasbih, and prayer essentials packaged beautifully \u2014 a thoughtful gift for parents, teachers, and loved ones.",
+        "Curated Quran, tasbih, and prayer essentials packaged beautifully for parents, teachers, and loved ones.",
+      description:
+        "Curated Quran, tasbih, and prayer essentials packaged beautifully for parents, teachers, and loved ones.",
       badge: "Gift Ready",
       ctaPrimary: { label: "Shop Gift Boxes", href: "/category/gift-box" },
+      primaryButtonText: "Shop Gift Boxes",
+      primaryButtonLink: "/category/gift-box",
       ctaSecondary: { label: "Build a Gift", href: "#gift-builder" },
       productName: "Islamic Gift Box",
+      metadataLine: "Collection / New Arrival",
       cardName: "Gift Box",
-      productImage: "/logo.png",
-      productImageAlt: "Niyamah gift box feature",
+      shortName: "Gift Box",
+      productImage: "/images/hero/hero-gift-box.png",
+      productImageAlt: "Islamic gift box with Quran, tasbih, and prayer essentials",
+      bigWord1: "NOOR",
+      bigWord2: "GIFTS",
+      theme: "gold",
       infoItems: [
         { label: "Packaging", value: "Gift ready" },
         { label: "Support", value: "WhatsApp" },
@@ -225,18 +327,30 @@ export const HOMEPAGE_DEFAULTS = {
     },
     {
       id: "prayer",
+      status: "active",
       eyebrow: "Daily Worship Essentials",
       title: "Prayer Mats",
       highlight: "& Tasbih",
+      titleLine1: "Prayer Mats",
+      titleLine2: "& Tasbih",
       subheading: "Daily worship essentials",
       subtitle:
-        "Soft prayer mats, premium tasbih, and worship essentials selected for everyday use \u2014 with Cash on Delivery and easy returns.",
+        "Soft prayer mats, premium tasbih, and worship essentials selected for daily salah and remembrance.",
+      description:
+        "Soft prayer mats, premium tasbih, and worship essentials selected for daily salah and remembrance.",
       ctaPrimary: { label: "Shop Prayer Mats", href: "/category/prayer-mat" },
+      primaryButtonText: "Shop Prayer Mats",
+      primaryButtonLink: "/category/prayer-mat",
       ctaSecondary: { label: "Shop Tasbih", href: "/category/tasbih" },
       productName: "Prayer Essentials",
+      metadataLine: "Collection / New Arrival",
       cardName: "Prayer",
-      productImage: "/logo.png",
-      productImageAlt: "Niyamah prayer essentials feature",
+      shortName: "Prayer Mat",
+      productImage: "/images/hero/hero-prayer-mat.png",
+      productImageAlt: "Folded prayer mat with tasbih beads",
+      bigWord1: "SALAH",
+      bigWord2: "DHIKR",
+      theme: "emerald",
       infoItems: [
         { label: "Use", value: "Daily" },
         { label: "Quality", value: "Selected" },

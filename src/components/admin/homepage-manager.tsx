@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   AlertTriangle,
+  ArrowDown,
+  ArrowUp,
   CheckCircle2,
   Circle,
   Copy,
@@ -44,6 +46,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { ICON_KEYS } from "@/lib/icon-registry";
 import {
+  HERO_THEME_PRESETS,
   HOMEPAGE_BLOCK_KEYS,
   HOMEPAGE_DEFAULTS,
   type DiscoveryData,
@@ -51,6 +54,7 @@ import {
   type EditorialData,
   type FlashSaleData,
   type HeroSlideData,
+  type HeroThemeName,
   type HomepageBlockKey,
   type NeedTileData,
   type NeedsData,
@@ -165,7 +169,53 @@ function makeId(prefix: string) {
 }
 
 const DEFAULT_HERO_SLIDE = HOMEPAGE_DEFAULTS.hero[0] as HeroSlideData;
-const DEFAULT_HERO_COLORS = DEFAULT_HERO_SLIDE.colors as NonNullable<HeroSlideData["colors"]>;
+const HERO_THEME_NAMES = Object.keys(HERO_THEME_PRESETS) as HeroThemeName[];
+const HERO_LIMITS = {
+  eyebrow: 28,
+  productName: 30,
+  titleLine: 22,
+  description: 120,
+  button: 18,
+  bigWord: 12,
+};
+
+const HERO_IMAGE_PRESETS = [
+  {
+    label: "Quran",
+    src: "/images/hero/hero-quran.png",
+    alt: "Premium Quran with emerald and gold cover",
+  },
+  {
+    label: "Gift Box",
+    src: "/images/hero/hero-gift-box.png",
+    alt: "Islamic gift box with Quran, tasbih, and prayer essentials",
+  },
+  {
+    label: "Prayer Mat",
+    src: "/images/hero/hero-prayer-mat.png",
+    alt: "Folded prayer mat with tasbih beads",
+  },
+];
+
+function textLength(value?: string | null) {
+  return value?.trim().length ?? 0;
+}
+
+function isHeroTextTooLong(field: keyof typeof HERO_LIMITS, value?: string | null) {
+  return textLength(value) > HERO_LIMITS[field];
+}
+
+function recommendedText(field: keyof typeof HERO_LIMITS) {
+  const labels: Record<keyof typeof HERO_LIMITS, string> = {
+    eyebrow: "Recommended under 28 characters.",
+    productName: "Recommended under 30 characters.",
+    titleLine: "Recommended under 22 characters per line.",
+    description: "Recommended under 120 characters.",
+    button: "Recommended under 18 characters.",
+    bigWord: "Recommended under 12 characters.",
+  };
+  return labels[field];
+}
 
 export function HomepageManager({
   initialBlock = "hero",
@@ -650,38 +700,39 @@ function HeroEditor({
   onChange: (value: HeroSlideData[]) => void;
 }) {
   const slides = Array.isArray(data) ? data : [];
+  const activeSlides = slides.filter((slide) => (slide.status ?? "active") === "active").length;
+  const draftSlides = slides.length - activeSlides;
 
   const updateSlide = (index: number, patch: Partial<HeroSlideData>) => {
     onChange(slides.map((slide, i) => (i === index ? { ...slide, ...patch } : slide)));
   };
 
-  const updateTwoColorTheme = (
-    index: number,
-    patch: { left?: string; right?: string; overlay?: string },
-  ) => {
-    const fallback = DEFAULT_HERO_COLORS;
-    const slide = slides[index];
-    const current = { ...(fallback ?? {}), ...(slide?.colors ?? {}) };
+  const moveSlide = (index: number, direction: -1 | 1) => {
+    const nextIndex = index + direction;
+    if (nextIndex < 0 || nextIndex >= slides.length) return;
+    const nextSlides = [...slides];
+    const [item] = nextSlides.splice(index, 1);
+    if (!item) return;
+    nextSlides.splice(nextIndex, 0, item);
+    onChange(nextSlides);
+  };
 
+  const updateTitleLine1 = (index: number, value: string) =>
+    updateSlide(index, { titleLine1: value, title: value });
+
+  const updateTitleLine2 = (index: number, value: string) =>
+    updateSlide(index, { titleLine2: value, highlight: value });
+
+  const updateDescription = (index: number, value: string) =>
+    updateSlide(index, { description: value, subtitle: value });
+
+  const updatePrimaryButton = (index: number, patch: Partial<{ label: string; href: string }>) => {
+    const slide = slides[index];
+    const current = slide?.ctaPrimary ?? { label: "Shop Now", href: "/products" };
     updateSlide(index, {
-      colors: {
-        ...current,
-        ...(patch.left
-          ? {
-              purple: patch.left,
-              green: patch.left,
-              infoGreen: patch.left,
-            }
-          : {}),
-        ...(patch.right
-          ? {
-              lightBlue: patch.right,
-              white: patch.right,
-              orange: patch.right,
-            }
-          : {}),
-        ...(patch.overlay ? { accent: patch.overlay } : {}),
-      },
+      ctaPrimary: { ...current, ...patch },
+      ...(patch.label !== undefined ? { primaryButtonText: patch.label } : {}),
+      ...(patch.href !== undefined ? { primaryButtonLink: patch.href } : {}),
     });
   };
 
@@ -701,14 +752,33 @@ function HeroEditor({
     const nextSlide: HeroSlideData = {
       ...base,
       id: makeId("hero"),
-      eyebrow: "New Product Feature",
-      title: "Product",
-      highlight: "Collection",
-      subheading: "Short product promise",
-      productName: "Featured Product",
-      cardName: "Product",
-      decoration: "Product",
-      subtitle: "Write a short customer-friendly message for this slide.",
+      status: "active",
+      eyebrow: "New Arrival",
+      title: "Remember Allah",
+      titleLine1: "Remember Allah",
+      highlight: "Every Day",
+      titleLine2: "Every Day",
+      subheading: "Premium Tasbih",
+      productName: "Premium Tasbih",
+      metadataLine: "Collection / New Arrival",
+      cardName: "Tasbih",
+      shortName: "Tasbih",
+      decoration: "DHIKR",
+      bigWord1: "DHIKR",
+      bigWord2: "DAILY",
+      subtitle: "Elegant tasbih selected for daily dhikr and thoughtful Islamic gifting.",
+      description: "Elegant tasbih selected for daily dhikr and thoughtful Islamic gifting.",
+      ctaPrimary: { label: "Shop Now", href: "/products" },
+      primaryButtonText: "Shop Now",
+      primaryButtonLink: "/products",
+      productImage: "/images/hero/hero-prayer-mat.png",
+      productImageAlt: "Folded prayer mat with tasbih beads",
+      infoItems: [
+        { label: "Use", value: "Daily" },
+        { label: "Gift", value: "Ready" },
+        { label: "Payment", value: "COD" },
+      ],
+      theme: "cream",
     };
     onChange([...slides, nextSlide]);
   };
@@ -717,8 +787,13 @@ function HeroEditor({
     <div className="space-y-4">
       <EditorIntro
         title="Slider builder"
-        body="Control the two-color homepage slider: left cards, product copy, image, large overlay text, bottom facts, and theme colors."
+        body="Build premium editorial slides with fixed structure: metadata, product image, huge background words, story copy, CTA, bottom facts, and safe theme presets."
       />
+      <div className="flex flex-wrap gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3 text-sm">
+        <Badge variant="secondary">{slides.length} total slides</Badge>
+        <Badge variant="secondary">{activeSlides} visible on storefront</Badge>
+        {draftSlides > 0 && <Badge variant="outline">{draftSlides} draft hidden</Badge>}
+      </div>
       {slides.map((slide, index) => {
         const infoItems = slide.infoItems ?? [];
         const hasThreeFacts = infoItems.length >= 3;
@@ -733,95 +808,226 @@ function HeroEditor({
               slides.length > 1 ? () => onChange(slides.filter((_, i) => i !== index)) : undefined
             }
           >
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--color-border)] bg-white p-3">
+              <div>
+                <p className="text-sm font-semibold">Slide order</p>
+                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                  This controls the storefront carousel order and thumbnail numbers.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => moveSlide(index, -1)}
+                  disabled={index === 0}
+                  className="gap-2"
+                >
+                  <ArrowUp className="h-4 w-4" />
+                  Up
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => moveSlide(index, 1)}
+                  disabled={index === slides.length - 1}
+                  className="gap-2"
+                >
+                  <ArrowDown className="h-4 w-4" />
+                  Down
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
+              <div>
+                <p className="text-sm font-semibold">Publishing status</p>
+                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                  Draft slides are saved in admin but hidden from the storefront.
+                </p>
+              </div>
+              <label className="flex items-center gap-2 text-sm font-semibold">
+                <Switch
+                  checked={(slide.status ?? "active") === "active"}
+                  onCheckedChange={(checked) =>
+                    updateSlide(index, { status: checked ? "active" : "draft" })
+                  }
+                  size="sm"
+                />
+                {(slide.status ?? "active") === "active" ? "Active" : "Draft"}
+              </label>
+            </div>
+
+            {(slide.status ?? "active") === "active" && !slide.productImage && (
+              <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                No image selected. The storefront will use a safe Niyamah fallback image, but a
+                product image is recommended.
+              </div>
+            )}
+
             <div className="grid gap-4 md:grid-cols-3">
-              <FormField label="Left card corner name">
+              <SafeFormField
+                label="Thumbnail label"
+                value={slide.shortName ?? slide.cardName}
+                limitKey="productName"
+              >
+                <Input
+                  value={slide.shortName ?? slide.cardName ?? ""}
+                  onChange={(event) =>
+                    updateSlide(index, {
+                      shortName: event.target.value,
+                    })
+                  }
+                />
+              </SafeFormField>
+              <SafeFormField label="Card name" value={slide.cardName} limitKey="productName">
                 <Input
                   value={slide.cardName ?? ""}
                   onChange={(event) => updateSlide(index, { cardName: event.target.value })}
                 />
-              </FormField>
-              <FormField label="Top product label">
+              </SafeFormField>
+              <SafeFormField
+                label="Product name"
+                value={slide.productName}
+                limitKey="productName"
+              >
                 <Input
                   value={slide.productName ?? ""}
                   onChange={(event) => updateSlide(index, { productName: event.target.value })}
                 />
-              </FormField>
-              <FormField label="Large overlay text">
+              </SafeFormField>
+              <SafeFormField
+                label="Right metadata"
+                hint="Appears under the product name in the right arch area"
+                value={slide.metadataLine ?? slide.badge}
+                limitKey="productName"
+              >
                 <Input
-                  value={slide.decoration ?? ""}
-                  onChange={(event) => updateSlide(index, { decoration: event.target.value })}
+                  value={slide.metadataLine ?? slide.badge ?? ""}
+                  onChange={(event) =>
+                    updateSlide(index, {
+                      metadataLine: event.target.value,
+                      badge: event.target.value,
+                    })
+                  }
                 />
-              </FormField>
+              </SafeFormField>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <FormField
+              <SafeFormField
                 label="Small label"
                 hint="Appears above the heading in the green copy area"
+                value={slide.eyebrow}
+                limitKey="eyebrow"
               >
                 <Input
                   value={slide.eyebrow ?? ""}
                   onChange={(event) => updateSlide(index, { eyebrow: event.target.value })}
                 />
-              </FormField>
-              <FormField label="Subheading">
+              </SafeFormField>
+              <SafeFormField label="Product promise" value={slide.subheading} limitKey="productName">
                 <Input
                   value={slide.subheading ?? ""}
                   onChange={(event) => updateSlide(index, { subheading: event.target.value })}
                 />
-              </FormField>
-              <FormField label="Main title">
+              </SafeFormField>
+              <SafeFormField
+                label="Title line 1"
+                value={slide.titleLine1 ?? slide.title}
+                limitKey="titleLine"
+              >
                 <Input
-                  value={slide.title ?? ""}
-                  onChange={(event) => updateSlide(index, { title: event.target.value })}
+                  value={slide.titleLine1 ?? slide.title ?? ""}
+                  onChange={(event) => updateTitleLine1(index, event.target.value)}
                 />
-              </FormField>
-              <FormField label="Overlay second line / highlighted word">
+              </SafeFormField>
+              <SafeFormField
+                label="Title line 2"
+                value={slide.titleLine2 ?? slide.highlight}
+                limitKey="titleLine"
+              >
                 <Input
-                  value={slide.highlight ?? ""}
-                  onChange={(event) => updateSlide(index, { highlight: event.target.value })}
+                  value={slide.titleLine2 ?? slide.highlight ?? ""}
+                  onChange={(event) => updateTitleLine2(index, event.target.value)}
                 />
-              </FormField>
-              <FormField label="Primary button text">
+              </SafeFormField>
+              <SafeFormField
+                label="Primary button text"
+                value={slide.primaryButtonText ?? slide.ctaPrimary?.label}
+                limitKey="button"
+              >
                 <Input
-                  value={slide.ctaPrimary?.label ?? ""}
-                  onChange={(event) =>
-                    updateSlide(index, {
-                      ctaPrimary: {
-                        ...(slide.ctaPrimary ?? { href: "/products" }),
-                        label: event.target.value,
-                      },
-                    })
-                  }
+                  value={slide.primaryButtonText ?? slide.ctaPrimary?.label ?? ""}
+                  onChange={(event) => updatePrimaryButton(index, { label: event.target.value })}
                 />
-              </FormField>
+              </SafeFormField>
               <FormField label="Primary button link">
                 <Input
-                  value={slide.ctaPrimary?.href ?? ""}
-                  onChange={(event) =>
-                    updateSlide(index, {
-                      ctaPrimary: {
-                        ...(slide.ctaPrimary ?? { label: "Shop Now" }),
-                        href: event.target.value,
-                      },
-                    })
-                  }
+                  value={slide.primaryButtonLink ?? slide.ctaPrimary?.href ?? ""}
+                  onChange={(event) => updatePrimaryButton(index, { href: event.target.value })}
                 />
               </FormField>
             </div>
-            <FormField label="Paragraph" hint="One or two sentences. Keep it warm and direct.">
+            <SafeFormField
+              label="Paragraph"
+              hint="One or two sentences. Keep it warm and direct."
+              value={slide.description ?? slide.subtitle}
+              limitKey="description"
+            >
               <Textarea
-                value={slide.subtitle ?? ""}
-                onChange={(event) => updateSlide(index, { subtitle: event.target.value })}
+                value={slide.description ?? slide.subtitle ?? ""}
+                onChange={(event) => updateDescription(index, event.target.value)}
                 className="min-h-24"
               />
-            </FormField>
+            </SafeFormField>
+
+            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
+              <div className="mb-3">
+                <h4 className="text-sm font-semibold">Huge background words</h4>
+                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                  These are the faint oversized words behind the product and headline.
+                </p>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <SafeFormField
+                  label="Big word 1"
+                  value={slide.bigWord1 ?? slide.decoration}
+                  limitKey="bigWord"
+                >
+                  <Input
+                    value={slide.bigWord1 ?? slide.decoration ?? ""}
+                    onChange={(event) =>
+                      updateSlide(index, {
+                        bigWord1: event.target.value.toUpperCase(),
+                        decoration: event.target.value.toUpperCase(),
+                      })
+                    }
+                  />
+                </SafeFormField>
+                <SafeFormField
+                  label="Big word 2"
+                  value={slide.bigWord2 ?? slide.highlight}
+                  limitKey="bigWord"
+                >
+                  <Input
+                    value={slide.bigWord2 ?? ""}
+                    onChange={(event) =>
+                      updateSlide(index, { bigWord2: event.target.value.toUpperCase() })
+                    }
+                  />
+                </SafeFormField>
+              </div>
+            </div>
 
             <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
               <div className="mb-3">
                 <h4 className="text-sm font-semibold">Product image</h4>
                 <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-                  This is the large image on the right side of the slider.
+                  This becomes the large central hero object. Transparent PNG or clean product cutout recommended.
                 </p>
               </div>
               <FormField
@@ -834,6 +1040,41 @@ function HeroEditor({
                   onChange={(urls) => updateSlide(index, { productImage: urls[0] ?? "" })}
                 />
               </FormField>
+
+              <div className="mt-4">
+                <p className="mb-2 text-sm font-semibold">Built-in Niyamah images</p>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {HERO_IMAGE_PRESETS.map((preset) => (
+                    <button
+                      key={preset.src}
+                      type="button"
+                      onClick={() =>
+                        updateSlide(index, {
+                          productImage: preset.src,
+                          productImageAlt: preset.alt,
+                        })
+                      }
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl border bg-white p-2 text-left transition-all hover:border-[var(--color-accent)]",
+                        slide.productImage === preset.src
+                          ? "border-[var(--color-accent)] shadow-sm"
+                          : "border-[var(--color-border)]",
+                      )}
+                    >
+                      <div className="relative h-14 w-14 shrink-0 rounded-lg bg-[var(--color-surface-alt)]">
+                        <Image
+                          src={preset.src}
+                          alt=""
+                          fill
+                          sizes="56px"
+                          className="object-contain p-1.5"
+                        />
+                      </div>
+                      <span className="text-sm font-semibold">{preset.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <details className="mt-3 rounded-lg border border-[var(--color-border)] bg-white p-3">
                 <summary className="cursor-pointer text-sm font-semibold text-[var(--color-text-secondary)]">
@@ -863,7 +1104,7 @@ function HeroEditor({
                 <div>
                   <h4 className="text-sm font-semibold">Bottom product facts</h4>
                   <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-                    Shown on the bottom-right bar. Keep this to three short facts.
+                    Shown under the main story copy on the storefront. Keep this to three short facts.
                   </p>
                 </div>
                 <Button
@@ -913,35 +1154,38 @@ function HeroEditor({
             </div>
 
             <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3">
-              <h4 className="text-sm font-semibold">Two-color slider theme</h4>
+              <h4 className="text-sm font-semibold">Theme preset</h4>
               <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-                The frontend uses one left-side color and one right-side color, with a separate
-                overlay text color.
+                Choose one approved preset. Random colors are locked so the storefront keeps a
+                premium, consistent look.
               </p>
-              <div className="mt-3 grid gap-3 md:grid-cols-3">
-                <FormField label="Left background">
-                  <Input
-                    type="color"
-                    value={slide.colors?.green ?? DEFAULT_HERO_COLORS.green}
-                    onChange={(event) => updateTwoColorTheme(index, { left: event.target.value })}
-                  />
-                </FormField>
-                <FormField label="Right background">
-                  <Input
-                    type="color"
-                    value={slide.colors?.orange ?? DEFAULT_HERO_COLORS.orange}
-                    onChange={(event) => updateTwoColorTheme(index, { right: event.target.value })}
-                  />
-                </FormField>
-                <FormField label="Overlay text">
-                  <Input
-                    type="color"
-                    value={slide.colors?.accent ?? DEFAULT_HERO_COLORS.accent}
-                    onChange={(event) =>
-                      updateTwoColorTheme(index, { overlay: event.target.value })
-                    }
-                  />
-                </FormField>
+              <div className="mt-3 grid gap-3 md:grid-cols-4">
+                {HERO_THEME_NAMES.map((themeName) => {
+                  const theme = HERO_THEME_PRESETS[themeName];
+                  const selected = (slide.theme ?? "cream") === themeName;
+                  return (
+                    <button
+                      key={themeName}
+                      type="button"
+                      onClick={() => updateSlide(index, { theme: themeName })}
+                      className={cn(
+                        "rounded-xl border p-3 text-left transition-all",
+                        selected
+                          ? "border-[var(--color-accent)] shadow-sm"
+                          : "border-[var(--color-border)] bg-white hover:border-[var(--color-accent)]",
+                      )}
+                    >
+                      <div
+                        className="mb-3 h-10 rounded-lg border"
+                        style={{ backgroundColor: theme.bg, borderColor: theme.accent }}
+                      />
+                      <p className="text-sm font-semibold">{theme.label}</p>
+                      <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                        Accent {theme.accent}
+                      </p>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </EditablePanel>
@@ -1721,6 +1965,36 @@ function FormField({
   );
 }
 
+function SafeFormField({
+  label,
+  hint,
+  value,
+  limitKey,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  value?: string | null;
+  limitKey: keyof typeof HERO_LIMITS;
+  children: React.ReactNode;
+}) {
+  const tooLong = isHeroTextTooLong(limitKey, value);
+  return (
+    <FormField
+      label={label}
+      hint={`${hint ? `${hint} ` : ""}${recommendedText(limitKey)} ${textLength(value)}/${HERO_LIMITS[limitKey]}`}
+    >
+      {children}
+      {tooLong && (
+        <span className="mt-1 flex items-start gap-1.5 text-xs font-medium text-amber-700">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          This may wrap or be shortened on the live slider.
+        </span>
+      )}
+    </FormField>
+  );
+}
+
 function IconSelect({
   value,
   onChange,
@@ -1821,74 +2095,93 @@ function SectionPreview({
 
 function HeroPreview({ data }: { data: HeroSlideData[] }) {
   const slide = Array.isArray(data) ? data[0] : null;
-  const colors = {
-    green: slide?.colors?.green ?? DEFAULT_HERO_COLORS.green,
-    orange: slide?.colors?.orange ?? DEFAULT_HERO_COLORS.orange,
-    accent: slide?.colors?.accent ?? DEFAULT_HERO_COLORS.accent,
-  };
+  const theme = HERO_THEME_PRESETS[slide?.theme ?? "cream"];
+  const titleLine1 = slide?.titleLine1 || slide?.title || "Discover Niyamah";
+  const titleLine2 = slide?.titleLine2 || slide?.highlight || "With Meaning";
+  const description =
+    slide?.description ||
+    slide?.subtitle ||
+    "Explore authentic Quran, prayer essentials, tasbih, and Islamic gifts delivered across Bangladesh.";
+  const bigWord1 = slide?.bigWord1 || slide?.decoration || "NIYAMAH";
+  const bigWord2 = slide?.bigWord2 || slide?.highlight || "COLLECTION";
+  const metadataLine = slide?.metadataLine || slide?.badge || "Collection / New Arrival";
   return (
     <div className="overflow-hidden bg-white">
-      <div className="grid h-12 grid-cols-[42%,58%] text-xs font-bold tracking-[0.14em] uppercase">
-        <div style={{ backgroundColor: colors.green }} />
-        <div className="flex items-center px-3" style={{ backgroundColor: colors.orange }}>
-          <span className="truncate">{slide?.productName || "Product name"}</span>
+      <div
+        className="relative min-h-[390px] overflow-hidden p-4"
+        style={{ backgroundColor: theme.bg, color: theme.text }}
+      >
+        <div className="absolute inset-0 flex flex-col justify-center overflow-hidden text-[76px] font-black leading-[0.78] opacity-100">
+          <span style={{ color: theme.word }}>{bigWord1}</span>
+          <span style={{ color: theme.word }}>{bigWord1}</span>
+          <span className="self-end" style={{ color: theme.word }}>
+            {bigWord2}
+          </span>
+          <span className="self-end" style={{ color: theme.word }}>
+            {bigWord2}
+          </span>
         </div>
-      </div>
-      <div className="grid min-h-72 grid-cols-[44%,56%]">
-        <div className="p-4 text-white" style={{ backgroundColor: colors.green }}>
-          <div
-            className="mb-4 flex h-24 items-start justify-between border-2 border-white p-2 text-sm font-bold"
-            style={{ backgroundColor: colors.orange, color: "#111" }}
-          >
-            <span>{slide?.cardName || "Card"}</span>
-            <span>01</span>
-          </div>
-          <p className="text-[10px] tracking-[0.18em] text-white/65 uppercase">{slide?.eyebrow}</p>
-          <h3 className="mt-2 text-2xl font-semibold text-white">{slide?.title}</h3>
-          <p className="mt-1 text-sm font-semibold" style={{ color: colors.accent }}>
-            {slide?.subheading || slide?.highlight}
-          </p>
-          <p className="mt-2 line-clamp-3 text-xs leading-5 text-white/78">{slide?.subtitle}</p>
-          <Badge className="mt-3 bg-white text-black">{slide?.ctaPrimary?.label || "Button"}</Badge>
-        </div>
-        <div className="relative overflow-hidden" style={{ backgroundColor: colors.orange }}>
-          <div className="absolute inset-0 z-0 flex flex-col justify-center text-5xl leading-[0.9] font-black text-[var(--preview-word)] opacity-25 [--preview-word:#0b4a34]">
-            <span className="pl-4">{slide?.decoration || "Product"}</span>
-            <span className="self-end pr-3">{slide?.highlight || "Text"}</span>
-          </div>
-          {slide?.productImage ? (
-            <div className="absolute top-8 right-2 z-10 h-44 w-[78%]">
+        <div className="pointer-events-none absolute right-7 top-10 h-64 w-44 rounded-t-full border border-current/20" />
+        <div className="relative z-10 grid min-h-[330px] grid-cols-[0.95fr,1.1fr,0.8fr] gap-4">
+          <div className="relative flex items-center justify-center">
+            <div
+              className="absolute h-40 w-40 rounded-full blur-3xl"
+              style={{ backgroundColor: `${theme.accent}40` }}
+            />
+            {slide?.productImage ? (
               <Image
                 src={slide.productImage}
-                alt={slide.productImageAlt || slide.title || "Slider product"}
+                alt={slide.productImageAlt || titleLine1 || "Slider product"}
                 fill
-                sizes="420px"
+                sizes="360px"
                 unoptimized
                 className="object-contain drop-shadow-xl"
               />
-            </div>
-          ) : (
-            <div className="absolute top-12 right-5 z-10 flex h-36 w-[68%] items-center justify-center rounded-xl bg-white/45 text-xs font-semibold text-black/45">
-              Product image
-            </div>
-          )}
-          <div
-            className="absolute inset-0 z-20 flex flex-col justify-center text-5xl leading-[0.9] font-black opacity-35 mix-blend-multiply"
-            style={{ color: colors.green }}
-          >
-            <span className="pl-4">{slide?.decoration || "Product"}</span>
-            <span className="self-end pr-3">{slide?.highlight || "Text"}</span>
-          </div>
-          <div
-            className="absolute right-0 bottom-0 z-30 grid w-full grid-cols-3 gap-1 p-2 text-[10px] text-white"
-            style={{ backgroundColor: colors.green }}
-          >
-            {(slide?.infoItems ?? []).slice(0, 3).map((item, index) => (
-              <div key={index}>
-                <span className="block uppercase opacity-60">{item.label}</span>
-                <strong>{item.value}</strong>
+            ) : (
+              <div className="flex h-52 w-full items-center justify-center border border-current/15 bg-white/20 text-xs font-semibold opacity-70">
+                Product image
               </div>
-            ))}
+            )}
+          </div>
+          <div className="flex flex-col justify-center">
+            <p className="text-xs font-bold" style={{ color: theme.accent }}>
+              {slide?.subheading || slide?.productName || "Premium Islamic essentials"}
+            </p>
+            <h3 className="mt-2 text-3xl font-black leading-[0.9] uppercase" style={{ color: theme.text }}>
+              <span className="block">{titleLine1}</span>
+              <span className="block" style={{ color: theme.accent }}>
+                {titleLine2}
+              </span>
+            </h3>
+            <p className="mt-3 line-clamp-3 text-xs leading-5" style={{ color: theme.muted }}>
+              {description}
+            </p>
+            <Badge
+              className="mt-3 w-fit rounded-none"
+              style={{ backgroundColor: theme.buttonBg, color: theme.buttonText }}
+            >
+              {slide?.primaryButtonText || slide?.ctaPrimary?.label || "Shop Now"}
+            </Badge>
+            <div className="mt-4 grid grid-cols-3 gap-2 border-t border-current/15 pt-3 text-[10px]">
+              {(slide?.infoItems ?? []).slice(0, 3).map((item, index) => (
+                <div key={index} className="min-w-0">
+                  <span className="block truncate font-black tracking-[0.16em] uppercase" style={{ color: theme.muted }}>
+                    {item.label}
+                  </span>
+                  <strong className="block truncate">{item.value}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="pt-7">
+            <p className="text-[9px] font-black tracking-[0.18em] uppercase" style={{ color: theme.muted }}>
+              {slide?.eyebrow || "Niyamah Collection"}
+            </p>
+            <p className="mt-2 text-sm font-semibold">{slide?.productName || "Islamic Essentials"}</p>
+            <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: theme.accent }}>
+              {metadataLine}
+            </p>
+            <div className="mt-5 h-px w-16" style={{ backgroundColor: theme.accent }} />
           </div>
         </div>
       </div>
