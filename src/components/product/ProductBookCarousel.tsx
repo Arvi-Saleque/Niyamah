@@ -578,13 +578,13 @@ export function ProductBookCarousel({
         ) : null}
       </div>
 
-      {/* ── Dot strip + mobile counter ── */}
+      {/* ── Dot strip + mobile counter + bottom-right arrows ── */}
       {total > 1 ? (
-        <div className="mt-7 flex items-center justify-center gap-4">
+        <div className="mt-7 flex items-center justify-between gap-4 px-1">
           <span className="font-mono text-xs tabular-nums text-stone-400 sm:hidden">
             {String(activeIndex + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
           </span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 mx-auto">
             {products.map((p, i) => (
               <button
                 key={p.id}
@@ -600,6 +600,28 @@ export function ProductBookCarousel({
                 )}
               />
             ))}
+          </div>
+
+          {/* Bottom-right prev / next arrows */}
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={goPrev}
+              onMouseDown={(e) => e.preventDefault()}
+              aria-label="Previous product"
+              className="grid h-10 w-10 place-items-center rounded-full border border-stone-200 bg-white text-stone-700 shadow-sm transition duration-200 hover:scale-105 hover:border-stone-300 hover:shadow-md"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              onMouseDown={(e) => e.preventDefault()}
+              aria-label="Next product"
+              className="grid h-10 w-10 place-items-center rounded-full border border-stone-200 bg-white text-stone-700 shadow-sm transition duration-200 hover:scale-105 hover:border-stone-300 hover:shadow-md"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
       ) : null}
