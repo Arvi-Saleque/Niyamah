@@ -575,3 +575,62 @@ export function CustomerReviewsSection() {
     </section>
   );
 }
+
+export function WhyNiyamahSection() {
+  const reasons = [
+    {
+      title: "Selected Islamic Essentials",
+      copy: "Products chosen for worship, learning, gifting, and daily meaning.",
+      icon: BookOpen,
+    },
+    {
+      title: "Meaningful Gift Curation",
+      copy: "Gift boxes and bundles that feel thoughtful before they are opened.",
+      icon: Gift,
+    },
+    {
+      title: "COD Across Bangladesh",
+      copy: "Cash on Delivery support that keeps checkout familiar and trusted.",
+      icon: Truck,
+    },
+    {
+      title: "Friendly WhatsApp Support",
+      copy: "Ask questions, confirm choices, and get guidance before ordering.",
+      icon: MessageCircle,
+    },
+  ];
+
+  return (
+    <section className="bg-[#f8f1e3] py-16 sm:py-20">
+      <div className={sectionShell}>
+        <HomepageSectionHeader
+          eyebrow="Brand promise"
+          title="Why Shop from Niyamah?"
+          subtitle="A quieter value section that explains the care behind the store."
+          align="center"
+        />
+        <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {reasons.map((item) => {
+            const Icon = item.icon;
+            return (
+              <article
+                key={item.title}
+                className="border border-[#d9c38b]/45 bg-white/68 p-5 text-center shadow-[0_18px_50px_rgba(18,61,42,0.06)]"
+              >
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#123d2a] text-[#f8f1e3]">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="mt-5 text-xl font-black leading-tight text-[#123d2a]">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-[#52675b]">
+                  {item.copy}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}

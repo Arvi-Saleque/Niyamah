@@ -8,6 +8,7 @@ import {
   NewArrivalsHomepageSection,
   ShopByPurposeSection,
   TrustPromiseStrip,
+  WhyNiyamahSection,
 } from "@/components/storefront/homepage-sections";
 import { GiftBuilderSection } from "@/components/storefront/gift-builder-section";
 import { ProductStoryRailSection } from "@/components/storefront/product-story-rail-section";
@@ -46,6 +47,7 @@ export default async function StorefrontHomePage() {
       <NewArrivalsHomepageSection products={storyProducts} />
       <CategoryDeepDiveSection />
       <CustomerReviewsSection />
+      <WhyNiyamahSection />
     </div>
   );
 }
