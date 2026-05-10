@@ -205,8 +205,8 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
   useEffect(() => {
     // Never use scrollIntoView here. It can scroll the whole page back to the
     // hero section when autoplay changes while the user is reading lower content.
-    scrollThumbnailRail(thumbnailRefs.current[safeCurrent]);
-    scrollThumbnailRail(mobileThumbnailRefs.current[safeCurrent]);
+    scrollThumbnailRail(thumbnailRefs.current[safeCurrent] ?? null);
+    scrollThumbnailRail(mobileThumbnailRefs.current[safeCurrent] ?? null);
   }, [safeCurrent, scrollThumbnailRail]);
 
   if (!active) return null;
