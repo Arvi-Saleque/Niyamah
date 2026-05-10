@@ -2,7 +2,7 @@
 
 import { and, asc, desc, eq, gte, inArray, lt, lte, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { categories, products } from "@/lib/db/schema";
+import { categories, productImages, products } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
 import type { StorefrontProductCard } from "@/modules/storefront/queries";
 
@@ -12,7 +12,7 @@ export type GiftPurpose =
   | "Dhikr Gift"
   | "Complete Gift Box";
 
-export type GiftBudget = "Under ৳1000" | "৳1000–৳2500" | "Premium";
+export type GiftBudget = "Under Tk 1000" | "Tk 1000-Tk 2000" | "Premium";
 
 export interface GiftFinderInput {
   purpose?: GiftPurpose;
@@ -28,16 +28,12 @@ const PURPOSE_TO_CATEGORY_SLUGS: Record<GiftPurpose, string[]> = {
 };
 
 const BUDGET_RANGES: Record<GiftBudget, { min?: number; max?: number }> = {
-  "Under ৳1000": { max: 1000 },
-  "৳1000–৳2500": { min: 1000, max: 2500 },
-  Premium: { min: 2500 },
+  "Under Tk 1000": { max: 1000 },
+  "Tk 1000-Tk 2000": { min: 1000, max: 2000 },
+  Premium: { min: 2000 },
 };
 
 const FALLBACK_IMAGE = "/placeholder.svg";
-
-/**
- * Effective price = COALESCE(salePrice, price), used for budget filtering.
- */
 const effectivePriceSql = sql<number>`COALESCE(${products.salePrice}, ${products.price})::numeric`;
 
 export async function findGiftSuggestions(
@@ -48,28 +44,25 @@ export async function findGiftSuggestions(
     eq(products.status, "published" as const),
   ];
 
-  // Filter by purpose -> category
   if (input.purpose) {
     const slugs = PURPOSE_TO_CATEGORY_SLUGS[input.purpose];
     const cats = await db
       .select({ id: categories.id })
       .from(categories)
-      .where(
-        and(eq(categories.storeId, DEFAULT_STORE_ID), inArray(categories.slug, slugs)),
-      );
+      .where(and(eq(categories.storeId, DEFAULT_STORE_ID), inArray(categories.slug, slugs)));
     if (cats.length === 0) return [];
     conds.push(inArray(products.categoryId, cats.map((c) => c.id)));
   }
 
-  // Filter by budget -> price range
   if (input.budget) {
     const range = BUDGET_RANGES[input.budget];
-    if (range.min !== undefined) {
-      conds.push(gte(effectivePriceSql, range.min));
-    }
+    if (range.min !== undefined) conds.push(gte(effectivePriceSql, range.min));
     if (range.max !== undefined) {
-      // Use lt for "Under X" so 1000 is exclusive on the lower tier.
-      conds.push(input.budget === "Under ৳1000" ? lt(effectivePriceSql, range.max) : lte(effectivePriceSql, range.max));
+      conds.push(
+        input.budget === "Under Tk 1000"
+          ? lt(effectivePriceSql, range.max)
+          : lte(effectivePriceSql, range.max),
+      );
     }
   }
 
@@ -90,25 +83,27 @@ export async function findGiftSuggestions(
     .limit(8);
 
   if (rows.length === 0) {
-    // Relax: drop budget if no results
-    if (input.budget) {
-      return findGiftSuggestions({ purpose: input.purpose });
-    }
+    if (input.budget) return findGiftSuggestions({ purpose: input.purpose });
     return [];
   }
 
-  // Attach primary images
   const ids = rows.map((r) => r.id);
-  const { productImages } = await import("@/lib/db/schema");
   const imgs = ids.length
     ? await db
-        .select({ productId: productImages.productId, url: productImages.url, isPrimary: productImages.isPrimary })
+        .select({
+          productId: productImages.productId,
+          url: productImages.url,
+          isPrimary: productImages.isPrimary,
+        })
         .from(productImages)
         .where(inArray(productImages.productId, ids))
     : [];
+
   const imgMap = new Map<number, string>();
-  for (const i of imgs) {
-    if (i.isPrimary || !imgMap.has(i.productId)) imgMap.set(i.productId, i.url);
+  for (const image of imgs) {
+    if (image.isPrimary || !imgMap.has(image.productId)) {
+      imgMap.set(image.productId, image.url);
+    }
   }
 
   return rows.map((p) => {
