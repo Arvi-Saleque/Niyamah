@@ -226,19 +226,19 @@ export function StickyImageBreak({
 
 const QUOTES = [
   {
-    arabic: "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا",
-    translation: "And whoever fears Allah — He will make for him a way out.",
-    source: "Surah At-Talaq, 65:2",
+    icon: "✦",
+    quote: "The best gift you can give is one that carries meaning long after the moment has passed.",
+    author: "On Gifting with Purpose",
   },
   {
-    arabic: "إِنَّ مَعَ الْعُسْرِ يُسْرًا",
-    translation: "Indeed, with hardship comes ease.",
-    source: "Surah Ash-Sharh, 94:6",
+    icon: "◈",
+    quote: "A home filled with good books, prayer, and intention is a home filled with light.",
+    author: "On Everyday Living",
   },
   {
-    arabic: "وَاصْبِرْ وَمَا صَبْرُكَ إِلَّا بِاللَّهِ",
-    translation: "Be patient — and your patience is only through Allah.",
-    source: "Surah An-Nahl, 16:127",
+    icon: "✦",
+    quote: "Quality is never an accident. It is always the result of intention, sincere effort, and care.",
+    author: "On What We Curate",
   },
 ];
 
@@ -254,57 +254,53 @@ export function ParallaxQuoteSection() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Dark overlay — makes content readable over the blue texture */}
-      <div className="absolute inset-0 bg-[#0c2d1e]/80" />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-[#0c2d1e]/82" />
 
-      {/* Decorative top & bottom borders */}
+      {/* Gold rule top */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c9a24d]/60 to-transparent" />
+      {/* Gold rule bottom */}
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#c9a24d]/60 to-transparent" />
 
       <div className="relative z-10 mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8">
+
         {/* Eyebrow */}
-        <p className="mb-10 text-center text-[10px] font-black uppercase tracking-[0.3em] text-[#c9a24d]">
-          A Moment of Reflection
+        <p className="mb-12 text-center text-[10px] font-black uppercase tracking-[0.35em] text-[#c9a24d]">
+          Why Niyamah
         </p>
 
-        {/* Quotes grid */}
-        <div className="grid gap-8 sm:grid-cols-3">
+        {/* Quote cards */}
+        <div className="grid gap-6 sm:grid-cols-3">
           {QUOTES.map((q, i) => (
             <div
               key={i}
-              className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-white/5 px-6 py-8 text-center backdrop-blur-sm"
+              className="flex flex-col items-center gap-5 rounded-2xl border border-white/10 bg-white/[0.04] px-8 py-10 text-center backdrop-blur-sm"
             >
-              {/* Arabic text */}
-              <p
-                className="text-2xl leading-loose text-[#f5efe0] sm:text-3xl"
-                dir="rtl"
-                lang="ar"
-                style={{ fontFamily: "serif" }}
-              >
-                {q.arabic}
-              </p>
+              {/* Decorative icon */}
+              <span className="text-2xl text-[#c9a24d]">{q.icon}</span>
 
               {/* Gold divider */}
-              <div className="h-px w-12 bg-[#c9a24d]" />
+              <div className="h-px w-10 bg-[#c9a24d]/60" />
 
-              {/* Translation */}
-              <p className="text-sm font-medium italic leading-7 text-[#c9e8d8] sm:text-base">
-                &ldquo;{q.translation}&rdquo;
+              {/* Quote */}
+              <p className="text-base font-medium italic leading-8 text-[#f5efe0] sm:text-lg">
+                &ldquo;{q.quote}&rdquo;
               </p>
 
-              {/* Source */}
-              <p className="text-[11px] font-bold uppercase tracking-widest text-[#c9a24d]/80">
-                {q.source}
+              {/* Attribution */}
+              <p className="text-[11px] font-black uppercase tracking-widest text-[#c9a24d]/75">
+                — {q.author}
               </p>
             </div>
           ))}
         </div>
 
         {/* Bottom tagline */}
-        <p className="mt-14 text-center text-base font-medium leading-8 text-[#c9e8d8] sm:text-lg">
-          Every product at Niyamah is chosen with purpose —<br className="hidden sm:block" />
-          to bring barakah into your home, your worship, and your gifts.
+        <p className="mt-16 text-center text-sm font-medium leading-8 text-[#c9e8d8] sm:text-base">
+          Every product at Niyamah is chosen with care —<br className="hidden sm:block" />
+          to bring meaning into your home, your worship, and your gifts.
         </p>
+
       </div>
     </div>
   );
