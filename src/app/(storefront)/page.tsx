@@ -22,7 +22,13 @@ export default async function StorefrontHomePage() {
       <TrustPromiseStrip />
       <ShopByPurposeSection />
       <FeaturedCollectionsSection />
-      <ProductStoryRailSection products={storyProducts} />
+      <ProductStoryRailSection
+        products={storyProducts}
+        eyebrow="Curated essentials"
+        title="Signature Picks from Niyamah"
+        subtitle="A focused edit of Quran, prayer essentials, books, and gifts with the richer book-opening product card treatment."
+        ctaLabel="Shop Signature Picks"
+      />
     </div>
   );
 }
