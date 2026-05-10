@@ -699,3 +699,44 @@ export function BlogPreviewSection() {
     </section>
   );
 }
+
+export function LifestyleGallerySection() {
+  const moments = [
+    { label: "Quran desk", image: "/images/hero/hero-quran.png" },
+    { label: "Gift box", image: "/images/hero/hero-gift-box.png" },
+    { label: "Prayer corner", image: "/images/hero/hero-prayer-mat.png" },
+    { label: "Tasbih closeup", image: "/images/hero/hero-prayer-mat.png" },
+  ];
+
+  return (
+    <section className="bg-[#f8f1e3] py-16 sm:py-20">
+      <div className={sectionShell}>
+        <HomepageSectionHeader
+          eyebrow="Lifestyle gallery"
+          title="Niyamah Moments"
+          subtitle="Small visual moments that show the products in a warmer, more lived-in way."
+          align="center"
+        />
+        <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {moments.map((moment, index) => (
+            <figure
+              key={`${moment.label}-${index}`}
+              className="group relative aspect-[4/5] overflow-hidden bg-[#efe6d2] shadow-[0_18px_50px_rgba(18,61,42,0.08)]"
+            >
+              <ImageWithFallback
+                src={moment.image}
+                alt={moment.label}
+                fill
+                sizes="(max-width: 640px) 50vw, 25vw"
+                className="object-contain p-8 transition duration-700 group-hover:scale-105"
+              />
+              <figcaption className="absolute inset-x-0 bottom-0 bg-[#123d2a]/88 p-4 text-xs font-black uppercase tracking-[0.18em] text-[#f8f1e3]">
+                {moment.label}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
