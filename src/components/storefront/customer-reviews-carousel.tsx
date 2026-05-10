@@ -67,13 +67,15 @@ const slideVariants: Variants = {
     x: 0,
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } as any,
   },
   exit: (d: number) => ({
     x: d > 0 ? "-52%" : "52%",
     opacity: 0,
     scale: 0.97,
-    transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] } as any,
   }),
 };
 
