@@ -203,8 +203,8 @@ export function BestSellersTrendingSection({ products }: BestSellersTrendingSect
   const hovered = useRef(false);
   const isVisible = useRef(false);
 
-  const active = items[activeIndex] ?? items[0];
-  const proof = SOCIAL_PROOF[activeIndex % SOCIAL_PROOF.length];
+  const active = (items[activeIndex] ?? items[0])!;
+  const proof = SOCIAL_PROOF[activeIndex % SOCIAL_PROOF.length]!;
 
   const goTo = useCallback((index: number) => {
     const safe = ((index % total) + total) % total;
@@ -261,7 +261,7 @@ export function BestSellersTrendingSection({ products }: BestSellersTrendingSect
     "--story-accent": active.tone?.accent ?? "#c9a24d",
   } as CSSProperties;
 
-  if (items.length === 0 || !active) return null;
+  if (items.length === 0) return null;
 
   return (
     <section
