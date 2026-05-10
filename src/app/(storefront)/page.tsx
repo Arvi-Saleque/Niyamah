@@ -4,11 +4,13 @@ import {
   BlogPreviewSection,
   CategoryDeepDiveSection,
   CustomerReviewsSection,
+  DeliveryPromiseStrip,
   FinalHomepageCtaSection,
   FeaturedCollectionsSection,
   GiftBoxStorySection,
   LifestyleGallerySection,
   NewArrivalsHomepageSection,
+  ShopByOccasionStrip,
   ShopByPurposeSection,
   TrustPromiseStrip,
   WhyTrustUsSection,
@@ -21,6 +23,8 @@ import { GiftBuilderSection } from "@/components/storefront/gift-builder-section
 import { ProductStoryRailSection } from "@/components/storefront/product-story-rail-section";
 import { FlashSaleSection } from "@/components/storefront/flash-sale-section";
 import { BestSellersTrendingSection } from "@/components/storefront/best-sellers-trending-section";
+import { TrendingNowSection } from "@/components/storefront/trending-now-section";
+import { NewArrivalsSliderSection } from "@/components/storefront/new-arrivals-slider-section";
 import { getHomepageContent } from "@/modules/storefront/homepage-content";
 import { getBestSellers, getNewArrivals } from "@/modules/storefront/queries";
 
@@ -45,6 +49,11 @@ export default async function StorefrontHomePage() {
       <TopCategoriesSection />
       <ParallaxQuoteSection />
       <BestSellersTrendingSection products={bestSellers} />
+      <ShopByOccasionStrip />
+      <TrendingNowSection />
+      <DeliveryPromiseStrip />
+      <NewArrivalsSliderSection products={storyProducts} />
+      <CustomerReviewsSection />
       {/* <TrustPromiseStrip /> */}
       {/* <ShopByPurposeSection /> */}
       {/* <FeaturedCollectionsSection /> */}

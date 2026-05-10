@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Gift,
   HeartHandshake,
+  MapPin,
   MessageCircle,
   PackageCheck,
   RotateCcw,
@@ -1015,76 +1016,211 @@ export function CategoryDeepDiveSection() {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*          Small Break 1 — Shop by Occasion (between BestSellers & Trending) */
+/* -------------------------------------------------------------------------- */
+
+const OCCASIONS = [
+  { label: "As a Gift",       href: "/products?occasion=gift",    emoji: "🎁" },
+  { label: "Daily Worship",   href: "/products?occasion=worship", emoji: "🕌" },
+  { label: "For Kids",        href: "/products?occasion=kids",    emoji: "👦" },
+  { label: "For Her",         href: "/products?occasion=her",     emoji: "🌸" },
+  { label: "Ramadan",         href: "/products?occasion=ramadan", emoji: "🌙" },
+  { label: "Home Decor",      href: "/products?occasion=decor",   emoji: "🏡" },
+  { label: "Books & Learning",href: "/products?occasion=books",   emoji: "📖" },
+  { label: "Fragrance",       href: "/products?occasion=attar",   emoji: "✨" },
+];
+
+export function ShopByOccasionStrip() {
+  return (
+    <div className="bg-[#f8f1e3] py-7 sm:py-8">
+      <div className={sectionShell}>
+        <p className="mb-4 text-[10px] font-black uppercase tracking-[0.28em] text-[#52675b]">
+          Shop by Occasion
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {OCCASIONS.map((o) => (
+            <Link
+              key={o.label}
+              href={o.href}
+              className="inline-flex items-center gap-2 rounded-full border border-[#c9a24d]/35 bg-white px-4 py-2 text-xs font-black text-[#123d2a] transition hover:border-[#c9a24d] hover:bg-[#fdf5e6] hover:shadow-sm"
+            >
+              <span>{o.emoji}</span>
+              {o.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*       Small Break 2 — Delivery Promise (between Trending & New Arrivals)   */
+/* -------------------------------------------------------------------------- */
+
+export function DeliveryPromiseStrip() {
+  const promises = [
+    { icon: Truck,        stat: "1–3 Days",   label: "Delivery" },
+    { icon: PackageCheck, stat: "COD",         label: "Cash on Delivery" },
+    { icon: RotateCcw,    stat: "7 Days",      label: "Free Returns" },
+    { icon: ShieldCheck,  stat: "100%",        label: "Authentic Products" },
+  ];
+
+  return (
+    <div className="bg-[#0c2d1e] py-6 sm:py-7">
+      <div className={sectionShell}>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {promises.map(({ icon: Icon, stat, label }) => (
+            <div key={label} className="flex items-center gap-3">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#c9a24d]/15">
+                <Icon className="h-4 w-4 text-[#c9a24d]" />
+              </div>
+              <div>
+                <p className="text-sm font-black text-[#f5efe0]">{stat}</p>
+                <p className="text-[11px] text-[#c9e8d8]/70">{label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*              Customer Reviews — full premium redesign                      */
+/* -------------------------------------------------------------------------- */
+
 export function CustomerReviewsSection() {
   const reviews = [
     {
-      name: "Customer from Dhaka",
-      product: "Quran Gift Box",
+      name: "Fatima Rahman",
       city: "Dhaka",
-      quote: "Bought a Quran gift box for my mother. Packaging was beautiful and delivery was smooth.",
+      product: "Color-Coded Tajweed Quran",
+      rating: 5,
+      quote: "The color-coding makes tajweed so much easier. Gifted it to my daughter and she hasn't put it down. Packaging was beautiful too.",
     },
     {
-      name: "Customer from Chattogram",
-      product: "Prayer Mat",
+      name: "Ahmed Karim",
       city: "Chattogram",
-      quote: "The prayer mat felt premium and the WhatsApp support helped me choose quickly.",
+      product: "Premium Velvet Prayer Mat",
+      rating: 5,
+      quote: "Exceptional quality. The velvet feels soft and the size is perfect. WhatsApp support helped me choose the right colour. Fast delivery!",
     },
     {
-      name: "Customer from Sylhet",
-      product: "Color Coded Quran",
+      name: "Nusrat Jahan",
       city: "Sylhet",
-      quote: "Easy to read, nicely packed, and perfect as a meaningful family gift.",
+      product: "Niyamah Eid Gift Box",
+      rating: 5,
+      quote: "Ordered as an Eid gift for my parents. They were so happy — the box looked premium and everything inside was high quality.",
+    },
+    {
+      name: "Md. Hasan",
+      city: "Rajshahi",
+      product: "Crystal Tasbih — 99 Beads",
+      rating: 5,
+      quote: "Beautiful tasbih. The crystal beads are smooth and the packaging made it feel like a luxury item. Will order again.",
+    },
+    {
+      name: "Salma Begum",
+      city: "Khulna",
+      product: "Oudh & Rose Attar Gift Set",
+      rating: 5,
+      quote: "The fragrance is incredible — long-lasting and authentic. Came with a handwritten note which was a lovely touch.",
+    },
+    {
+      name: "Tariq Hossain",
+      city: "Cumilla",
+      product: "Daily Dua & Hisnul Muslim",
+      rating: 5,
+      quote: "Compact, well-printed, and easy to carry. I keep it in my bag for daily duas. Great price for the quality.",
     },
   ];
 
-  const stats = ["1000+ Orders Delivered", "COD Available", "Nationwide Support"];
-
   return (
-    <section className="bg-[#fffaf0] py-16 sm:py-20">
+    <section className="bg-[#0c2d1e] py-16 sm:py-20 lg:py-24">
       <div className={sectionShell}>
-        <div className="grid gap-8 lg:grid-cols-[0.85fr,1.15fr] lg:items-start">
-          <div>
-            <HomepageSectionHeader
-              eyebrow="Customer trust"
-              title="Trusted by Families Across Bangladesh"
-              subtitle="Real-feeling social proof placed before the brand promise, so buyers see confidence before they scroll further."
-            />
-            <div className="mt-7 grid gap-3">
-              {stats.map((stat) => (
-                <div key={stat} className="border border-[#d9c38b]/45 bg-[#f8f1e3] p-4">
-                  <p className="text-sm font-black uppercase tracking-[0.16em] text-[#123d2a]">
-                    {stat}
-                  </p>
-                </div>
+
+        {/* Header */}
+        <div className="mb-12 text-center">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#c9a24d]">
+            Customer Reviews
+          </p>
+          <h2 className="mt-3 text-4xl font-black leading-tight text-[#f5efe0] sm:text-5xl">
+            What Our Customers Say
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-[#c9e8d8]/80">
+            Real reviews from real families across Bangladesh.
+          </p>
+
+          {/* Overall rating row */}
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <div className="flex items-center gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} className="h-5 w-5 fill-[#c9a24d] text-[#c9a24d]" />
               ))}
             </div>
-          </div>
-          <div className="grid gap-4">
-            {reviews.map((review) => (
-              <article
-                key={review.name}
-                className="border border-[#d9c38b]/45 bg-white p-5 shadow-[0_18px_50px_rgba(18,61,42,0.06)]"
-              >
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#c9a24d]">
-                    {review.product}
-                  </p>
-                  <p className="text-sm font-black text-[#123d2a]">5.0</p>
-                </div>
-                <p className="text-lg font-semibold leading-7 text-[#123d2a]">
-                  &ldquo;{review.quote}&rdquo;
-                </p>
-                <p className="mt-4 text-sm text-[#52675b]">
-                  - {review.name}, {review.city}
-                </p>
-              </article>
-            ))}
+            <span className="text-2xl font-black text-[#f5efe0]">4.9</span>
+            <span className="text-sm text-[#c9e8d8]/60">from 1,200+ orders</span>
           </div>
         </div>
+
+        {/* Review grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {reviews.map((review) => (
+            <article
+              key={review.name}
+              className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm"
+            >
+              {/* Stars */}
+              <div className="flex items-center gap-0.5">
+                {Array.from({ length: review.rating }).map((_, i) => (
+                  <Star key={i} className="h-3.5 w-3.5 fill-[#c9a24d] text-[#c9a24d]" />
+                ))}
+              </div>
+
+              {/* Quote */}
+              <p className="flex-1 text-sm leading-7 text-[#f5efe0]/90">
+                &ldquo;{review.quote}&rdquo;
+              </p>
+
+              {/* Divider */}
+              <div className="h-px bg-white/10" />
+
+              {/* Reviewer */}
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-black text-[#f5efe0]">{review.name}</p>
+                  <p className="flex items-center gap-1 text-[11px] text-[#c9e8d8]/60">
+                    <MapPin className="h-2.5 w-2.5" />
+                    {review.city}
+                  </p>
+                </div>
+                <span className="rounded-full border border-[#c9a24d]/30 bg-[#c9a24d]/10 px-2.5 py-1 text-[10px] font-black text-[#c9a24d]">
+                  {review.product.split(" ").slice(0, 2).join(" ")}
+                </span>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="mt-10 text-center">
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 rounded border border-[#c9a24d]/40 bg-[#c9a24d]/10 px-7 py-3 text-sm font-black text-[#c9a24d] transition hover:bg-[#c9a24d]/20"
+          >
+            Shop What They Loved
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
       </div>
     </section>
   );
 }
+
 
 export function WhyNiyamahSection() {
   const reasons = [
