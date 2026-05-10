@@ -1,6 +1,7 @@
 import { HeroSlider } from "@/components/storefront/hero-slider";
 import {
   BestSellersRailSection,
+  BlogPreviewSection,
   CategoryDeepDiveSection,
   CustomerReviewsSection,
   FeaturedCollectionsSection,
@@ -48,6 +49,7 @@ export default async function StorefrontHomePage() {
       <CategoryDeepDiveSection />
       <CustomerReviewsSection />
       <WhyNiyamahSection />
+      <BlogPreviewSection />
     </div>
   );
 }

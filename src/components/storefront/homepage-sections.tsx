@@ -634,3 +634,68 @@ export function WhyNiyamahSection() {
     </section>
   );
 }
+
+export function BlogPreviewSection() {
+  const posts = [
+    {
+      title: "How to Choose a Quran Gift",
+      copy: "A practical guide for choosing print, translation, packaging, and purpose.",
+      href: "/blog/how-to-choose-quran-gift",
+    },
+    {
+      title: "Best Islamic Gifts for Parents",
+      copy: "Meaningful gift ideas for mothers and fathers, from Quran to tasbih.",
+      href: "/blog/islamic-gifts-for-parents",
+    },
+    {
+      title: "Prayer Mat Buying Guide",
+      copy: "What to consider for comfort, material, use, and gifting.",
+      href: "/blog/prayer-mat-buying-guide",
+    },
+    {
+      title: "Benefits of Color-Coded Quran",
+      copy: "Why color support can help with recitation flow and learning confidence.",
+      href: "/blog/benefits-color-coded-quran",
+    },
+  ];
+
+  return (
+    <section className="bg-[#fffaf0] py-16 sm:py-20">
+      <div className={sectionShell}>
+        <div className="mb-9 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <HomepageSectionHeader
+            eyebrow="Buying guides"
+            title="Learn Before You Buy"
+            subtitle="Helpful education makes the store feel expert, calm, and trustworthy."
+          />
+          <TextCta href="/blog">Read all guides</TextCta>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {posts.map((post, index) => (
+            <Link
+              key={post.title}
+              href={post.href}
+              className="group flex min-h-[260px] flex-col justify-between border border-[#d9c38b]/45 bg-white p-5 shadow-[0_18px_50px_rgba(18,61,42,0.06)] transition-all hover:-translate-y-1 hover:border-[#c9a24d]"
+            >
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-[#c9a24d]">
+                  Guide {String(index + 1).padStart(2, "0")}
+                </p>
+                <h3 className="mt-5 text-2xl font-black leading-tight text-[#123d2a]">
+                  {post.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-[#52675b]">
+                  {post.copy}
+                </p>
+              </div>
+              <span className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-[#123d2a]">
+                Read Guide
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
