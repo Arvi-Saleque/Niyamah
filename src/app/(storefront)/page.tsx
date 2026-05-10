@@ -3,6 +3,7 @@ import {
   BestSellersRailSection,
   FeaturedCollectionsSection,
   GiftBoxStorySection,
+  NewArrivalsHomepageSection,
   ShopByPurposeSection,
   TrustPromiseStrip,
 } from "@/components/storefront/homepage-sections";
@@ -40,6 +41,7 @@ export default async function StorefrontHomePage() {
       </section>
       <BestSellersRailSection products={bestSellers} />
       <GiftBoxStorySection />
+      <NewArrivalsHomepageSection products={storyProducts} />
     </div>
   );
 }

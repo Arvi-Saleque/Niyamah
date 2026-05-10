@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ImageWithFallback } from "@/components/shared/image-with-fallback";
 import { PriceText } from "@/components/shared/price-text";
 import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
+import { ProductGrid } from "@/components/storefront/product-grid";
 import type { ProductCardData } from "@/components/storefront/product-card";
 import {
   ArrowRight,
@@ -409,6 +410,27 @@ export function GiftBoxStorySection() {
             </Link>
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+export function NewArrivalsHomepageSection({ products }: { products: ProductCardData[] }) {
+  const items = products.slice(0, 6);
+  if (items.length === 0) return null;
+
+  return (
+    <section className="bg-[#fffaf0] py-16 sm:py-20">
+      <div className={sectionShell}>
+        <div className="mb-9 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <HomepageSectionHeader
+            eyebrow="Freshly added"
+            title="Freshly Added to Niyamah"
+            subtitle="New products kept in a clean shopping grid for quick browsing."
+          />
+          <TextCta href="/products?sort=new">See all new arrivals</TextCta>
+        </div>
+        <ProductGrid products={items} columns={3} />
       </div>
     </section>
   );
