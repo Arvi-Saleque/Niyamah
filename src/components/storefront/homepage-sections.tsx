@@ -359,3 +359,57 @@ export function BestSellersRailSection({ products }: { products: ProductCardData
     </section>
   );
 }
+
+export function GiftBoxStorySection() {
+  const checks = [
+    "Gift-ready packaging",
+    "Custom note option",
+    "Premium product selection",
+    "Nationwide delivery",
+  ];
+
+  return (
+    <section className="bg-[#123d2a] py-16 text-[#f8f1e3] sm:py-20">
+      <div className={sectionShell}>
+        <div className="grid gap-8 lg:grid-cols-[1.05fr,0.95fr] lg:items-center">
+          <div className="relative min-h-[420px] overflow-hidden bg-[#0b2d1e]">
+            <ImageWithFallback
+              src="/images/hero/hero-gift-box.png"
+              alt="Niyamah gift box"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-contain p-10 drop-shadow-[0_35px_70px_rgba(0,0,0,0.35)]"
+            />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(217,184,108,0.22),transparent_42%)]" />
+          </div>
+          <div className="max-w-xl">
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-[#d9b86c]">
+              Premium gift story
+            </p>
+            <h2 className="mt-3 text-4xl font-black leading-tight sm:text-5xl">
+              A Gift That Carries Barakah
+            </h2>
+            <p className="mt-5 text-base leading-7 text-[#f8f1e3]/75">
+              Beautifully packed Quran, tasbih, prayer mat, and Islamic essentials,
+              ready to gift to parents, teachers, and loved ones.
+            </p>
+            <div className="mt-7 grid gap-3 sm:grid-cols-2">
+              {checks.map((item) => (
+                <div key={item} className="flex items-center gap-3 border border-white/12 bg-white/6 p-3">
+                  <CheckCircle2 className="h-5 w-5 text-[#d9b86c]" />
+                  <span className="text-sm font-semibold">{item}</span>
+                </div>
+              ))}
+            </div>
+            <Link
+              href="/category/gift-box"
+              className="mt-8 inline-flex h-12 items-center justify-center bg-[#d9b86c] px-6 text-sm font-black uppercase tracking-[0.16em] text-[#123d2a]"
+            >
+              Build a Gift Box
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
