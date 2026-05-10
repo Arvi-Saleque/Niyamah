@@ -1,5 +1,6 @@
 import { HeroSlider } from "@/components/storefront/hero-slider";
 import {
+  FeaturedCollectionsSection,
   ShopByPurposeSection,
   TrustPromiseStrip,
 } from "@/components/storefront/homepage-sections";
@@ -20,6 +21,7 @@ export default async function StorefrontHomePage() {
       <HeroSlider slides={content.hero} />
       <TrustPromiseStrip />
       <ShopByPurposeSection />
+      <FeaturedCollectionsSection />
       <ProductStoryRailSection products={storyProducts} />
     </div>
   );

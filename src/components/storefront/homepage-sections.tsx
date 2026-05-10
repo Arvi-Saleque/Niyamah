@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ImageWithFallback } from "@/components/shared/image-with-fallback";
 import {
   ArrowRight,
   BookOpen,
@@ -182,6 +183,88 @@ export function ShopByPurposeSection() {
               </Link>
             );
           })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function FeaturedCollectionsSection() {
+  const collections = [
+    {
+      title: "Color Coded Quran",
+      label: "Premium Quran",
+      copy: "Easy recitation support, premium print, and gift-ready editions.",
+      href: "/category/quran",
+      image: "/images/hero/hero-quran.png",
+    },
+    {
+      title: "Gift Boxes",
+      label: "Meaningful Gifts",
+      copy: "Curated Quran, tasbih, prayer essentials, and thoughtful packaging.",
+      href: "/category/gift-box",
+      image: "/images/hero/hero-gift-box.png",
+    },
+    {
+      title: "Prayer Essentials",
+      label: "Daily Worship",
+      copy: "Prayer mats, tasbih, and essentials for home and travel worship.",
+      href: "/category/prayer-mat",
+      image: "/images/hero/hero-prayer-mat.png",
+    },
+    {
+      title: "Islamic Books",
+      label: "Learn & Reflect",
+      copy: "Dua books, learning guides, and thoughtful reads for every home.",
+      href: "/category/books",
+      image: "/images/hero/hero-quran.png",
+    },
+  ];
+
+  return (
+    <section className="bg-[#fffaf0] py-16 sm:py-20">
+      <div className={sectionShell}>
+        <div className="mb-9 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <HomepageSectionHeader
+            eyebrow="Collection gateway"
+            title="Featured Collections"
+            subtitle="Four clear paths into the store, designed for quick discovery without marketplace clutter."
+          />
+          <TextCta href="/products">Shop all collections</TextCta>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {collections.map((item) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className="group relative min-h-[360px] overflow-hidden bg-[#123d2a] shadow-[0_24px_70px_rgba(18,61,42,0.15)]"
+            >
+              <ImageWithFallback
+                src={item.image}
+                alt={item.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-contain p-10 opacity-74 transition duration-700 group-hover:scale-105 group-hover:opacity-90"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(18,61,42,0.94),rgba(18,61,42,0.62)_48%,rgba(18,61,42,0.2))]" />
+              <div className="relative z-10 flex min-h-[360px] max-w-md flex-col justify-end p-6 text-[#f8f1e3] sm:p-8">
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-[#d9b86c]">
+                  {item.label}
+                </p>
+                <h3 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-[#f8f1e3]/75">
+                  {item.copy}
+                </p>
+                <span className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[#d9b86c]">
+                  Explore Collection
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </section>
