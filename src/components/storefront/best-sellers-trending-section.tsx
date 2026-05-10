@@ -162,7 +162,7 @@ const DEMO_PRODUCTS: ProductStoryCardData[] = [
 ];
 
 function toStoryCard(product: ProductCardData, index: number): ProductStoryCardData {
-  const proof = SOCIAL_PROOF[index % SOCIAL_PROOF.length];
+  const proof = SOCIAL_PROOF[index % SOCIAL_PROOF.length]!;
   return {
     ...product,
     tone: TRENDING_TONES[index % TRENDING_TONES.length],
