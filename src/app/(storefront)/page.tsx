@@ -14,6 +14,7 @@ import {
   WhyTrustUsSection,
   WhyNiyamahSection,
   TopCategoriesSection,
+  ParallaxQuoteSection,
   StickyImageBreak,
 } from "@/components/storefront/homepage-sections";
 import { GiftBuilderSection } from "@/components/storefront/gift-builder-section";
@@ -42,6 +43,7 @@ export default async function StorefrontHomePage() {
       />
       <FlashSaleSection />
       <TopCategoriesSection />
+      <ParallaxQuoteSection />
       <BestSellersTrendingSection products={bestSellers} />
       {/* <TrustPromiseStrip /> */}
       {/* <ShopByPurposeSection /> */}
