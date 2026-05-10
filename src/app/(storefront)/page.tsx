@@ -4,6 +4,7 @@ import {
   BlogPreviewSection,
   CategoryDeepDiveSection,
   CustomerReviewsSection,
+  FinalHomepageCtaSection,
   FeaturedCollectionsSection,
   GiftBoxStorySection,
   LifestyleGallerySection,
@@ -52,6 +53,7 @@ export default async function StorefrontHomePage() {
       <WhyNiyamahSection />
       <BlogPreviewSection />
       <LifestyleGallerySection />
+      <FinalHomepageCtaSection />
     </div>
   );
 }

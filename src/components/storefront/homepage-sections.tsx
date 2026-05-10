@@ -740,3 +740,38 @@ export function LifestyleGallerySection() {
     </section>
   );
 }
+
+export function FinalHomepageCtaSection() {
+  return (
+    <section className="bg-[#123d2a] py-16 text-center text-[#f8f1e3] sm:py-20">
+      <div className={sectionShell}>
+        <p className="text-xs font-black uppercase tracking-[0.24em] text-[#d9b86c]">
+          Shop with meaning
+        </p>
+        <h2 className="mx-auto mt-3 max-w-4xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">
+          Bring Barakah Into Everyday Life
+        </h2>
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#f8f1e3]/75">
+          Shop Quran, prayer essentials, Islamic books, and meaningful gifts,
+          delivered across Bangladesh.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link
+            href="/products"
+            className="inline-flex h-12 items-center justify-center bg-[#d9b86c] px-6 text-sm font-black uppercase tracking-[0.16em] text-[#123d2a]"
+          >
+            Shop All Products
+          </Link>
+          <a
+            href="https://wa.me/8801760982072"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-12 items-center justify-center border border-[#d9b86c]/55 px-6 text-sm font-black uppercase tracking-[0.16em] text-[#f8f1e3]"
+          >
+            Order on WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
