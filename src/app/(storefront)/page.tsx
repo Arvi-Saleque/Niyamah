@@ -14,6 +14,7 @@ import {
   WhyTrustUsSection,
   WhyNiyamahSection,
   TopCategoriesSection,
+  StickyImageBreak,
 } from "@/components/storefront/homepage-sections";
 import { GiftBuilderSection } from "@/components/storefront/gift-builder-section";
 import { ProductStoryRailSection } from "@/components/storefront/product-story-rail-section";
@@ -35,6 +36,10 @@ export default async function StorefrontHomePage() {
     <div className="bg-[var(--color-background)]">
       <HeroSlider slides={content.hero} />
       <WhyTrustUsSection />
+      <StickyImageBreak
+        src="/images/fixed_bg/bg1.png"
+        alt="Special Discount — Up to 30% off on Premium Quran collection"
+      />
       <FlashSaleSection />
       <TopCategoriesSection />
       <BestSellersTrendingSection products={bestSellers} />

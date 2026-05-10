@@ -189,6 +189,38 @@ export function WhyTrustUsSection() {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                     Sticky Full-Screen Image Break                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Full-screen image break with a completely fixed background.
+ * The image never moves — the next section slides over it as you scroll.
+ * Uses background-attachment:fixed (the same technique as parallax hero sections).
+ */
+export function StickyImageBreak({
+  src,
+  alt = "",
+}: {
+  src: string;
+  alt?: string;
+}) {
+  return (
+    <div
+      role="img"
+      aria-label={alt}
+      className="h-screen w-full"
+      style={{
+        backgroundImage: `url('${src}')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center center",
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "no-repeat",
+      }}
+    />
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*                        Top Categories Section                              */
 /* -------------------------------------------------------------------------- */
 
