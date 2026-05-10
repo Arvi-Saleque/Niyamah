@@ -150,27 +150,43 @@ function SideCard({ product, side, onClick }: SideCardProps) {
       aria-label={`View ${product.name}`}
       initial={{ opacity: 0, x: isLeft ? -60 : 60 }}
       animate={{
-        opacity: 0.7,
+        opacity: 0.75,
         x: isLeft ? "-18%" : "18%",
-        rotateY: isLeft ? 14 : -14,
+        y: 0,
+        rotateY: isLeft ? 16 : -16,
         scale: 0.86,
       }}
-      whileHover={{ opacity: 0.95, scale: 0.9 }}
+      whileHover={{ opacity: 1, y: -8, scale: 0.9 }}
       transition={{ type: "spring", stiffness: 200, damping: 26 }}
       className={cn(
-        "absolute top-1/2 hidden h-[78%] w-[34%] -translate-y-1/2 cursor-pointer overflow-hidden rounded-3xl shadow-2xl ring-1 ring-white/10 md:block",
+        "group/side absolute top-1/2 hidden h-[78%] w-[34%] -translate-y-1/2 cursor-pointer overflow-hidden rounded-3xl shadow-2xl ring-1 ring-black/10 md:block",
         isLeft ? "left-0" : "right-0",
       )}
-      style={{ transformStyle: "preserve-3d" }}
+      style={{
+        transformStyle: "preserve-3d",
+        transformOrigin: isLeft ? "right center" : "left center",
+      }}
     >
       <Image
         src={product.image}
         alt={product.name}
         fill
         sizes="(min-width: 768px) 34vw, 0px"
-        className="object-cover"
+        className="object-cover transition-transform duration-700 group-hover/side:scale-[1.06]"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+      {/* Page-darken overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
+      {/* Inner page edge highlight */}
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-y-0 w-6",
+          isLeft
+            ? "right-0 bg-gradient-to-l from-black/40 to-transparent"
+            : "left-0 bg-gradient-to-r from-black/40 to-transparent",
+        )}
+      />
+      {/* Subtle inner ring */}
+      <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/10" />
       <div className="absolute left-4 top-4">
         <span className="inline-flex rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-white backdrop-blur">
           {product.category}
@@ -239,8 +255,8 @@ function ActiveCard({
         scale: 0.94,
       }}
       transition={{ type: "spring", stiffness: 180, damping: 24 }}
-      className="relative z-20 mx-auto h-full w-full overflow-hidden rounded-3xl shadow-2xl ring-1 ring-white/10"
-      style={{ transformStyle: "preserve-3d" }}
+      className="group/active relative z-20 mx-auto h-full w-full overflow-hidden rounded-3xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)] ring-1 ring-black/10"
+      style={{ transformStyle: "preserve-3d", transformOrigin: "left center" }}
     >
       <Image
         src={product.image}
@@ -248,11 +264,26 @@ function ActiveCard({
         fill
         priority
         sizes="(min-width: 1024px) 60vw, (min-width: 768px) 70vw, 100vw"
-        className="object-cover"
+        className="object-cover transition-transform duration-[1200ms] ease-out will-change-transform group-hover/active:scale-[1.04]"
       />
       {/* Gradient overlays for readability */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
       <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
+
+      {/* Book spine on the left edge */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-black/70 via-black/25 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 left-[6px] w-px bg-white/15 mix-blend-overlay" />
+      <div className="pointer-events-none absolute inset-y-0 left-[10px] w-px bg-black/40" />
+
+      {/* Top & bottom edge highlights */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+      {/* Inner ring for depth */}
+      <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/10" />
+
+      {/* Right-edge soft inner shadow (page curl hint) */}
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-black/30 to-transparent" />
 
       {/* Top row */}
       <div className="absolute inset-x-5 top-5 flex items-start justify-between sm:inset-x-7 sm:top-7">
@@ -346,19 +377,26 @@ function ActiveCard({
             disabled={outOfStock}
             onClick={() => onAddToCart?.(product)}
             className={cn(
-              "inline-flex flex-1 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold shadow-lg transition",
+              "group/cta relative inline-flex flex-1 items-center justify-center gap-2 overflow-hidden rounded-full px-5 py-3 text-sm font-semibold shadow-lg transition",
               outOfStock
                 ? "cursor-not-allowed bg-white/20 text-white/60"
-                : "bg-white text-neutral-900 hover:bg-white/90",
+                : "bg-white text-neutral-900 hover:-translate-y-0.5 hover:bg-white",
             )}
           >
+            {/* shine sweep */}
+            {!outOfStock && (
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/70 to-transparent opacity-0 transition-all duration-700 ease-out group-hover/cta:left-[120%] group-hover/cta:opacity-100"
+              />
+            )}
             <ShoppingBag className="h-4 w-4" />
             {outOfStock ? "Out of Stock" : "Add to Cart"}
           </button>
           <button
             type="button"
             onClick={() => onViewDetails?.(product)}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20"
           >
             View Details
           </button>
@@ -480,11 +518,21 @@ export function ProductBookCarousel({
           <SideCard product={next} side="right" onClick={goNext} />
         ) : null}
 
-        {/* Active card */}
+        {/* Active card with page-stack effect */}
         <div
           className="relative h-full w-full sm:w-[80%] md:w-[65%]"
           style={{ transformStyle: "preserve-3d" }}
         >
+          {/* Page stack layers behind the active card */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-10 translate-x-2 translate-y-2 rounded-3xl bg-neutral-200/80 shadow-xl ring-1 ring-black/5"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-10 translate-x-1 translate-y-1 rounded-3xl bg-neutral-100 shadow-md ring-1 ring-black/5"
+          />
+
           <AnimatePresence mode="wait" custom={direction}>
             {active ? (
               <ActiveCard
