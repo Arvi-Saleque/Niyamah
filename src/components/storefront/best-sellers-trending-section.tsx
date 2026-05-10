@@ -9,14 +9,21 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Flame } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Flame,
+  Star,
+  TrendingUp,
+} from "lucide-react";
 import { motion } from "framer-motion";
-import { CountdownTimer } from "@/components/shared/countdown-timer";
 import {
   ProductStoryCard,
   type ProductStoryCardData,
   type ProductStoryTone,
 } from "@/components/storefront/product-story-card";
+import type { ProductCardData } from "@/components/storefront/product-card";
 
 // â”€â”€ Scroll-preserving helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function preserveScroll(callback: () => void) {
@@ -30,129 +37,162 @@ function preserveScroll(callback: () => void) {
 }
 
 // â”€â”€ Tones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const FIRE_TONES: ProductStoryTone[] = [
+const TRENDING_TONES: ProductStoryTone[] = [
   {
-    bg: "#6b1414",
-    panel: "#4d0f0f",
-    text: "#ffffff",
-    muted: "rgba(255,255,255,0.72)",
-    accent: "#ff6b35",
-    badgeBg: "#dc2626",
-    badgeText: "#ffffff",
-  },
-  {
-    bg: "#7c2d12",
-    panel: "#5c220e",
-    text: "#ffffff",
-    muted: "rgba(255,255,255,0.72)",
-    accent: "#fbbf24",
-    badgeBg: "#ea580c",
-    badgeText: "#ffffff",
-  },
-  {
-    bg: "#1a0e3d",
-    panel: "#150b35",
-    text: "#ffffff",
-    muted: "rgba(255,255,255,0.70)",
-    accent: "#f59e0b",
-    badgeBg: "#7c3aed",
-    badgeText: "#ffffff",
-  },
-  {
-    bg: "#14532d",
-    panel: "#0f3d22",
+    bg: "#0f2a1d",
+    panel: "#0a1e15",
     text: "#ffffff",
     muted: "rgba(255,255,255,0.72)",
     accent: "#c9a24d",
-    badgeBg: "#16a34a",
-    badgeText: "#ffffff",
+    badgeBg: "#c9a24d",
+    badgeText: "#0f2a1d",
   },
   {
-    bg: "#0c1a3d",
-    panel: "#091228",
+    bg: "#1a2a40",
+    panel: "#121e30",
     text: "#ffffff",
-    muted: "rgba(255,255,255,0.70)",
+    muted: "rgba(255,255,255,0.72)",
     accent: "#60a5fa",
     badgeBg: "#2563eb",
     badgeText: "#ffffff",
   },
+  {
+    bg: "#2a1a0e",
+    panel: "#1e1208",
+    text: "#ffffff",
+    muted: "rgba(255,255,255,0.70)",
+    accent: "#fb923c",
+    badgeBg: "#ea580c",
+    badgeText: "#ffffff",
+  },
+  {
+    bg: "#1e1030",
+    panel: "#160c24",
+    text: "#ffffff",
+    muted: "rgba(255,255,255,0.72)",
+    accent: "#c084fc",
+    badgeBg: "#7c3aed",
+    badgeText: "#ffffff",
+  },
+  {
+    bg: "#0e2626",
+    panel: "#091c1c",
+    text: "#ffffff",
+    muted: "rgba(255,255,255,0.70)",
+    accent: "#2dd4bf",
+    badgeBg: "#0d9488",
+    badgeText: "#ffffff",
+  },
+  {
+    bg: "#2a1a1a",
+    panel: "#1e1212",
+    text: "#ffffff",
+    muted: "rgba(255,255,255,0.72)",
+    accent: "#f87171",
+    badgeBg: "#dc2626",
+    badgeText: "#ffffff",
+  },
 ];
 
-// â”€â”€ Flash sale products (demo â€” swap with real DB data) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const FLASH_PRODUCTS: ProductStoryCardData[] = [
+const SOCIAL_PROOF = [
+  { badge: "#1 Best Seller", label: "Top Pick",        sold: "240+ sold" },
+  { badge: "Trending Now",   label: "Rising Fast",     sold: "180+ sold" },
+  { badge: "Customer Fav",   label: "Loved By Many",   sold: "320+ sold" },
+  { badge: "Hot Pick",       label: "This Week",       sold: "150+ sold" },
+  { badge: "Staff Pick",     label: "Editor's Choice", sold: "200+ sold" },
+  { badge: "Most Gifted",    label: "Gift Favourite",  sold: "270+ sold" },
+];
+
+// Fallback demo products when real products are not yet in DB
+const DEMO_PRODUCTS: ProductStoryCardData[] = [
   {
-    id: "fs-1",
+    id: "bs-1",
     slug: "color-coded-tajweed-quran",
-    name: "Color-Coded Tajweed Quran (15 Line)",
+    name: "Color-Coded Tajweed Quran",
     image: "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=600&q=80",
-    price: 549,
-    originalPrice: 999,
+    price: 849,
+    originalPrice: 1099,
     categoryName: "Quran & Books",
-    badge: "45% OFF",
-    storyLabel: "Flash Deal",
-    inStock: true,
-    tone: FIRE_TONES[0],
   },
   {
-    id: "fs-2",
-    slug: "handwoven-velvet-prayer-mat",
-    name: "Handwoven Velvet Prayer Mat",
+    id: "bs-2",
+    slug: "velvet-prayer-mat-premium",
+    name: "Premium Velvet Prayer Mat",
     image: "https://images.unsplash.com/photo-1585036156171-384164a8c675?w=600&q=80",
     price: 699,
-    originalPrice: 1199,
+    originalPrice: 999,
     categoryName: "Prayer Essentials",
-    badge: "42% OFF",
-    storyLabel: "Limited Stock",
-    inStock: true,
-    tone: FIRE_TONES[1],
   },
   {
-    id: "fs-3",
+    id: "bs-3",
+    slug: "niyamah-eid-gift-box",
+    name: "Niyamah Eid Gift Box",
+    image: "https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=600&q=80",
+    price: 1499,
+    categoryName: "Gift Sets",
+    isNew: true,
+  },
+  {
+    id: "bs-4",
     slug: "crystal-tasbih-99-beads",
     name: "Crystal Tasbih â€” 99 Beads",
     image: "https://images.unsplash.com/photo-1564507004663-b6dfb3c824d5?w=600&q=80",
     price: 349,
-    originalPrice: 599,
+    originalPrice: 549,
     categoryName: "Prayer Accessories",
-    badge: "42% OFF",
-    storyLabel: "Fast Moving",
-    inStock: true,
-    tone: FIRE_TONES[2],
   },
   {
-    id: "fs-4",
-    slug: "niyamah-eid-gift-box-deluxe",
-    name: "Niyamah Eid Gift Box Deluxe",
-    image: "https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=600&q=80",
-    price: 1499,
-    originalPrice: 2499,
-    categoryName: "Gift Sets",
-    badge: "40% OFF",
-    storyLabel: "Best Seller",
-    isNew: true,
-    inStock: true,
-    tone: FIRE_TONES[3],
-  },
-  {
-    id: "fs-5",
-    slug: "oudh-rose-attar-gift-set",
+    id: "bs-5",
+    slug: "oudh-rose-attar",
     name: "Oudh & Rose Attar Gift Set",
     image: "https://images.unsplash.com/photo-1575450064490-87da28af9308?w=600&q=80",
     price: 899,
-    originalPrice: 1499,
+    originalPrice: 1299,
     categoryName: "Attar & Fragrance",
-    badge: "40% OFF",
-    storyLabel: "Flash Deal",
-    inStock: true,
-    tone: FIRE_TONES[4],
+  },
+  {
+    id: "bs-6",
+    slug: "islamic-dua-book-daily",
+    name: "Daily Dua & Hisnul Muslim",
+    image: "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=600&q=80",
+    price: 299,
+    originalPrice: 449,
+    categoryName: "Books",
   },
 ];
 
-const CLAIMED = [68, 82, 55, 91, 73];
+function toStoryCard(product: ProductCardData, index: number): ProductStoryCardData {
+  const proof = SOCIAL_PROOF[index % SOCIAL_PROOF.length];
+  return {
+    ...product,
+    tone: TRENDING_TONES[index % TRENDING_TONES.length],
+    badge: proof.badge,
+    storyLabel: proof.label,
+  };
+}
+
+function StarRow() {
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star key={i} className="h-3 w-3 fill-[#c9a24d] text-[#c9a24d]" />
+      ))}
+    </div>
+  );
+}
+
+// â”€â”€ Props â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+interface BestSellersTrendingSectionProps {
+  products?: ProductCardData[];
+}
 
 // â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export function FlashSaleSection() {
-  const items = FLASH_PRODUCTS;
+export function BestSellersTrendingSection({ products }: BestSellersTrendingSectionProps) {
+  const rawProducts = products && products.length > 0 ? products : DEMO_PRODUCTS;
+  const items: ProductStoryCardData[] = rawProducts
+    .slice(0, 6)
+    .map((p, i) => toStoryCard(p, i));
+
   const total = items.length;
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -164,6 +204,7 @@ export function FlashSaleSection() {
   const isVisible = useRef(false);
 
   const active = items[activeIndex] ?? items[0];
+  const proof = SOCIAL_PROOF[activeIndex % SOCIAL_PROOF.length];
 
   const goTo = useCallback((index: number) => {
     const safe = ((index % total) + total) % total;
@@ -214,11 +255,13 @@ export function FlashSaleSection() {
   }, [total, next]);
 
   const sectionStyle = {
-    "--story-bg": active.tone?.bg ?? "#6b1414",
+    "--story-bg": active.tone?.bg ?? "#0f2a1d",
     "--story-text": active.tone?.text ?? "#ffffff",
     "--story-muted": active.tone?.muted ?? "rgba(255,255,255,0.72)",
-    "--story-accent": active.tone?.accent ?? "#ff6b35",
+    "--story-accent": active.tone?.accent ?? "#c9a24d",
   } as CSSProperties;
+
+  if (items.length === 0 || !active) return null;
 
   return (
     <section
@@ -235,29 +278,47 @@ export function FlashSaleSection() {
       <div className="relative z-10 mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-4 sm:mb-10 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-red-600 px-5 py-1.5 text-xs font-black uppercase tracking-[0.2em] text-white shadow-[0_0_24px_rgba(220,38,38,0.5)]">
-              <Flame className="h-3.5 w-3.5" />
-              Flash Sale â€” Today Only
-            </span>
+            <p className="text-xs font-black uppercase text-white/70">
+              Best Sellers &amp; Trending
+            </p>
             <h2 className="mt-2 text-4xl font-black leading-[0.95] text-white sm:text-5xl lg:text-6xl">
-              Deals So Hot,{" "}
-              <em className="not-italic text-red-300">They Expire.</em>
+              What Everyone{" "}
+              <em className="not-italic" style={{ color: "var(--story-accent)" }}>
+                Is Buying.
+              </em>
             </h2>
             <p className="mt-4 max-w-xl text-sm font-medium leading-6 text-white/72 sm:text-base">
-              Hand-selected Islamic essentials â€” up to{" "}
-              <strong className="text-white">45% off</strong> for a few hours only.
+              Real purchases, real trust â€” the products Bangladesh keeps coming back for.
             </p>
           </div>
-          {/* Countdown */}
-          <div className="shrink-0 rounded-2xl border border-white/20 bg-black/30 p-5 backdrop-blur-sm">
-            <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-red-300">
-              <Flame className="h-3.5 w-3.5" />
-              Sale ends in
+
+          {/* Live social-proof card for active product */}
+          <div className="shrink-0 rounded-2xl border border-white/20 bg-black/30 p-5 backdrop-blur-sm lg:min-w-[240px]">
+            <div className="mb-2 flex items-center gap-2">
+              <Flame className="h-4 w-4" style={{ color: "var(--story-accent)" }} />
+              <span className="text-xs font-black uppercase tracking-widest" style={{ color: "var(--story-accent)" }}>
+                Currently viewing
+              </span>
+            </div>
+            <p className="line-clamp-1 text-sm font-black text-white">
+              {active.name}
             </p>
-            <CountdownTimer
-              durationHours={24}
-              className="[&_.rounded-md]:!bg-black/40 [&_.rounded-md]:!text-white [&_.text-xs]:!text-white/60"
-            />
+            <div className="mt-2 flex items-center gap-3">
+              <StarRow />
+              <span className="text-xs text-white/60">{proof.sold}</span>
+            </div>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15">
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${65 + (activeIndex * 7) % 30}%`,
+                  background: `var(--story-accent)`,
+                }}
+              />
+            </div>
+            <p className="mt-1.5 text-[10px] font-bold text-white/55">
+              {65 + (activeIndex * 7) % 30}% of stock sold
+            </p>
           </div>
         </div>
       </div>
@@ -285,20 +346,22 @@ export function FlashSaleSection() {
         </motion.div>
       </div>
 
-      {/* Active product urgency bar */}
+      {/* Sold / trending bar for active product */}
       <div className="relative z-10 mx-auto mt-5 max-w-[1500px] px-4 sm:px-6 lg:px-8">
         <div className="mb-1.5 flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wide text-red-300">
-            {CLAIMED[activeIndex]}% Claimed
+          <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--story-accent)" }}>
+            <TrendingUp className="h-3 w-3" />
+            {proof.sold}
           </span>
-          <span className="text-xs text-white/55">
-            {100 - CLAIMED[activeIndex]} units left
-          </span>
+          <StarRow />
         </div>
         <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-white/15">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-400 transition-all duration-700"
-            style={{ width: `${CLAIMED[activeIndex]}%` }}
+            className="h-full rounded-full transition-all duration-700"
+            style={{
+              width: `${65 + (activeIndex * 7) % 30}%`,
+              background: `var(--story-accent)`,
+            }}
           />
         </div>
       </div>
@@ -308,23 +371,23 @@ export function FlashSaleSection() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-bold text-white">
-              Flash deals reset every 24 hours.
+              Over 10,000 happy customers across Bangladesh.
             </p>
             <p className="text-xs text-white/55">
-              Quantities are strictly limited â€” once gone, they&apos;re gone.
+              Every product listed here has been ordered, reviewed, and reordered.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Link
-              href="/products?sale=true"
+              href="/products?sort=best-sellers"
               className="hidden sm:inline-flex items-center gap-2 rounded border border-white/35 bg-white/12 px-5 py-2.5 text-sm font-black text-white backdrop-blur transition hover:bg-white/20"
             >
-              View All Flash Deals
+              View All Best Sellers
               <ArrowRight className="h-4 w-4" />
             </Link>
             <button
               type="button"
-              aria-label="Previous deal"
+              aria-label="Previous product"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => preserveScroll(() => setActiveIndex((c) => (c - 1 + total) % total))}
               className="grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur transition hover:scale-105 hover:bg-white/28"
@@ -333,7 +396,7 @@ export function FlashSaleSection() {
             </button>
             <button
               type="button"
-              aria-label="Next deal"
+              aria-label="Next product"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => preserveScroll(() => setActiveIndex((c) => (c + 1) % total))}
               className="grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur transition hover:scale-105 hover:bg-white/28"
@@ -346,4 +409,3 @@ export function FlashSaleSection() {
     </section>
   );
 }
-

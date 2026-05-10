@@ -14,10 +14,402 @@ import {
   PackageCheck,
   RotateCcw,
   ShieldCheck,
+  Star,
   Truck,
+  Zap,
 } from "lucide-react";
 
 const sectionShell = "mx-auto w-full max-w-[1500px] px-4 sm:px-6 lg:px-8";
+
+/* -------------------------------------------------------------------------- */
+/*                          Why Trust Us Section                              */
+/* -------------------------------------------------------------------------- */
+
+export function WhyTrustUsSection() {
+  const pillars = [
+    {
+      num: "01",
+      icon: ShieldCheck,
+      title: "100% Authentic Products",
+      body: "Every item is sourced directly from trusted manufacturers and verified suppliers. No middlemen, no counterfeits — just genuine quality you can feel.",
+      stat: "100%",
+      statLabel: "Authentic",
+    },
+    {
+      num: "02",
+      icon: Truck,
+      title: "Fast Delivery Across Bangladesh",
+      body: "Same-day dispatch on weekdays. Cash on Delivery available nationwide so you never have to pre-pay before you trust us.",
+      stat: "1–3",
+      statLabel: "Day Delivery",
+    },
+    {
+      num: "03",
+      icon: Star,
+      title: "Loved by 10,000+ Customers",
+      body: "Thousands of families have chosen Niyamah for Quran gifts, prayer essentials, and everyday Islamic living. Real reviews, real people.",
+      stat: "10K+",
+      statLabel: "Happy Buyers",
+    },
+    {
+      num: "04",
+      icon: RotateCcw,
+      title: "7-Day Hassle-Free Return",
+      body: "Not satisfied? Return within 7 days with zero questions asked. We stand behind every product we ship.",
+      stat: "7-Day",
+      statLabel: "Free Return",
+    },
+    {
+      num: "05",
+      icon: MessageCircle,
+      title: "WhatsApp Support — Always Human",
+      body: "No chatbots. Our team is available on WhatsApp to help you choose the right product, confirm stock, or resolve any order issue.",
+      stat: "24 / 7",
+      statLabel: "Live Support",
+    },
+    {
+      num: "06",
+      icon: Zap,
+      title: "Curated for Meaningful Living",
+      body: "We don't list thousands of generic products. Every item on Niyamah is handpicked for worship, gifting, and everyday Islamic purpose.",
+      stat: "Hand",
+      statLabel: "Curated",
+    },
+  ];
+
+  return (
+    <section className="relative overflow-hidden bg-[#0b2a1d] py-16 text-[#fff8e8] sm:py-20 lg:py-24">
+      {/* Decorative grid */}
+      <div className="pointer-events-none absolute inset-0 opacity-[0.055] [background-image:linear-gradient(rgba(217,184,108,1)_1px,transparent_1px),linear-gradient(90deg,rgba(217,184,108,1)_1px,transparent_1px)] [background-size:48px_48px]" />
+
+      {/* Radial glow top-right */}
+      <div className="pointer-events-none absolute -right-40 -top-40 h-[600px] w-[600px] rounded-full bg-[#d9b86c]/14 blur-3xl" />
+      {/* Radial glow bottom-left */}
+      <div className="pointer-events-none absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-[#1e6b47]/45 blur-3xl" />
+
+      <div className={sectionShell}>
+        {/* Header */}
+        <div className="mb-12 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#d9b86c]/55 bg-[#d9b86c]/12 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.25em] text-[#f0c96a]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#f0c96a]" />
+              Why Choose Niyamah
+            </span>
+            <h2
+              className="mt-4 max-w-xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl"
+              style={{ color: "#fff8e8" }}
+            >
+              Trusted by Thousands{" "}
+              <em className="not-italic" style={{ color: "#f0c96a" }}>
+                Every Day
+              </em>
+            </h2>
+            <p className="mt-4 max-w-lg text-base font-medium leading-7 text-[#d7f2e3] sm:text-lg">
+              We built Niyamah on one principle — if it is not something we would gift our own family, we do not sell it.
+            </p>
+          </div>
+          {/* Big trust number */}
+          <div className="hidden shrink-0 flex-col items-end text-right lg:flex">
+            <span className="select-none font-mono text-7xl font-black leading-none text-[#fff8e8]/20">10K</span>
+            <span className="-mt-2 text-sm font-bold uppercase tracking-widest text-[#f0c96a]">Orders Delivered</span>
+          </div>
+        </div>
+
+        {/* Pillar list — alternating ledger rows */}
+        <div className="divide-y divide-[#fff8e8]/15">
+          {pillars.map((p, i) => {
+            const Icon = p.icon;
+            return (
+              <div
+                key={p.num}
+                className="group flex flex-col gap-5 py-8 transition-colors duration-300 hover:bg-[#fff8e8]/[0.055] sm:flex-row sm:items-center sm:gap-10 sm:px-4"
+              >
+                {/* Number */}
+                <span className="font-mono text-sm font-black text-[#f0c96a]/85 sm:w-10 sm:shrink-0">
+                  {p.num}
+                </span>
+
+                {/* Icon circle */}
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f0c96a]/55 bg-[#f0c96a]/14 text-[#f0c96a] transition-colors duration-300 group-hover:bg-[#f0c96a]/24">
+                  <Icon className="h-6 w-6" />
+                </div>
+
+                {/* Text */}
+                <div className="flex-1">
+                  <h3
+                    className="text-lg font-black sm:text-xl"
+                    style={{ color: "#fff8e8" }}
+                  >
+                    {p.title}
+                  </h3>
+                  <p className="mt-2 max-w-2xl text-base font-medium leading-7 text-[#d7f2e3]">
+                    {p.body}
+                  </p>
+                </div>
+
+                {/* Right stat */}
+                <div className="hidden shrink-0 flex-col items-end text-right sm:flex">
+                  <span className="font-mono text-3xl font-black text-[#f0c96a]">
+                    {p.stat}
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#d7f2e3]">
+                    {p.statLabel}
+                  </span>
+                </div>
+
+                {/* Connector dot (desktop only) */}
+                <div
+                  className={`hidden h-2 w-2 shrink-0 rounded-full sm:block ${
+                    i % 2 === 0 ? "bg-[#f0c96a]" : "bg-[#5ac284]"
+                  }`}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Bottom CTA strip */}
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-2xl border border-[#d9b86c]/55 bg-[#fff8e8]/[0.08] px-6 py-5 shadow-[0_18px_60px_rgba(0,0,0,0.18)] sm:flex-row sm:px-8">
+          <p className="text-base font-semibold text-[#fff8e8]">
+            Still have questions? We are one message away.
+          </p>
+          <a
+            href="https://wa.me/8801760982072"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-[#f0c96a] px-6 py-2.5 text-sm font-black text-[#0b2a1d] shadow-md transition hover:bg-[#ffd777] hover:shadow-lg"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Chat on WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                        Top Categories Section                              */
+/* -------------------------------------------------------------------------- */
+
+export function TopCategoriesSection() {
+  const categories = [
+    {
+      label: "Quran & Books",
+      eyebrow: "Most Gifted",
+      copy: "Color-coded Tajweed Quran, Bengali translation editions, Dua books, and Islamic learning for every age.",
+      href: "/category/quran",
+      count: "40+ Products",
+      accentBg: "#1a3d2b",
+      accentText: "#c9a24d",
+      borderColor: "#2a5c3f",
+      emoji: "📖",
+      tags: ["Tajweed Quran", "Gift Edition", "Dua Books"],
+    },
+    {
+      label: "Prayer Essentials",
+      eyebrow: "Top Seller",
+      copy: "Handwoven prayer mats, crystal tasbih, prayer caps, and everything for a beautiful salah corner.",
+      href: "/category/prayer-mat",
+      count: "30+ Products",
+      accentBg: "#2d1a0e",
+      accentText: "#f59e0b",
+      borderColor: "#5c3a1a",
+      emoji: "🕌",
+      tags: ["Prayer Mat", "Tasbih", "Prayer Cap"],
+    },
+    {
+      label: "Gift Boxes & Sets",
+      eyebrow: "Perfect Gift",
+      copy: "Ready-to-gift Islamic sets for Eid, weddings, new babies, and every meaningful occasion.",
+      href: "/category/gift-box",
+      count: "20+ Products",
+      accentBg: "#1a1a3d",
+      accentText: "#a78bfa",
+      borderColor: "#3d3a6e",
+      emoji: "🎁",
+      tags: ["Eid Gift", "Wedding Gift", "New Baby"],
+    },
+    {
+      label: "Attar & Fragrance",
+      eyebrow: "Premium Pick",
+      copy: "Pure Oudh, rose, musk, and exclusive Niyamah blends in elegant gift-ready packaging.",
+      href: "/category/attar",
+      count: "15+ Products",
+      accentBg: "#3d1a1a",
+      accentText: "#fb923c",
+      borderColor: "#6e3a2a",
+      emoji: "🌹",
+      tags: ["Oudh", "Rose Attar", "Gift Set"],
+    },
+    {
+      label: "Islamic Décor",
+      eyebrow: "Home & Heart",
+      copy: "Calligraphy frames, wall art, Ayatul Kursi prints, and pieces that bring barakah into any space.",
+      href: "/category/decor",
+      count: "25+ Products",
+      accentBg: "#0e2233",
+      accentText: "#38bdf8",
+      borderColor: "#1a4060",
+      emoji: "🖼️",
+      tags: ["Wall Art", "Calligraphy", "Ayatul Kursi"],
+    },
+    {
+      label: "Kids & Learning",
+      eyebrow: "For Young Minds",
+      copy: "Fun Quran learning kits, activity books, and Islamic story books for curious young readers.",
+      href: "/category/books",
+      count: "18+ Products",
+      accentBg: "#1a3320",
+      accentText: "#4ade80",
+      borderColor: "#2a5c36",
+      emoji: "🌙",
+      tags: ["Learning Kit", "Activity Book", "Stories"],
+    },
+  ];
+
+  return (
+    <section className="relative overflow-hidden bg-[#f8f1e3] py-16 sm:py-20 lg:py-24">
+      {/* Subtle dot pattern */}
+      <div className="pointer-events-none absolute inset-0 opacity-[0.4] [background-image:radial-gradient(circle,#c9a24d_1px,transparent_1px)] [background-size:32px_32px]" />
+
+      <div className={sectionShell + " relative"}>
+        {/* Header */}
+        <div className="mb-12 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#c9a24d]/50 bg-[#123d2a] px-4 py-1.5 text-xs font-black uppercase tracking-[0.25em] text-[#c9a24d]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#c9a24d]" />
+              Browse by Category
+            </span>
+            <h2 className="mt-4 text-4xl font-black leading-tight text-[#123d2a] sm:text-5xl">
+              Find What You&apos;re{" "}
+              <em className="not-italic text-[#c9a24d]">Looking For</em>
+            </h2>
+            <p className="mt-3 max-w-xl text-base leading-7 text-[#52675b] sm:text-lg">
+              Six handpicked categories covering every Islamic essential — from
+              daily worship to meaningful gifting.
+            </p>
+          </div>
+          <Link
+            href="/products"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[#123d2a] px-6 py-3 text-sm font-black uppercase tracking-wider text-[#123d2a] transition hover:bg-[#123d2a] hover:text-[#f8f1e3]"
+          >
+            All Products
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        {/* Category grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {categories.map((cat) => (
+            <Link
+              key={cat.label}
+              href={cat.href}
+              className="group relative flex flex-col overflow-hidden rounded-2xl border-2 bg-white shadow-[0_8px_40px_rgba(18,61,42,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(18,61,42,0.15)]"
+              style={{ borderColor: cat.borderColor + "55" }}
+            >
+              {/* Coloured top bar */}
+              <div
+                className="h-1.5 w-full transition-all duration-300 group-hover:h-2"
+                style={{
+                  background: `linear-gradient(90deg, ${cat.accentText}, ${cat.accentBg})`,
+                }}
+              />
+
+              <div className="flex flex-1 flex-col p-6">
+                {/* Top row: emoji + eyebrow badge */}
+                <div className="flex items-start justify-between">
+                  <div
+                    className="flex h-14 w-14 items-center justify-center rounded-xl text-3xl shadow-sm"
+                    style={{ background: cat.accentBg }}
+                  >
+                    {cat.emoji}
+                  </div>
+                  <span
+                    className="rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest"
+                    style={{
+                      background: cat.accentBg,
+                      color: cat.accentText,
+                    }}
+                  >
+                    {cat.eyebrow}
+                  </span>
+                </div>
+
+                {/* Title + copy */}
+                <h3 className="mt-5 text-2xl font-black leading-tight text-[#123d2a] transition-colors duration-300 group-hover:text-[#0a2a1c]">
+                  {cat.label}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-6 text-[#52675b]">
+                  {cat.copy}
+                </p>
+
+                {/* Tags */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {cat.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border px-2.5 py-0.5 text-[11px] font-bold text-[#52675b]"
+                      style={{ borderColor: cat.borderColor + "55" }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Footer: count + CTA */}
+                <div className="mt-5 flex items-center justify-between border-t pt-4"
+                  style={{ borderColor: cat.borderColor + "33" }}
+                >
+                  <span className="text-xs font-bold text-[#52675b]">
+                    {cat.count}
+                  </span>
+                  <span
+                    className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider transition-all duration-300 group-hover:gap-2.5"
+                    style={{ color: cat.accentText === "#c9a24d" ? "#8a6422" : cat.accentText }}
+                  >
+                    Shop Now
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Bottom banner — full-width CTA */}
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 overflow-hidden rounded-2xl bg-[#123d2a] px-6 py-6 sm:flex-row sm:px-10">
+          <div>
+            <p className="text-lg font-black text-[#f5efe0]">
+              Can&apos;t find what you&apos;re looking for?
+            </p>
+            <p className="mt-1 text-sm text-[#c9e8d8]/80">
+              Chat with us on WhatsApp — we&apos;ll help you pick the right product.
+            </p>
+          </div>
+          <div className="flex shrink-0 gap-3">
+            <a
+              href="https://wa.me/8801760982072"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-[#c9a24d] px-6 py-3 text-sm font-black text-[#123d2a] transition hover:bg-[#d4b05a]"
+            >
+              <MessageCircle className="h-4 w-4" />
+              Ask on WhatsApp
+            </a>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-2 rounded-full border border-[#c9a24d]/40 px-6 py-3 text-sm font-black text-[#f5efe0] transition hover:border-[#c9a24d] hover:bg-white/10"
+            >
+              All Products
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export function TrustPromiseStrip() {
   const promises = [
