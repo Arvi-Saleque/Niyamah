@@ -435,3 +435,72 @@ export function NewArrivalsHomepageSection({ products }: { products: ProductCard
     </section>
   );
 }
+
+export function CategoryDeepDiveSection() {
+  const banners = [
+    {
+      title: "Quran Collection",
+      copy: "Color-coded, Bengali translation, premium print, and gift editions.",
+      href: "/category/quran",
+      image: "/images/hero/hero-quran.png",
+    },
+    {
+      title: "Prayer Collection",
+      copy: "Prayer mats, tasbih, and worship essentials for everyday salah.",
+      href: "/category/prayer-mat",
+      image: "/images/hero/hero-prayer-mat.png",
+    },
+    {
+      title: "Books Collection",
+      copy: "Dua books, learning guides, and Islamic reading for every home.",
+      href: "/category/books",
+      image: "/images/hero/hero-quran.png",
+    },
+  ];
+
+  return (
+    <section className="bg-[#f8f1e3] py-16 sm:py-20">
+      <div className={sectionShell}>
+        <HomepageSectionHeader
+          eyebrow="Browse deeper"
+          title="Explore the Main Collections"
+          subtitle="Wide category banners for shoppers who want to understand the store before choosing a product."
+        />
+        <div className="mt-9 grid gap-4">
+          {banners.map((item) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className="group grid min-h-[220px] overflow-hidden border border-[#d9c38b]/45 bg-white shadow-[0_18px_60px_rgba(18,61,42,0.07)] md:grid-cols-[1fr,260px]"
+            >
+              <div className="flex flex-col justify-center p-6 sm:p-8">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#c9a24d]">
+                  Collection
+                </p>
+                <h3 className="mt-3 text-3xl font-black text-[#123d2a]">
+                  {item.title}
+                </h3>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-[#52675b]">
+                  {item.copy}
+                </p>
+                <span className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-[#123d2a]">
+                  Shop Now
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </div>
+              <div className="relative min-h-[180px] bg-[#efe6d2]">
+                <ImageWithFallback
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  sizes="260px"
+                  className="object-contain p-6 transition duration-500 group-hover:scale-105"
+                />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
