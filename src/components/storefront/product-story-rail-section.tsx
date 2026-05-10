@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   ProductStoryCard,
@@ -69,6 +70,16 @@ const STORY_TONES: ProductStoryTone[] = [
   },
 ];
 
+function preserveScroll(callback: () => void) {
+  if (typeof window === "undefined") { callback(); return; }
+  const x = window.scrollX;
+  const y = window.scrollY;
+  callback();
+  requestAnimationFrame(() => {
+    if (window.scrollX !== x || window.scrollY !== y) window.scrollTo(x, y);
+  });
+}
+
 function enrichProducts(products: ProductCardData[]) {
   return products.slice(0, 8).map<ProductStoryCardData>((product, index) => ({
     ...product,
@@ -111,7 +122,12 @@ export function ProductStoryRailSection({
 
   const next = useCallback(() => {
     if (items.length < 2) return;
-    setActiveIndex((current) => (current + 1) % items.length);
+    preserveScroll(() => setActiveIndex((current) => (current + 1) % items.length));
+  }, [items.length]);
+
+  const prev = useCallback(() => {
+    if (items.length < 2) return;
+    preserveScroll(() => setActiveIndex((current) => (current - 1 + items.length) % items.length));
   }, [items.length]);
 
   const calculateTrackX = useCallback(() => {
@@ -220,6 +236,29 @@ export function ProductStoryRailSection({
           ))}
         </motion.div>
       </div>
+      {/* Bottom-right arrows */}
+      {items.length > 1 ? (
+        <div className="relative z-10 mx-auto mt-6 flex max-w-[1500px] justify-end gap-2 px-4 sm:px-6 lg:px-8">
+          <button
+            type="button"
+            aria-label="Previous product"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => { preserveScroll(() => setActiveIndex((c) => (c - 1 + items.length) % items.length)); }}
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur transition hover:scale-105 hover:bg-white/28"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Next product"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => { preserveScroll(() => setActiveIndex((c) => (c + 1) % items.length)); }}
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur transition hover:scale-105 hover:bg-white/28"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 }
