@@ -2,6 +2,7 @@ import { HeroSlider } from "@/components/storefront/hero-slider";
 import {
   BestSellersRailSection,
   CategoryDeepDiveSection,
+  CustomerReviewsSection,
   FeaturedCollectionsSection,
   GiftBoxStorySection,
   NewArrivalsHomepageSection,
@@ -44,6 +45,7 @@ export default async function StorefrontHomePage() {
       <GiftBoxStorySection />
       <NewArrivalsHomepageSection products={storyProducts} />
       <CategoryDeepDiveSection />
+      <CustomerReviewsSection />
     </div>
   );
 }

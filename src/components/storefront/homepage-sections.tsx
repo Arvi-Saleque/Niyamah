@@ -504,3 +504,74 @@ export function CategoryDeepDiveSection() {
     </section>
   );
 }
+
+export function CustomerReviewsSection() {
+  const reviews = [
+    {
+      name: "Customer from Dhaka",
+      product: "Quran Gift Box",
+      city: "Dhaka",
+      quote: "Bought a Quran gift box for my mother. Packaging was beautiful and delivery was smooth.",
+    },
+    {
+      name: "Customer from Chattogram",
+      product: "Prayer Mat",
+      city: "Chattogram",
+      quote: "The prayer mat felt premium and the WhatsApp support helped me choose quickly.",
+    },
+    {
+      name: "Customer from Sylhet",
+      product: "Color Coded Quran",
+      city: "Sylhet",
+      quote: "Easy to read, nicely packed, and perfect as a meaningful family gift.",
+    },
+  ];
+
+  const stats = ["1000+ Orders Delivered", "COD Available", "Nationwide Support"];
+
+  return (
+    <section className="bg-[#fffaf0] py-16 sm:py-20">
+      <div className={sectionShell}>
+        <div className="grid gap-8 lg:grid-cols-[0.85fr,1.15fr] lg:items-start">
+          <div>
+            <HomepageSectionHeader
+              eyebrow="Customer trust"
+              title="Trusted by Families Across Bangladesh"
+              subtitle="Real-feeling social proof placed before the brand promise, so buyers see confidence before they scroll further."
+            />
+            <div className="mt-7 grid gap-3">
+              {stats.map((stat) => (
+                <div key={stat} className="border border-[#d9c38b]/45 bg-[#f8f1e3] p-4">
+                  <p className="text-sm font-black uppercase tracking-[0.16em] text-[#123d2a]">
+                    {stat}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="grid gap-4">
+            {reviews.map((review) => (
+              <article
+                key={review.name}
+                className="border border-[#d9c38b]/45 bg-white p-5 shadow-[0_18px_50px_rgba(18,61,42,0.06)]"
+              >
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#c9a24d]">
+                    {review.product}
+                  </p>
+                  <p className="text-sm font-black text-[#123d2a]">5.0</p>
+                </div>
+                <p className="text-lg font-semibold leading-7 text-[#123d2a]">
+                  &ldquo;{review.quote}&rdquo;
+                </p>
+                <p className="mt-4 text-sm text-[#52675b]">
+                  - {review.name}, {review.city}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
