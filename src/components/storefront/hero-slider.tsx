@@ -205,7 +205,7 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
   return (
     <section
       className={cn(
-        "allfather-product-slider relative isolate min-h-[930px] overflow-hidden bg-[var(--hero-bg)] text-[var(--hero-text)] sm:min-h-[980px] lg:min-h-[calc(100svh-64px)]",
+        "allfather-product-slider relative isolate min-h-[890px] overflow-hidden bg-[var(--hero-bg)] text-[var(--hero-text)] sm:min-h-[940px] lg:min-h-[calc(100svh-64px)]",
         className,
       )}
       style={rootStyle}
@@ -240,7 +240,7 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
             ))}
           </div>
 
-          <div className="relative z-10 mx-auto grid min-h-[930px] w-full max-w-[1500px] grid-rows-[auto_auto_auto] gap-4 px-4 pb-24 pt-28 sm:min-h-[980px] sm:px-6 sm:pt-36 lg:min-h-[calc(100svh-64px)] lg:grid-cols-[minmax(320px,0.95fr)_minmax(440px,1fr)_minmax(270px,0.85fr)] lg:grid-rows-1 lg:gap-5 lg:gap-x-8 lg:px-8 lg:pb-32 lg:pt-8 xl:px-10">
+          <div className="relative z-10 mx-auto grid min-h-[890px] w-full max-w-[1500px] grid-rows-[auto_auto_auto] gap-4 px-4 pb-10 pt-28 sm:min-h-[940px] sm:px-6 sm:pt-36 lg:min-h-[calc(100svh-64px)] lg:grid-cols-[minmax(320px,0.95fr)_minmax(440px,1fr)_minmax(270px,0.85fr)] lg:grid-rows-1 lg:gap-5 lg:gap-x-8 lg:px-8 lg:pb-32 lg:pt-8 xl:px-10">
             <motion.aside
               initial={{ y: 24, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -414,6 +414,23 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
             <ChevronRight className="h-5 w-5" />
           </button>
 
+          <button
+            type="button"
+            onClick={prev}
+            aria-label="Previous slide"
+            className="absolute left-3 top-1/2 z-40 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-[var(--hero-accent)]/45 bg-[var(--hero-panel)] text-[var(--hero-accent)] backdrop-blur lg:hidden"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={next}
+            aria-label="Next slide"
+            className="absolute right-3 top-1/2 z-40 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-[var(--hero-accent)]/45 bg-[var(--hero-panel)] text-[var(--hero-accent)] backdrop-blur lg:hidden"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+
           <div className="absolute bottom-5 right-4 z-40 hidden w-[min(38rem,calc(100vw-2rem))] overflow-hidden lg:block xl:right-6">
             <div className="overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <div className="flex w-max gap-3 pr-1">
@@ -459,42 +476,6 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
             </div>
           </div>
 
-          <div className="absolute inset-x-4 bottom-4 z-40 grid grid-cols-[2.75rem_1fr_2.75rem] items-center gap-2 lg:hidden">
-            <button
-              type="button"
-              onClick={prev}
-              aria-label="Previous slide"
-              className="flex h-11 w-11 items-center justify-center border border-[var(--hero-accent)]/45 bg-[var(--hero-panel)] text-[var(--hero-accent)] backdrop-blur"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <div className="flex min-w-0 justify-center gap-2 overflow-hidden">
-              {safeSlides.map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => setCurrent(index)}
-                  className={cn(
-                    "h-8 min-w-8 border px-2 text-[11px] font-black tracking-[0.14em] backdrop-blur transition-all",
-                    index === safeCurrent
-                    ? "border-[var(--hero-accent)] bg-[var(--hero-button-bg)] text-[color:var(--hero-button-text)]"
-                      : "border-[var(--hero-text)]/15 bg-[var(--hero-panel)] text-[var(--hero-text)]",
-                  )}
-                  aria-label={`Show slide ${index + 1}`}
-                >
-                  {slideNumber(index)}
-                </button>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={next}
-              aria-label="Next slide"
-              className="flex h-11 w-11 items-center justify-center justify-self-end border border-[var(--hero-accent)]/45 bg-[var(--hero-panel)] text-[var(--hero-accent)] backdrop-blur"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
         </>
       )}
     </section>
