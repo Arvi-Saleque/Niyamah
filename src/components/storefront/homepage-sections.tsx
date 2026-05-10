@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { ImageWithFallback } from "@/components/shared/image-with-fallback";
+import { PriceText } from "@/components/shared/price-text";
+import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
+import type { ProductCardData } from "@/components/storefront/product-card";
 import {
   ArrowRight,
   BookOpen,
@@ -264,6 +267,92 @@ export function FeaturedCollectionsSection() {
                 </span>
               </div>
             </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function BestSellersRailSection({ products }: { products: ProductCardData[] }) {
+  const items = products.slice(0, 6);
+  if (items.length === 0) return null;
+
+  return (
+    <section className="bg-[#f8f1e3] py-16 sm:py-20">
+      <div className={sectionShell}>
+        <div className="mb-9 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <HomepageSectionHeader
+            eyebrow="Customer proof"
+            title="Most Loved by Customers"
+            subtitle="Bestselling picks with simple social proof for buyers who want a trusted place to start."
+          />
+          <TextCta href="/products?sort=popular">View best sellers</TextCta>
+        </div>
+
+        <div className="flex snap-x gap-4 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {items.map((product, index) => (
+            <article
+              key={product.id}
+              className="group relative min-w-[265px] snap-start border border-[#d9c38b]/45 bg-white shadow-[0_18px_52px_rgba(18,61,42,0.08)] sm:min-w-[320px]"
+            >
+              <div className="absolute left-4 top-4 z-20 bg-[#123d2a] px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-white">
+                #{index + 1}
+              </div>
+              <Link href={`/products/${product.slug}`} className="relative block aspect-[4/3] bg-[#efe6d2]">
+                <ImageWithFallback
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  sizes="320px"
+                  className="object-cover transition duration-500 group-hover:scale-105"
+                />
+              </Link>
+              <div className="p-5">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <span className="bg-[#fbf6e9] px-2 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-[#8a6422]">
+                    {index % 2 === 0 ? "Popular Gift" : "Daily Use"}
+                  </span>
+                  {product.reviewCount ? (
+                    <span className="text-xs font-semibold text-[#52675b]">
+                      {product.reviewCount} reviews
+                    </span>
+                  ) : null}
+                </div>
+                <Link href={`/products/${product.slug}`}>
+                  <h3 className="line-clamp-2 min-h-12 text-lg font-black leading-tight text-[#123d2a]">
+                    {product.name}
+                  </h3>
+                </Link>
+                <p className="mt-2 text-sm text-[#52675b]">
+                  Trusted pick for meaningful Islamic shopping.
+                </p>
+                <div className="mt-4">
+                  <PriceText price={product.price} originalPrice={product.originalPrice} size="md" />
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <AddToCartButton
+                    productId={product.id}
+                    variantId={product.variantId}
+                    name={product.name}
+                    slug={product.slug}
+                    image={product.image}
+                    price={product.price}
+                    originalPrice={product.originalPrice}
+                    inStock={product.inStock ?? true}
+                    size="sm"
+                    className="flex-1 rounded-none bg-[#123d2a] text-white hover:bg-[#0b2d1e]"
+                    fullWidth
+                  />
+                  <Link
+                    href={`/products/${product.slug}`}
+                    className="inline-flex h-10 items-center justify-center border border-[#123d2a]/25 px-3 text-xs font-black uppercase tracking-[0.12em] text-[#123d2a]"
+                  >
+                    View
+                  </Link>
+                </div>
+              </div>
+            </article>
           ))}
         </div>
       </div>
