@@ -85,6 +85,26 @@ function getVisibleProducts(products: Product[], activeIndex: number) {
   };
 }
 
+/**
+ * Run a state-updating callback while keeping the window scroll position
+ * exactly where the user left it. Prevents the page from jumping when the
+ * carousel re-renders or focus shifts to a button that's partially off-screen.
+ */
+function preserveScroll(callback: () => void) {
+  if (typeof window === "undefined") {
+    callback();
+    return;
+  }
+  const x = window.scrollX;
+  const y = window.scrollY;
+  callback();
+  requestAnimationFrame(() => {
+    if (window.scrollX !== x || window.scrollY !== y) {
+      window.scrollTo(x, y);
+    }
+  });
+}
+
 /* -------------------------------------------------------------------------- */
 /*                              Sub-components                                */
 /* -------------------------------------------------------------------------- */
@@ -138,15 +158,16 @@ function RatingPill({
 type SideCardProps = {
   product: Product;
   side: "left" | "right";
-  onClick: () => void;
+  onSelect: (event: React.SyntheticEvent) => void;
 };
 
-function SideCard({ product, side, onClick }: SideCardProps) {
+function SideCard({ product, side, onSelect }: SideCardProps) {
   const isLeft = side === "left";
   return (
     <motion.button
       type="button"
-      onClick={onClick}
+      onClick={onSelect}
+      onMouseDown={(e) => e.preventDefault()}
       aria-label={`View ${product.name}`}
       initial={{ opacity: 0, x: isLeft ? -60 : 60 }}
       animate={{
@@ -424,31 +445,64 @@ export function ProductBookCarousel({
 
   const total = products.length;
 
-  const goNext = React.useCallback(() => {
-    if (total === 0) return;
-    setDirection(1);
-    setActiveIndex((i) => getNextIndex(i, total));
-  }, [total]);
+  const goNext = React.useCallback(
+    (event?: React.SyntheticEvent) => {
+      event?.preventDefault();
+      event?.stopPropagation();
+      if (total === 0) return;
+      preserveScroll(() => {
+        setDirection(1);
+        setActiveIndex((i) => getNextIndex(i, total));
+      });
+    },
+    [total],
+  );
 
-  const goPrev = React.useCallback(() => {
-    if (total === 0) return;
-    setDirection(-1);
-    setActiveIndex((i) => getPrevIndex(i, total));
-  }, [total]);
+  const goPrev = React.useCallback(
+    (event?: React.SyntheticEvent) => {
+      event?.preventDefault();
+      event?.stopPropagation();
+      if (total === 0) return;
+      preserveScroll(() => {
+        setDirection(-1);
+        setActiveIndex((i) => getPrevIndex(i, total));
+      });
+    },
+    [total],
+  );
 
   const goTo = React.useCallback(
-    (next: number) => {
+    (next: number, event?: React.SyntheticEvent) => {
+      event?.preventDefault();
+      event?.stopPropagation();
       if (total === 0) return;
-      setDirection(next > activeIndex ? 1 : -1);
-      setActiveIndex(((next % total) + total) % total);
+      preserveScroll(() => {
+        setDirection(next > activeIndex ? 1 : -1);
+        setActiveIndex(((next % total) + total) % total);
+      });
     },
     [activeIndex, total],
   );
 
+  const containerRef = React.useRef<HTMLElement | null>(null);
+
   React.useEffect(() => {
     function handleKey(e: KeyboardEvent) {
-      if (e.key === "ArrowRight") goNext();
-      if (e.key === "ArrowLeft") goPrev();
+      // Only react when the carousel (or something inside it) has focus,
+      // so arrow keys don't hijack page scrolling globally.
+      const root = containerRef.current;
+      if (!root) return;
+      const active = document.activeElement;
+      if (!(active instanceof Node) || !root.contains(active)) return;
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        goNext();
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        goPrev();
+      }
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -472,6 +526,7 @@ export function ProductBookCarousel({
 
   return (
     <section
+      ref={containerRef}
       className={cn(
         "relative w-full overflow-hidden rounded-3xl px-4 py-10 sm:px-8 sm:py-14 md:py-16",
         className,
@@ -512,10 +567,10 @@ export function ProductBookCarousel({
       >
         {/* Side cards (only when more than 1 product) */}
         {prev && total > 1 ? (
-          <SideCard product={prev} side="left" onClick={goPrev} />
+          <SideCard product={prev} side="left" onSelect={goPrev} />
         ) : null}
         {next && total > 1 ? (
-          <SideCard product={next} side="right" onClick={goNext} />
+          <SideCard product={next} side="right" onSelect={goNext} />
         ) : null}
 
         {/* Active card with page-stack effect */}
@@ -553,6 +608,7 @@ export function ProductBookCarousel({
             <button
               type="button"
               onClick={goPrev}
+              onMouseDown={(e) => e.preventDefault()}
               aria-label="Previous product"
               className="absolute left-2 top-1/2 z-30 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-900 shadow-xl ring-1 ring-black/5 backdrop-blur transition hover:bg-white sm:left-4 sm:h-12 sm:w-12"
             >
@@ -561,6 +617,7 @@ export function ProductBookCarousel({
             <button
               type="button"
               onClick={goNext}
+              onMouseDown={(e) => e.preventDefault()}
               aria-label="Next product"
               className="absolute right-2 top-1/2 z-30 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-900 shadow-xl ring-1 ring-black/5 backdrop-blur transition hover:bg-white sm:right-4 sm:h-12 sm:w-12"
             >
@@ -578,7 +635,8 @@ export function ProductBookCarousel({
               key={p.id}
               type="button"
               aria-label={`Go to product ${i + 1}`}
-              onClick={() => goTo(i)}
+              onClick={(e) => goTo(i, e)}
+              onMouseDown={(e) => e.preventDefault()}
               className={cn(
                 "h-1.5 rounded-full transition-all",
                 i === activeIndex

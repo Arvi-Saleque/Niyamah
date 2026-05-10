@@ -152,11 +152,26 @@ function slideNumber(index: number) {
 export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderProps) {
   const safeSlides = useMemo(() => getVisibleSlides(slides), [slides]);
   const [current, setCurrent] = useState(0);
+  const [isHeroVisible, setIsHeroVisible] = useState(true);
+  const rootRef = useRef<HTMLElement | null>(null);
   const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const mobileThumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const max = safeSlides.length;
   const safeCurrent = max > 0 ? current % max : 0;
   const active = safeSlides[safeCurrent];
+
+  const scrollThumbnailRail = useCallback((button: HTMLButtonElement | null) => {
+    if (!button) return;
+
+    const rail = button.closest("[data-hero-thumbnail-rail]") as HTMLElement | null;
+    if (!rail) return;
+
+    const left = button.offsetLeft - (rail.clientWidth - button.clientWidth) / 2;
+    rail.scrollTo({
+      left: Math.max(0, left),
+      behavior: "smooth",
+    });
+  }, []);
 
   const prev = useCallback(() => {
     if (max < 2) return;
@@ -169,23 +184,30 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
   }, [max]);
 
   useEffect(() => {
-    if (max < 2) return;
-    const id = window.setInterval(next, autoPlayMs);
-    return () => window.clearInterval(id);
-  }, [autoPlayMs, max, next]);
+    const root = rootRef.current;
+    if (!root) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsHeroVisible(Boolean(entry?.isIntersecting)),
+      { threshold: 0.2 },
+    );
+
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
-    thumbnailRefs.current[safeCurrent]?.scrollIntoView({
-      block: "nearest",
-      inline: "center",
-      behavior: "smooth",
-    });
-    mobileThumbnailRefs.current[safeCurrent]?.scrollIntoView({
-      block: "nearest",
-      inline: "center",
-      behavior: "smooth",
-    });
-  }, [safeCurrent]);
+    if (max < 2 || !isHeroVisible) return;
+    const id = window.setInterval(next, autoPlayMs);
+    return () => window.clearInterval(id);
+  }, [autoPlayMs, isHeroVisible, max, next]);
+
+  useEffect(() => {
+    // Never use scrollIntoView here. It can scroll the whole page back to the
+    // hero section when autoplay changes while the user is reading lower content.
+    scrollThumbnailRail(thumbnailRefs.current[safeCurrent]);
+    scrollThumbnailRail(mobileThumbnailRefs.current[safeCurrent]);
+  }, [safeCurrent, scrollThumbnailRail]);
 
   if (!active) return null;
 
@@ -204,6 +226,7 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
 
   return (
     <section
+      ref={rootRef}
       className={cn(
         "allfather-product-slider relative isolate min-h-[890px] overflow-hidden bg-[var(--hero-bg)] text-[var(--hero-text)] sm:min-h-[940px] lg:min-h-[calc(100svh-64px)]",
         className,
@@ -355,7 +378,10 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
       {max > 1 && (
         <>
           <div className="absolute inset-x-0 top-3 z-40 px-4 lg:hidden">
-            <div className="overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div
+              data-hero-thumbnail-rail
+              className="overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
               <div className="flex w-max gap-3 pr-4">
                 {safeSlides.map((slide, index) => {
                   const selected = index === safeCurrent;
@@ -432,7 +458,10 @@ export function HeroSlider({ slides, autoPlayMs = 7200, className }: HeroSliderP
           </button>
 
           <div className="absolute bottom-5 right-4 z-40 hidden w-[min(38rem,calc(100vw-2rem))] overflow-hidden lg:block xl:right-6">
-            <div className="overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div
+              data-hero-thumbnail-rail
+              className="overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
               <div className="flex w-max gap-3 pr-1">
               {safeSlides.slice(0, 6).map((slide, index) => {
                 const selected = index === safeCurrent;

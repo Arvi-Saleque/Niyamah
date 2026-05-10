@@ -1,0 +1,134 @@
+diff --git a/src/components/storefront/product-story-card.tsx b/src/components/storefront/product-story-card.tsx
+index 2e5156d..bd524c3 100644
+--- a/src/components/storefront/product-story-card.tsx
++++ b/src/components/storefront/product-story-card.tsx
+@@ -31,7 +31,7 @@ interface ProductStoryCardProps {
+   product: ProductStoryCardData;
+   index: number;
+   active?: boolean;
+-  onSelect?: (scrollY: number) => void;
++  onSelect?: () => void;
+   className?: string;
+ }
+ 
+@@ -83,8 +83,9 @@ export function ProductStoryCard({
+           tabIndex={-1}
+           onMouseDown={(event) => event.preventDefault()}
+           onClick={(event) => {
+-            event.currentTarget.blur();
+-            onSelect(window.scrollY);
++            event.preventDefault();
++            event.stopPropagation();
++            onSelect();
+           }}
+           className="absolute inset-0 z-10 cursor-pointer"
+           aria-label={`Show ${product.name}`}
+diff --git a/src/components/storefront/product-story-rail-section.tsx b/src/components/storefront/product-story-rail-section.tsx
+index 8d77141..384ede0 100644
+--- a/src/components/storefront/product-story-rail-section.tsx
++++ b/src/components/storefront/product-story-rail-section.tsx
+@@ -95,42 +95,24 @@ export function ProductStoryRailSection({
+   const items = useMemo(() => enrichProducts(products), [products]);
+   const [activeIndex, setActiveIndex] = useState(0);
+   const [trackX, setTrackX] = useState(0);
++  const [isSectionVisible, setIsSectionVisible] = useState(false);
++  const sectionRef = useRef<HTMLElement | null>(null);
+   const viewportRef = useRef<HTMLDivElement | null>(null);
+-  const restoreScrollYRef = useRef<number | null>(null);
+   const active = items[activeIndex] ?? items[0];
+ 
+-  const restoreScrollPosition = useCallback(() => {
+-    const scrollY = restoreScrollYRef.current;
+-    if (scrollY === null) return;
+-
+-    const restore = () => {
+-      if (Math.abs(window.scrollY - scrollY) > 1) {
+-        window.scrollTo(window.scrollX, scrollY);
+-      }
+-    };
+-
+-    restore();
+-    requestAnimationFrame(restore);
+-    window.setTimeout(restore, 120);
+-    window.setTimeout(() => {
+-      restore();
+-      restoreScrollYRef.current = null;
+-    }, 520);
+-  }, []);
+-
+   const goTo = useCallback(
+-    (index: number, scrollY?: number) => {
++    (index: number) => {
+       if (items.length === 0) return;
+-      restoreScrollYRef.current = scrollY ?? window.scrollY;
+-      setActiveIndex((index + items.length) % items.length);
+-      restoreScrollPosition();
++      const safeIndex = (index + items.length) % items.length;
++      setActiveIndex((current) => (current === safeIndex ? current : safeIndex));
+     },
+-    [items.length, restoreScrollPosition],
++    [items.length],
+   );
+ 
+   const next = useCallback(() => {
+-    goTo(activeIndex + 1);
+-  }, [activeIndex, goTo]);
++    if (items.length < 2) return;
++    setActiveIndex((current) => (current + 1) % items.length);
++  }, [items.length]);
+ 
+   const calculateTrackX = useCallback(() => {
+     const viewport = viewportRef.current;
+@@ -150,8 +132,7 @@ export function ProductStoryRailSection({
+ 
+   useLayoutEffect(() => {
+     calculateTrackX();
+-    restoreScrollPosition();
+-  }, [calculateTrackX, items.length, restoreScrollPosition]);
++  }, [calculateTrackX, items.length]);
+ 
+   useEffect(() => {
+     window.addEventListener("resize", calculateTrackX);
+@@ -159,10 +140,23 @@ export function ProductStoryRailSection({
+   }, [calculateTrackX]);
+ 
+   useEffect(() => {
+-    if (items.length < 2) return;
++    const section = sectionRef.current;
++    if (!section) return;
++
++    const observer = new IntersectionObserver(
++      ([entry]) => setIsSectionVisible(Boolean(entry?.isIntersecting)),
++      { threshold: 0.25 },
++    );
++
++    observer.observe(section);
++    return () => observer.disconnect();
++  }, []);
++
++  useEffect(() => {
++    if (items.length < 2 || autoPlayMs <= 0 || !isSectionVisible) return;
+     const id = window.setInterval(next, autoPlayMs);
+     return () => window.clearInterval(id);
+-  }, [autoPlayMs, items.length, next]);
++  }, [autoPlayMs, isSectionVisible, items.length, next]);
+ 
+   if (items.length === 0 || !active) return null;
+ 
+@@ -175,6 +169,7 @@ export function ProductStoryRailSection({
+ 
+   return (
+     <section
++      ref={sectionRef}
+       style={sectionStyle}
+       className={cn(
+         "relative isolate overflow-hidden bg-[var(--story-bg)] py-14 text-[var(--story-text)] transition-colors duration-700 [contain:paint] [overflow-anchor:none] sm:py-18 lg:py-20",
+@@ -219,7 +214,7 @@ export function ProductStoryRailSection({
+                 product={product}
+                 index={index}
+                 active={index === activeIndex}
+-                onSelect={(scrollY) => goTo(index, scrollY)}
++                onSelect={() => goTo(index)}
+               />
+             </div>
+           ))}

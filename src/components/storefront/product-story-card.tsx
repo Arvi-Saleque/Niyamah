@@ -31,7 +31,7 @@ interface ProductStoryCardProps {
   product: ProductStoryCardData;
   index: number;
   active?: boolean;
-  onSelect?: (scrollY: number) => void;
+  onSelect?: () => void;
   className?: string;
 }
 
@@ -83,8 +83,9 @@ export function ProductStoryCard({
           tabIndex={-1}
           onMouseDown={(event) => event.preventDefault()}
           onClick={(event) => {
-            event.currentTarget.blur();
-            onSelect(window.scrollY);
+            event.preventDefault();
+            event.stopPropagation();
+            onSelect();
           }}
           className="absolute inset-0 z-10 cursor-pointer"
           aria-label={`Show ${product.name}`}
