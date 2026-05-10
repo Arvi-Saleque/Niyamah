@@ -104,3 +104,86 @@ export const purposeIcons = {
   package: PackageCheck,
   check: CheckCircle2,
 };
+
+export function ShopByPurposeSection() {
+  const purposes = [
+    {
+      title: "For Daily Recitation",
+      copy: "Color-coded Quran and reading companions for a calmer everyday routine.",
+      href: "/category/quran",
+      icon: BookOpen,
+    },
+    {
+      title: "For Parents",
+      copy: "Thoughtful Quran, tasbih, and gift-ready essentials selected with care.",
+      href: "/products?intent=parents",
+      icon: HeartHandshake,
+    },
+    {
+      title: "For Prayer Room",
+      copy: "Prayer mats, tasbih, and room essentials for a peaceful worship corner.",
+      href: "/category/prayer-mat",
+      icon: PackageCheck,
+    },
+    {
+      title: "For Islamic Gift",
+      copy: "Beautifully packed sets for teachers, friends, family, and loved ones.",
+      href: "/category/gift-box",
+      icon: Gift,
+    },
+    {
+      title: "For Kids Learning",
+      copy: "Easy learning books and Quran resources for young curious readers.",
+      href: "/category/books",
+      icon: BookOpen,
+    },
+    {
+      title: "For Ramadan / Eid",
+      copy: "Premium seasonal gifts and worship essentials for meaningful occasions.",
+      href: "/products?occasion=ramadan-eid",
+      icon: CheckCircle2,
+    },
+  ];
+
+  return (
+    <section className="bg-[#f8f1e3] py-16 sm:py-20">
+      <div className={sectionShell}>
+        <div className="mb-9 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <HomepageSectionHeader
+            eyebrow="Shop with intention"
+            title="Shop by Purpose"
+            subtitle="Choose the reason behind the purchase first, then discover the products that match the moment."
+          />
+          <TextCta href="/products">Browse all products</TextCta>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {purposes.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.title}
+                href={item.href}
+                className="group min-h-56 border border-[#d9c38b]/45 bg-white/58 p-5 shadow-[0_18px_50px_rgba(18,61,42,0.06)] transition-all hover:-translate-y-1 hover:border-[#c9a24d] hover:bg-white"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#123d2a] text-[#f8f1e3] transition-transform duration-300 group-hover:scale-105">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="mt-7 text-2xl font-black leading-tight text-[#123d2a]">
+                  {item.title}
+                </h3>
+                <p className="mt-3 max-w-sm text-sm leading-6 text-[#52675b]">
+                  {item.copy}
+                </p>
+                <span className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[#8a6422]">
+                  Explore
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
