@@ -91,7 +91,7 @@ const FLASH_PRODUCTS: ProductStoryCardData[] = [
     badge: "45% OFF",
     storyLabel: "Flash Deal",
     inStock: true,
-    tone: FIRE_TONES[0],
+    tone: FIRE_TONES[0]!,
   },
   {
     id: "fs-2",
@@ -104,7 +104,7 @@ const FLASH_PRODUCTS: ProductStoryCardData[] = [
     badge: "42% OFF",
     storyLabel: "Limited Stock",
     inStock: true,
-    tone: FIRE_TONES[1],
+    tone: FIRE_TONES[1]!,
   },
   {
     id: "fs-3",
@@ -117,7 +117,7 @@ const FLASH_PRODUCTS: ProductStoryCardData[] = [
     badge: "42% OFF",
     storyLabel: "Fast Moving",
     inStock: true,
-    tone: FIRE_TONES[2],
+    tone: FIRE_TONES[2]!,
   },
   {
     id: "fs-4",
@@ -131,7 +131,7 @@ const FLASH_PRODUCTS: ProductStoryCardData[] = [
     storyLabel: "Best Seller",
     isNew: true,
     inStock: true,
-    tone: FIRE_TONES[3],
+    tone: FIRE_TONES[3]!,
   },
   {
     id: "fs-5",
@@ -144,7 +144,7 @@ const FLASH_PRODUCTS: ProductStoryCardData[] = [
     badge: "40% OFF",
     storyLabel: "Flash Deal",
     inStock: true,
-    tone: FIRE_TONES[4],
+    tone: FIRE_TONES[4]!,
   },
 ];
 
@@ -163,7 +163,7 @@ export function FlashSaleSection() {
   const hovered = useRef(false);
   const isVisible = useRef(false);
 
-  const active = items[activeIndex] ?? items[0];
+  const active = (items[activeIndex] ?? items[0]) as ProductStoryCardData;
 
   const goTo = useCallback((index: number) => {
     const safe = ((index % total) + total) % total;
@@ -287,20 +287,27 @@ export function FlashSaleSection() {
 
       {/* Active product urgency bar */}
       <div className="relative z-10 mx-auto mt-5 max-w-[1500px] px-4 sm:px-6 lg:px-8">
-        <div className="mb-1.5 flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wide text-red-300">
-            {CLAIMED[activeIndex]}% Claimed
-          </span>
-          <span className="text-xs text-white/55">
-            {100 - CLAIMED[activeIndex]} units left
-          </span>
-        </div>
-        <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-white/15">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-400 transition-all duration-700"
-            style={{ width: `${CLAIMED[activeIndex]}%` }}
-          />
-        </div>
+        {(() => {
+          const claimed = CLAIMED[activeIndex] ?? 68;
+          return (
+            <>
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wide text-red-300">
+                  {claimed}% Claimed
+                </span>
+                <span className="text-xs text-white/55">
+                  {100 - claimed} units left
+                </span>
+              </div>
+              <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-white/15">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-400 transition-all duration-700"
+                  style={{ width: `${claimed}%` }}
+                />
+              </div>
+            </>
+          );
+        })()}
       </div>
 
       {/* Bottom row: CTA + arrows â€” same layout as Signature Picks */}

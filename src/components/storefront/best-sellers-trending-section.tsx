@@ -165,7 +165,7 @@ function toStoryCard(product: ProductCardData, index: number): ProductStoryCardD
   const proof = SOCIAL_PROOF[index % SOCIAL_PROOF.length]!;
   return {
     ...product,
-    tone: TRENDING_TONES[index % TRENDING_TONES.length],
+    tone: TRENDING_TONES[index % TRENDING_TONES.length] as ProductStoryTone,
     badge: proof.badge,
     storyLabel: proof.label,
   };
@@ -203,8 +203,8 @@ export function BestSellersTrendingSection({ products }: BestSellersTrendingSect
   const hovered = useRef(false);
   const isVisible = useRef(false);
 
-  const active = (items[activeIndex] ?? items[0])!;
-  const proof = SOCIAL_PROOF[activeIndex % SOCIAL_PROOF.length]!;
+  const active = (items[activeIndex] ?? items[0]) as ProductStoryCardData;
+  const proof = SOCIAL_PROOF[activeIndex % SOCIAL_PROOF.length] as typeof SOCIAL_PROOF[number];
 
   const goTo = useCallback((index: number) => {
     const safe = ((index % total) + total) % total;
