@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { ChevronLeft, ChevronRight, MapPin, Star } from "lucide-react";
 
 const REVIEWS = [
@@ -57,7 +57,7 @@ const REVIEWS = [
 
 const DURATION = 4800;
 
-const slideVariants = {
+const slideVariants: Variants = {
   enter: (d: number) => ({
     x: d > 0 ? "52%" : "-52%",
     opacity: 0,
@@ -67,13 +67,13 @@ const slideVariants = {
     x: 0,
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
   },
   exit: (d: number) => ({
     x: d > 0 ? "-52%" : "52%",
     opacity: 0,
     scale: 0.97,
-    transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
   }),
 };
 
