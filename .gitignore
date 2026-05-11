@@ -17,6 +17,7 @@ build/
 
 # ─── Environment Variables ───────────────────────────────────────
 .env
+.env.*
 .env.local
 .env.development
 .env.development.local
@@ -25,6 +26,7 @@ build/
 .env.production
 .env.production.local
 .env.staging
+!.env.example
 
 # ─── Database ────────────────────────────────────────────────────
 *.db

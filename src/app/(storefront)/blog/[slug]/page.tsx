@@ -5,6 +5,7 @@ import { Container } from "@/components/shared/container";
 import { Heading, Text } from "@/components/shared/typography";
 import { blogRepository } from "@/modules/blog/infrastructure/blog.repository";
 import { articleLd } from "@/lib/marketing/json-ld";
+import { sanitizeHtml } from "@/lib/security/sanitize-html";
 
 export const revalidate = 300;
 
@@ -32,6 +33,7 @@ export default async function BlogPostPage({
   const { slug } = await params;
   const post = await blogRepository.findPostBySlug(slug);
   if (!post || post.status !== "published") notFound();
+  const sanitizedContent = sanitizeHtml(post.content ?? "");
 
   return (
     <Container className="py-10">
@@ -57,7 +59,7 @@ export default async function BlogPostPage({
         )}
         <div
           className="prose max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.content ?? "" }}
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
       </article>
 
