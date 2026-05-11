@@ -17,6 +17,7 @@ build/
 
 # ─── Environment Variables ───────────────────────────────────────
 .env
+# Ignore all env variants by default; keep .env.example tracked via negation below.
 .env.*
 .env.local
 .env.development

@@ -5,8 +5,10 @@ const csp = [
   "base-uri 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
-  "style-src 'self' 'unsafe-inline' https:",
+  // Next.js injects a small inline runtime script; keep unsafe-inline until nonces are wired end-to-end.
+  "script-src 'self' 'unsafe-inline'",
+  // Inline styles can be emitted by framework/runtime code in this app.
+  "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https:",
   "connect-src 'self' https:",
