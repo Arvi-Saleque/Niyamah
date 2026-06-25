@@ -141,7 +141,7 @@ export function NewArrivalsSliderSection({ products }: NewArrivalsSliderSectionP
 
   const next = useCallback(() => {
     preserveScroll(() => setActiveIndex((c) => (c + 1) % total));
-  }, [total]);
+  }, [total, setActiveIndex]);
 
   const calculateTrackX = useCallback(() => {
     const viewport = viewportRef.current;

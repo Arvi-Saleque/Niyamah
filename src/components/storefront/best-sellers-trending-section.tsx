@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   type CSSProperties,
@@ -209,11 +209,11 @@ export function BestSellersTrendingSection({ products }: BestSellersTrendingSect
   const goTo = useCallback((index: number) => {
     const safe = ((index % total) + total) % total;
     preserveScroll(() => setActiveIndex(safe));
-  }, [total]);
+  }, [total, setActiveIndex]);
 
   const next = useCallback(() => {
     preserveScroll(() => setActiveIndex((c) => (c + 1) % total));
-  }, [total]);
+  }, [total, setActiveIndex]);
 
   const calculateTrackX = useCallback(() => {
     const viewport = viewportRef.current;

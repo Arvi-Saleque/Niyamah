@@ -243,7 +243,7 @@ export function ProductStoryRailSection({
             type="button"
             aria-label="Previous product"
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => { preserveScroll(() => setActiveIndex((c) => (c - 1 + items.length) % items.length)); }}
+            onClick={prev}
             className="grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur transition hover:scale-105 hover:bg-white/28"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -252,7 +252,7 @@ export function ProductStoryRailSection({
             type="button"
             aria-label="Next product"
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => { preserveScroll(() => setActiveIndex((c) => (c + 1) % items.length)); }}
+            onClick={next}
             className="grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur transition hover:scale-105 hover:bg-white/28"
           >
             <ChevronRight className="h-4 w-4" />

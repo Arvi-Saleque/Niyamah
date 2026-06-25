@@ -64,7 +64,7 @@ export function NotificationsInbox() {
   }, [filter]);
 
   useEffect(() => {
-    void load();
+    void (async () => { await load(); })();
   }, [load]);
 
   const markOne = async (id: number) => {

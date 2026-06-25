@@ -54,7 +54,7 @@ export default function AdminShippingPage() {
   };
 
   useEffect(() => {
-    void load();
+    void (async () => { await load(); })();
   }, []);
 
   const deleteZone = async (id: number) => {
@@ -63,7 +63,7 @@ export default function AdminShippingPage() {
     });
     if (!res.ok) return toast.error("Delete failed");
     toast.success("Zone deleted");
-    void load();
+    void (async () => { await load(); })();
   };
 
   const deleteRate = async (id: number) => {
@@ -72,7 +72,7 @@ export default function AdminShippingPage() {
     });
     if (!res.ok) return toast.error("Delete failed");
     toast.success("Rate deleted");
-    void load();
+    void (async () => { await load(); })();
   };
 
   return (

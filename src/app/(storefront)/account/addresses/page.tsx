@@ -43,7 +43,7 @@ export default function AddressesPage() {
   }
 
   useEffect(() => {
-    void load();
+    void (async () => { await load(); })();
   }, []);
 
   async function handleSave(values: AddressFormValues) {
@@ -62,7 +62,7 @@ export default function AddressesPage() {
     }
     toast.success(id ? "Address updated." : "Address added.");
     setEditing(null);
-    void load();
+    void (async () => { await load(); })();
   }
 
   async function handleDelete(id: number) {
@@ -73,7 +73,7 @@ export default function AddressesPage() {
       return;
     }
     toast.success("Address deleted.");
-    void load();
+    void (async () => { await load(); })();
   }
 
   if (editing) {

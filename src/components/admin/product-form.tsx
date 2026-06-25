@@ -41,7 +41,7 @@ interface ProductFormProps {
 }
 
 function NumericFieldInput({
-  field,
+  field: { name, value, onChange, onBlur, ref },
   min = 0,
   step,
 }: {
@@ -60,11 +60,11 @@ function NumericFieldInput({
       type="number"
       min={min}
       step={step}
-      name={field.name}
-      value={String(field.value ?? "")}
-      onChange={field.onChange}
-      onBlur={field.onBlur}
-      ref={field.ref}
+      name={name}
+      value={String(value ?? "")}
+      onChange={onChange}
+      onBlur={onBlur}
+      ref={ref}
     />
   );
 }

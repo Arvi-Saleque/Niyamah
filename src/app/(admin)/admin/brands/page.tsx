@@ -40,7 +40,9 @@ export default function AdminBrandsPage() {
   };
 
   useEffect(() => {
-    load();
+    void (async () => {
+      await load();
+    })();
   }, []);
 
   const onSubmit = async (values: BrandFormValues) => {

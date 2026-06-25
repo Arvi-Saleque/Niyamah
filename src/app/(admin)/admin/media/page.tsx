@@ -44,7 +44,9 @@ export default function AdminBannersPage() {
   };
 
   useEffect(() => {
-    void load();
+    void (async () => {
+      await load();
+    })();
   }, []);
 
   const save = async () => {

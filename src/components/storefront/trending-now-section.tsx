@@ -127,7 +127,7 @@ export function TrendingNowSection({ products }: TrendingNowSectionProps) {
 
   const next = useCallback(() => {
     preserveScroll(() => setActiveIndex((c) => (c + 1) % total));
-  }, [total]);
+  }, [total, setActiveIndex]);
 
   const calculateTrackX = useCallback(() => {
     const viewport = viewportRef.current;

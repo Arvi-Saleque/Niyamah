@@ -48,7 +48,9 @@ export default function AdminCouponsPage() {
   };
 
   useEffect(() => {
-    load();
+    void (async () => {
+      await load();
+    })();
   }, []);
 
   const onSubmit = async (values: CouponFormValues) => {

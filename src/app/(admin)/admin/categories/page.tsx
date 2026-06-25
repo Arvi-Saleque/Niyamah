@@ -43,7 +43,9 @@ export default function AdminCategoriesPage() {
   };
 
   useEffect(() => {
-    load();
+    void (async () => {
+      await load();
+    })();
   }, []);
 
   const onSubmit = async (values: CategoryFormValues) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Star } from "lucide-react";
@@ -40,7 +40,7 @@ export function ProductReviewForm({ productId: _productId, onSubmit, className }
     defaultValues: { rating: 0, title: "", body: "" },
   });
 
-  const selectedRating = form.watch("rating");
+  const selectedRating = useWatch({ control: form.control, name: "rating" });
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await onSubmit(values);

@@ -89,11 +89,11 @@ export function CustomerReviewsCarousel() {
 
   /* Imperative progress bar — no re-renders per frame */
   const runProgress = useCallback(
-    (start: number, now: number) => {
+    function runProgressInternal(start: number, now: number) {
       const pct = Math.min(((now - start) / DURATION) * 100, 100);
       if (progressRef.current) progressRef.current.style.width = `${pct}%`;
       if (pct < 100) {
-        rafRef.current = requestAnimationFrame((t) => runProgress(start, t));
+        rafRef.current = requestAnimationFrame((t) => runProgressInternal(start, t));
       }
     },
     [],

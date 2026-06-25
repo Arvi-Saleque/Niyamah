@@ -56,7 +56,7 @@ export default function AdminReviewsPage() {
   };
 
   useEffect(() => {
-    void load();
+    void (async () => { await load(); })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
 
@@ -71,7 +71,7 @@ export default function AdminReviewsPage() {
       return;
     }
     toast.success(`Review ${status.toLowerCase()}`);
-    void load();
+    void (async () => { await load(); })();
   };
 
   const remove = async (id: number) => {
@@ -83,7 +83,7 @@ export default function AdminReviewsPage() {
       return;
     }
     toast.success("Review deleted");
-    void load();
+    void (async () => { await load(); })();
   };
 
   return (

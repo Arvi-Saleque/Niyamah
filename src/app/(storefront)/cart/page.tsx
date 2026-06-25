@@ -14,7 +14,7 @@ export default function CartPage() {
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.totalPrice());
   const [hydrated, setHydrated] = useState(false);
-  useEffect(() => setHydrated(true), []);
+  useEffect(() => void (async () => setHydrated(true))(), []);
 
   if (!hydrated) {
     return <Container className="py-12" />;

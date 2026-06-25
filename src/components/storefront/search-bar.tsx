@@ -22,7 +22,11 @@ export function SearchBar({ initialValue = "", placeholder = "Search products…
     e.preventDefault();
     const q = value.trim();
     if (!q) return;
-    onSearch ? onSearch(q) : router.push(`/search?q=${encodeURIComponent(q)}`);
+    if (onSearch) {
+      onSearch(q);
+    } else {
+      router.push(`/search?q=${encodeURIComponent(q)}`);
+    }
   };
 
   return (

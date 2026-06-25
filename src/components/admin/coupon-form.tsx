@@ -43,7 +43,7 @@ interface CouponFormProps {
 }
 
 function NumberInput({
-  field,
+  field: { name, value, onChange, onBlur, ref },
   min = 0,
 }: {
   field: {
@@ -59,11 +59,11 @@ function NumberInput({
     <Input
       type="number"
       min={min}
-      name={field.name}
-      value={String(field.value ?? "")}
-      onChange={field.onChange}
-      onBlur={field.onBlur}
-      ref={field.ref}
+      name={name}
+      value={String(value ?? "")}
+      onChange={onChange}
+      onBlur={onBlur}
+      ref={ref}
     />
   );
 }

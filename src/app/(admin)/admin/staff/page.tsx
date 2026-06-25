@@ -60,7 +60,7 @@ export default function AdminStaffPage() {
   };
 
   useEffect(() => {
-    void load();
+    void (async () => { await load(); })();
   }, []);
 
   const updateRole = async (id: string, role: Role) => {
@@ -74,7 +74,7 @@ export default function AdminStaffPage() {
       return;
     }
     toast.success("Role updated");
-    void load();
+    void (async () => { await load(); })();
   };
 
   return (

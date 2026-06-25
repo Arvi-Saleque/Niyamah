@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -919,12 +919,16 @@ function InstantSearchResults({
 
   useEffect(() => {
     if (debounced.length < 2) {
-      setHits([]);
-      setHasFetched(false);
+      void (async () => {
+        setHits([]);
+        setHasFetched(false);
+      })();
       return;
     }
     const ctrl = new AbortController();
-    setLoading(true);
+    void (async () => {
+      setLoading(true);
+    })();
     fetch(`/api/v1/search/instant?q=${encodeURIComponent(debounced)}&limit=8`, {
       signal: ctrl.signal,
     })

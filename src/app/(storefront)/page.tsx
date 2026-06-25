@@ -1,26 +1,13 @@
 import { HeroSlider } from "@/components/storefront/hero-slider";
 import {
-  BestSellersRailSection,
-  BlogPreviewSection,
-  CategoryDeepDiveSection,
   CustomerReviewsSection,
   DeliveryPromiseStrip,
-  FinalHomepageCtaSection,
-  FeaturedCollectionsSection,
-  GiftBoxStorySection,
-  LifestyleGallerySection,
-  NewArrivalsHomepageSection,
   ShopByOccasionStrip,
-  ShopByPurposeSection,
-  TrustPromiseStrip,
   WhyTrustUsSection,
-  WhyNiyamahSection,
   TopCategoriesSection,
   ParallaxQuoteSection,
   StickyImageBreak,
 } from "@/components/storefront/homepage-sections";
-import { GiftBuilderSection } from "@/components/storefront/gift-builder-section";
-import { ProductStoryRailSection } from "@/components/storefront/product-story-rail-section";
 import { FlashSaleSection } from "@/components/storefront/flash-sale-section";
 import { BestSellersTrendingSection } from "@/components/storefront/best-sellers-trending-section";
 import { TrendingNowSection } from "@/components/storefront/trending-now-section";

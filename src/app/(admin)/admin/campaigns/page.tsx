@@ -52,7 +52,9 @@ export default function AdminCampaignsPage() {
   };
 
   useEffect(() => {
-    load();
+    void (async () => {
+      await load();
+    })();
   }, []);
 
   const onSubmit = async (values: CampaignFormValues) => {

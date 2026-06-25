@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   Gift,
   HeartHandshake,
-  MapPin,
   MessageCircle,
   PackageCheck,
   RotateCcw,

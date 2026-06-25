@@ -61,7 +61,7 @@ export function NotificationBell() {
   };
 
   useEffect(() => {
-    void refresh();
+    void (async () => { await refresh(); })();
     const id = window.setInterval(refresh, POLL_MS);
     return () => window.clearInterval(id);
   }, []);
