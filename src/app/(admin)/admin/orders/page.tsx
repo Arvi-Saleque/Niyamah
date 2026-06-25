@@ -40,9 +40,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
 
   const where = [eq(orders.storeId, DEFAULT_STORE_ID)];
   if (status !== "ALL") {
-    where.push(
-      eq(orders.status, status as (typeof orders.$inferSelect)["status"]),
-    );
+    where.push(eq(orders.status, status as (typeof orders.$inferSelect)["status"]));
   }
   if (q) {
     if (/^\d+$/.test(q)) {
@@ -80,12 +78,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
     const returnsRows = await db
       .select({ orderId: returnRequests.orderId })
       .from(returnRequests)
-      .where(
-        and(
-          eq(returnRequests.status, "PENDING"),
-          inArray(returnRequests.orderId, orderIds),
-        ),
-      );
+      .where(and(eq(returnRequests.status, "PENDING"), inArray(returnRequests.orderId, orderIds)));
     for (const r of returnsRows) pendingReturnIds.add(r.orderId);
   }
 
@@ -110,9 +103,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
       />
 
       <form className="mb-3" action="/admin/orders" method="get">
-        {status !== "ALL" && (
-          <input type="hidden" name="status" value={status.toLowerCase()} />
-        )}
+        {status !== "ALL" && <input type="hidden" name="status" value={status.toLowerCase()} />}
         <Input
           name="q"
           placeholder="Search by order #, name, phone, or email…"

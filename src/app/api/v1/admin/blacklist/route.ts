@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { blacklistRepository } from "@/modules/commerce/infrastructure/blacklist.repository";
 import { blacklistAddSchema } from "@/lib/validations/commerce";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 import { recordAudit } from "@/lib/audit/record";
 
 /**
@@ -10,25 +10,20 @@ import { recordAudit } from "@/lib/audit/record";
  * POST /api/v1/admin/blacklist        — add a phone/email to the blacklist
  */
 export async function GET() {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("blacklist.view");
   if ("error" in guard) return guard.error;
   const items = await blacklistRepository.list();
   return apiSuccess({ items });
 }
 
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("blacklist.manage");
   if ("error" in guard) return guard.error;
   const body = await req.json().catch(() => null);
   if (!body) return apiError("INVALID_JSON", "Invalid request body.", 400);
   const parsed = blacklistAddSchema.safeParse(body);
   if (!parsed.success) {
-    return apiError(
-      "VALIDATION_ERROR",
-      "Invalid input.",
-      422,
-      parsed.error.flatten().fieldErrors,
-    );
+    return apiError("VALIDATION_ERROR", "Invalid input.", 422, parsed.error.flatten().fieldErrors);
   }
   const row = await blacklistRepository.create(parsed.data, guard.ctx.userId);
   if (!row) return apiError("CREATE_FAILED", "Unable to create blacklist entry.", 500);

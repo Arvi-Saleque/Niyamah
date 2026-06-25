@@ -1,10 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import {
-  inventory,
-  productVariants,
-  products,
-} from "@/lib/db/schema";
+import { inventory, productVariants, products } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
 import { EmptyState } from "@/components/shared/empty-state";
 import { InventoryRow } from "@/components/admin/inventory-row";
@@ -34,10 +30,7 @@ export default async function AdminInventoryPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           Inventory
         </h1>
         <p className="mt-1 text-sm text-[var(--color-text-secondary)]">

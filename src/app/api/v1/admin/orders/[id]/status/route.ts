@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { orderRepository } from "@/modules/commerce/infrastructure/order.repository";
 import { orderStatusUpdateSchema } from "@/lib/validations/commerce";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 import { inngest } from "@/lib/inngest/client";
 import { recordAudit } from "@/lib/audit/record";
 
@@ -11,30 +11,20 @@ interface Ctx {
 }
 
 export async function PATCH(req: NextRequest, { params }: Ctx) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("orders.update_status");
   if ("error" in guard) return guard.error;
   const { id: idStr } = await params;
   const id = Number(idStr);
-  if (!Number.isInteger(id) || id <= 0)
-    return apiError("INVALID_ID", "Invalid id.", 400);
+  if (!Number.isInteger(id) || id <= 0) return apiError("INVALID_ID", "Invalid id.", 400);
 
   const body = await req.json().catch(() => null);
   if (!body) return apiError("INVALID_JSON", "Invalid request body.", 400);
   const parsed = orderStatusUpdateSchema.safeParse(body);
   if (!parsed.success) {
-    return apiError(
-      "VALIDATION_ERROR",
-      "Invalid input.",
-      422,
-      parsed.error.flatten().fieldErrors,
-    );
+    return apiError("VALIDATION_ERROR", "Invalid input.", 422, parsed.error.flatten().fieldErrors);
   }
 
-  const updated = await orderRepository.updateStatus(
-    id,
-    parsed.data,
-    guard.ctx.userId,
-  );
+  const updated = await orderRepository.updateStatus(id, parsed.data, guard.ctx.userId);
   if (!updated) return apiError("NOT_FOUND", "Order not found.", 404);
 
   recordAudit({
@@ -74,9 +64,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
           recipientEmail: recipient,
         },
       })
-      .catch((err) =>
-        console.error("[order.status] inngest dispatch failed", err),
-      );
+      .catch((err) => console.error("[order.status] inngest dispatch failed", err));
   }
 
   return apiSuccess(updated);

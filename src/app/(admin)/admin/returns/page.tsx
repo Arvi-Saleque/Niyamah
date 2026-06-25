@@ -26,7 +26,8 @@ export default async function AdminReturnsPage({ searchParams }: PageProps) {
   const result = await returnRepository.listAdmin({
     page,
     limit: 20,
-    status: status === "ALL" ? undefined : (status as "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED"),
+    status:
+      status === "ALL" ? undefined : (status as "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED"),
   });
 
   const totalPages = Math.max(1, Math.ceil(result.total / result.limit));
@@ -92,7 +93,7 @@ export default async function AdminReturnsPage({ searchParams }: PageProps) {
                       #{r.orderId}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 max-w-xs truncate text-[var(--color-text-secondary)]">
+                  <td className="max-w-xs truncate px-4 py-3 text-[var(--color-text-secondary)]">
                     {r.reason}
                   </td>
                   <td className="px-4 py-3">

@@ -7,18 +7,15 @@ import {
 } from "@/modules/commerce/application/process-refund.usecase";
 import { returnRequestResolveSchema } from "@/lib/validations/commerce";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 import { recordAudit } from "@/lib/audit/record";
 
 /**
  * GET /api/v1/admin/returns/[id]
  * Fetch a single return request.
  */
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const guard = await requireAdmin();
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await requirePermission("returns.view");
   if ("error" in guard) return guard.error;
 
   const { id } = await params;
@@ -36,11 +33,8 @@ export async function GET(
  * PATCH /api/v1/admin/returns/[id]
  * Approve or reject a return request. Approving triggers refund flow.
  */
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const guard = await requireAdmin();
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await requirePermission("returns.manage");
   if ("error" in guard) return guard.error;
 
   const { id } = await params;
@@ -54,12 +48,7 @@ export async function PATCH(
 
   const parsed = returnRequestResolveSchema.safeParse(body);
   if (!parsed.success) {
-    return apiError(
-      "VALIDATION_ERROR",
-      "Invalid input.",
-      422,
-      parsed.error.flatten().fieldErrors,
-    );
+    return apiError("VALIDATION_ERROR", "Invalid input.", 422, parsed.error.flatten().fieldErrors);
   }
 
   try {

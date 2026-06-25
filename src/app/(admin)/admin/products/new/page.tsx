@@ -32,17 +32,18 @@ export default function NewProductPage() {
         isPrimary: i === 0,
         sortOrder: i,
       })),
-      variants: variants.length > 0
-        ? variants.map((v, i) => ({
-            sku: v.sku,
-            sortOrder: i,
-            status: true,
-            ...(v.price !== values.price && { priceOverride: String(v.price) }),
-            ...(v.salePrice !== "" && { salePriceOverride: String(v.salePrice) }),
-            initialStock: v.stock,
-            options: v.options.map((o) => ({ type: o.type, value: o.value })),
-          }))
-        : undefined,
+      variants:
+        variants.length > 0
+          ? variants.map((v, i) => ({
+              sku: v.sku,
+              sortOrder: i,
+              status: true,
+              ...(v.price !== values.price && { priceOverride: String(v.price) }),
+              ...(v.salePrice !== "" && { salePriceOverride: String(v.salePrice) }),
+              initialStock: v.stock,
+              options: v.options.map((o) => ({ type: o.type, value: o.value })),
+            }))
+          : undefined,
     };
 
     const res = await fetch("/api/v1/products", {
@@ -76,23 +77,16 @@ export default function NewProductPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
-            <ProductForm
-              onSubmit={handleSubmit}
-              onPriceChange={setBasePrice}
-            />
+            <ProductForm onSubmit={handleSubmit} onPriceChange={setBasePrice} />
           </div>
 
           <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
-            <VariantManager
-              basePrice={basePrice}
-              variants={variants}
-              onChange={setVariants}
-            />
+            <VariantManager basePrice={basePrice} variants={variants} onChange={setVariants} />
           </div>
         </div>
 
         <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
+          <h2 className="mb-3 text-sm font-semibold tracking-wide text-[var(--color-text-muted)] uppercase">
             Images
           </h2>
           <ProductImageUploader value={images} onChange={setImages} />

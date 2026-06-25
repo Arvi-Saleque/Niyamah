@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { shippingRates } from "@/lib/db/schema";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 
 const rateSchema = z.object({
@@ -13,18 +13,13 @@ const rateSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("shipping.manage");
   if ("error" in guard) return guard.error;
   const body = await req.json().catch(() => null);
   if (!body) return apiError("INVALID_JSON", "Invalid request body.", 400);
   const parsed = rateSchema.safeParse(body);
   if (!parsed.success) {
-    return apiError(
-      "VALIDATION_ERROR",
-      "Invalid input.",
-      422,
-      parsed.error.flatten().fieldErrors,
-    );
+    return apiError("VALIDATION_ERROR", "Invalid input.", 422, parsed.error.flatten().fieldErrors);
   }
   const [created] = await db
     .insert(shippingRates)

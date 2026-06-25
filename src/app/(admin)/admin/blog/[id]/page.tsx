@@ -5,10 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { ArrowLeft, Trash2 } from "lucide-react";
-import {
-  BlogPostForm,
-  type BlogPostFormValues,
-} from "@/components/admin/blog-post-form";
+import { BlogPostForm, type BlogPostFormValues } from "@/components/admin/blog-post-form";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 
@@ -17,9 +14,7 @@ export default function EditBlogPostPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id;
 
-  const [defaults, setDefaults] = useState<Partial<BlogPostFormValues> | null>(
-    null,
-  );
+  const [defaults, setDefaults] = useState<Partial<BlogPostFormValues> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -84,11 +79,7 @@ export default function EditBlogPostPage() {
   };
 
   if (loading || !defaults) {
-    return (
-      <div className="py-12 text-center text-[var(--color-text-muted)]">
-        Loading…
-      </div>
-    );
+    return <div className="py-12 text-center text-[var(--color-text-muted)]">Loading…</div>;
   }
 
   return (
@@ -100,10 +91,7 @@ export default function EditBlogPostPage() {
               <ArrowLeft className="mr-1 h-4 w-4" /> Back
             </Link>
           </Button>
-          <h1
-            className="text-2xl font-semibold"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
             Edit Blog Post
           </h1>
         </div>
@@ -121,11 +109,7 @@ export default function EditBlogPostPage() {
         />
       </div>
       <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
-        <BlogPostForm
-          defaultValues={defaults}
-          onSubmit={handleSubmit}
-          submitLabel="Update post"
-        />
+        <BlogPostForm defaultValues={defaults} onSubmit={handleSubmit} submitLabel="Update post" />
       </div>
     </div>
   );

@@ -25,10 +25,7 @@ export default async function AdminBlogPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           Blog Posts
         </h1>
         <Button asChild>
@@ -59,21 +56,13 @@ export default async function AdminBlogPage() {
             </thead>
             <tbody>
               {rows.map((p) => (
-                <tr
-                  key={p.id}
-                  className="border-t border-[var(--color-border)]"
-                >
+                <tr key={p.id} className="border-t border-[var(--color-border)]">
                   <td className="px-4 py-3 font-medium">
-                    <Link
-                      href={`/admin/blog/${p.id}`}
-                      className="hover:text-[var(--color-accent)]"
-                    >
+                    <Link href={`/admin/blog/${p.id}`} className="hover:text-[var(--color-accent)]">
                       {p.title}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {p.slug}
-                  </td>
+                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">{p.slug}</td>
                   <td className="px-4 py-3 uppercase">{p.status}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">
                     {p.publishedAt?.toLocaleDateString() ?? "—"}

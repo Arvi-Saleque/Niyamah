@@ -31,4 +31,8 @@ for (const stmt of statements) {
   console.log("→", stmt.slice(0, 120).replace(/\s+/g, " "));
   await sql.query(stmt);
 }
-console.log("✔ Applied", file, `(${statements.length} statement${statements.length === 1 ? "" : "s"})`);
+console.log(
+  "✔ Applied",
+  file,
+  `(${statements.length} statement${statements.length === 1 ? "" : "s"})`,
+);

@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import {
-  CampaignForm,
-  type CampaignFormValues,
-} from "@/components/admin/campaign-form";
+import { CampaignForm, type CampaignFormValues } from "@/components/admin/campaign-form";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
@@ -52,9 +49,33 @@ export default function AdminCampaignsPage() {
   };
 
   useEffect(() => {
-    void (async () => {
-      await load();
-    })();
+    const controller = new AbortController();
+    let disposed = false;
+
+    async function fetchCampaigns() {
+      try {
+        const res = await fetch("/api/v1/admin/campaigns?limit=100", {
+          signal: controller.signal,
+        });
+        const json = await res.json();
+        if (disposed) return;
+        if (res.ok) setItems(json.data?.items ?? json.data ?? []);
+      } catch (error) {
+        if (disposed || (error instanceof DOMException && error.name === "AbortError")) {
+          return;
+        }
+        toast.error("Failed to load campaigns");
+      } finally {
+        if (!disposed) setLoading(false);
+      }
+    }
+
+    void fetchCampaigns();
+
+    return () => {
+      disposed = true;
+      controller.abort();
+    };
   }, []);
 
   const onSubmit = async (values: CampaignFormValues) => {
@@ -71,9 +92,7 @@ export default function AdminCampaignsPage() {
       }),
       status: values.status,
     };
-    const url = editing
-      ? `/api/v1/admin/campaigns/${editing.id}`
-      : "/api/v1/admin/campaigns";
+    const url = editing ? `/api/v1/admin/campaigns/${editing.id}` : "/api/v1/admin/campaigns";
     const res = await fetch(url, {
       method: editing ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -105,10 +124,7 @@ export default function AdminCampaignsPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           Campaigns
         </h1>
         <Dialog
@@ -125,9 +141,7 @@ export default function AdminCampaignsPage() {
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>
-                {editing ? "Edit campaign" : "New campaign"}
-              </DialogTitle>
+              <DialogTitle>{editing ? "Edit campaign" : "New campaign"}</DialogTitle>
             </DialogHeader>
             <CampaignForm
               defaultValues={
@@ -139,9 +153,7 @@ export default function AdminCampaignsPage() {
                       bannerImage: editing.bannerImage ?? "",
                       startDate: toLocalInput(editing.startDate),
                       endDate: toLocalInput(editing.endDate),
-                      status:
-                        (editing.status as CampaignFormValues["status"]) ??
-                        "draft",
+                      status: (editing.status as CampaignFormValues["status"]) ?? "draft",
                     }
                   : undefined
               }
@@ -152,9 +164,7 @@ export default function AdminCampaignsPage() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-[var(--color-text-muted)]">
-          Loading…
-        </div>
+        <div className="py-12 text-center text-[var(--color-text-muted)]">Loading…</div>
       ) : items.length === 0 ? (
         <EmptyState
           title="No campaigns yet"
@@ -170,29 +180,20 @@ export default function AdminCampaignsPage() {
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Starts</th>
                 <th className="px-4 py-3 font-medium">Ends</th>
-                <th className="px-4 py-3 font-medium text-right">Actions</th>
+                <th className="px-4 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {items.map((c) => (
-                <tr
-                  key={c.id}
-                  className="border-t border-[var(--color-border)]"
-                >
+                <tr key={c.id} className="border-t border-[var(--color-border)]">
                   <td className="px-4 py-3 font-medium">{c.name}</td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {c.slug}
-                  </td>
+                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">{c.slug}</td>
                   <td className="px-4 py-3 uppercase">{c.status}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {c.startDate
-                      ? new Date(c.startDate).toLocaleDateString()
-                      : "—"}
+                    {c.startDate ? new Date(c.startDate).toLocaleDateString() : "—"}
                   </td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {c.endDate
-                      ? new Date(c.endDate).toLocaleDateString()
-                      : "—"}
+                    {c.endDate ? new Date(c.endDate).toLocaleDateString() : "—"}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
@@ -208,11 +209,7 @@ export default function AdminCampaignsPage() {
                       </Button>
                       <ConfirmDialog
                         trigger={
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600"
-                          >
+                          <Button size="sm" variant="outline" className="text-red-600">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         }

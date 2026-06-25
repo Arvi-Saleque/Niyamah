@@ -58,10 +58,7 @@ export default async function AdminReturnDetailPage({ params }: PageProps) {
         </Button>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1
-              className="text-2xl font-semibold"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
+            <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
               Return request #{ret.id}
             </h1>
             <p className="mt-1 text-sm text-[var(--color-text-muted)]">
@@ -92,8 +89,7 @@ export default async function AdminReturnDetailPage({ params }: PageProps) {
                   <div className="flex-1">
                     <p className="font-medium">{l.productName}</p>
                     <p className="text-sm text-[var(--color-text-muted)]">
-                      SKU {l.sku ?? "—"} · Qty {l.quantity} ×{" "}
-                      {formatCurrency(l.unitPrice)}
+                      SKU {l.sku ?? "—"} · Qty {l.quantity} × {formatCurrency(l.unitPrice)}
                     </p>
                   </div>
                   <p className="font-semibold">{formatCurrency(l.lineTotal)}</p>
@@ -102,18 +98,14 @@ export default async function AdminReturnDetailPage({ params }: PageProps) {
             </div>
             <Separator className="my-4" />
             <div className="flex justify-between text-sm">
-              <span className="text-[var(--color-text-muted)]">
-                Suggested refund total
-              </span>
-              <span className="font-semibold">
-                {formatCurrency(suggestedRefund)}
-              </span>
+              <span className="text-[var(--color-text-muted)]">Suggested refund total</span>
+              <span className="font-semibold">{formatCurrency(suggestedRefund)}</span>
             </div>
           </section>
 
           <section className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
             <h2 className="mb-3 font-semibold">Customer reason</h2>
-            <p className="whitespace-pre-wrap text-sm text-[var(--color-text-secondary)]">
+            <p className="text-sm whitespace-pre-wrap text-[var(--color-text-secondary)]">
               {ret.reason}
             </p>
           </section>
@@ -121,18 +113,13 @@ export default async function AdminReturnDetailPage({ params }: PageProps) {
           {ret.adminNote && (
             <section className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
               <h2 className="mb-3 font-semibold">Admin note</h2>
-              <p className="whitespace-pre-wrap text-sm">{ret.adminNote}</p>
+              <p className="text-sm whitespace-pre-wrap">{ret.adminNote}</p>
             </section>
           )}
         </div>
 
         <aside className="space-y-6">
-          {isPending && (
-            <ReturnReviewActions
-              returnId={ret.id}
-              suggestedRefund={suggestedRefund}
-            />
-          )}
+          {isPending && <ReturnReviewActions returnId={ret.id} suggestedRefund={suggestedRefund} />}
 
           <section className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
             <h2 className="mb-3 font-semibold">Resolution</h2>
@@ -145,12 +132,8 @@ export default async function AdminReturnDetailPage({ params }: PageProps) {
               </div>
               {ret.refundAmount && (
                 <div className="flex justify-between">
-                  <dt className="text-[var(--color-text-muted)]">
-                    Refund amount
-                  </dt>
-                  <dd className="font-semibold">
-                    {formatCurrency(Number(ret.refundAmount))}
-                  </dd>
+                  <dt className="text-[var(--color-text-muted)]">Refund amount</dt>
+                  <dd className="font-semibold">{formatCurrency(Number(ret.refundAmount))}</dd>
                 </div>
               )}
               {ret.resolvedAt && (

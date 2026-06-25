@@ -54,7 +54,36 @@ export default function AdminShippingPage() {
   };
 
   useEffect(() => {
-    void (async () => { await load(); })();
+    const controller = new AbortController();
+    let disposed = false;
+
+    async function fetchShipping() {
+      try {
+        const res = await fetch("/api/v1/admin/shipping/zones", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        const json = await res.json();
+        if (disposed) return;
+        const data = json?.data ?? {};
+        setZones(data.zones ?? []);
+        setRates(data.rates ?? []);
+      } catch (error) {
+        if (disposed || (error instanceof DOMException && error.name === "AbortError")) {
+          return;
+        }
+        toast.error("Failed to load shipping");
+      } finally {
+        if (!disposed) setLoading(false);
+      }
+    }
+
+    void fetchShipping();
+
+    return () => {
+      disposed = true;
+      controller.abort();
+    };
   }, []);
 
   const deleteZone = async (id: number) => {
@@ -63,7 +92,7 @@ export default function AdminShippingPage() {
     });
     if (!res.ok) return toast.error("Delete failed");
     toast.success("Zone deleted");
-    void (async () => { await load(); })();
+    void load();
   };
 
   const deleteRate = async (id: number) => {
@@ -72,17 +101,14 @@ export default function AdminShippingPage() {
     });
     if (!res.ok) return toast.error("Delete failed");
     toast.success("Rate deleted");
-    void (async () => { await load(); })();
+    void load();
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1
-            className="text-2xl font-semibold"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
             Shipping
           </h1>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
@@ -110,8 +136,8 @@ export default function AdminShippingPage() {
                 <div>
                   <h2 className="text-lg font-medium">{z.name}</h2>
                   <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                    {(z.districts ?? []).length} districts ·{" "}
-                    {z.deliveryDaysMin}–{z.deliveryDaysMax} days
+                    {(z.districts ?? []).length} districts · {z.deliveryDaysMin}–{z.deliveryDaysMax}{" "}
+                    days
                   </p>
                   {z.districts && z.districts.length > 0 && (
                     <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
@@ -135,15 +161,13 @@ export default function AdminShippingPage() {
 
               <div className="mt-4 border-t border-[var(--color-border)] pt-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-sm font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
+                  <h3 className="text-sm font-medium tracking-wide text-[var(--color-text-secondary)] uppercase">
                     Rates
                   </h3>
                   <RateDialog zoneId={z.id} onDone={load} />
                 </div>
                 {rates.filter((r) => r.zoneId === z.id).length === 0 ? (
-                  <p className="text-sm text-[var(--color-text-secondary)]">
-                    No rates defined.
-                  </p>
+                  <p className="text-sm text-[var(--color-text-secondary)]">No rates defined.</p>
                 ) : (
                   <div className="space-y-2">
                     {rates
@@ -242,9 +266,7 @@ function ZoneDialog({ onDone }: { onDone: () => void }) {
             <Input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div>
-            <label className="text-sm font-medium">
-              Districts (comma separated)
-            </label>
+            <label className="text-sm font-medium">Districts (comma separated)</label>
             <Input
               value={districts}
               onChange={(e) => setDistricts(e.target.value)}
@@ -280,13 +302,7 @@ function ZoneDialog({ onDone }: { onDone: () => void }) {
   );
 }
 
-function RateDialog({
-  zoneId,
-  onDone,
-}: {
-  zoneId: number;
-  onDone: () => void;
-}) {
+function RateDialog({ zoneId, onDone }: { zoneId: number; onDone: () => void }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("Standard");
   const [price, setPrice] = useState(0);
@@ -343,16 +359,12 @@ function RateDialog({
             />
           </div>
           <div>
-            <label className="text-sm font-medium">
-              Free above (optional, ৳)
-            </label>
+            <label className="text-sm font-medium">Free above (optional, ৳)</label>
             <Input
               type="number"
               min={0}
               value={freeAbove}
-              onChange={(e) =>
-                setFreeAbove(e.target.value === "" ? "" : Number(e.target.value))
-              }
+              onChange={(e) => setFreeAbove(e.target.value === "" ? "" : Number(e.target.value))}
             />
           </div>
           <Button onClick={submit} disabled={!name || saving} className="w-full">

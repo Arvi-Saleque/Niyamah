@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
-import {
-  CouponForm,
-  type CouponFormValues,
-} from "@/components/admin/coupon-form";
+import { CouponForm, type CouponFormValues } from "@/components/admin/coupon-form";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
@@ -48,9 +45,33 @@ export default function AdminCouponsPage() {
   };
 
   useEffect(() => {
-    void (async () => {
-      await load();
-    })();
+    const controller = new AbortController();
+    let disposed = false;
+
+    async function fetchCoupons() {
+      try {
+        const res = await fetch("/api/v1/admin/coupons", {
+          signal: controller.signal,
+        });
+        const json = await res.json();
+        if (disposed) return;
+        if (res.ok) setItems(json.data?.items ?? []);
+      } catch (error) {
+        if (disposed || (error instanceof DOMException && error.name === "AbortError")) {
+          return;
+        }
+        toast.error("Failed to load coupons");
+      } finally {
+        if (!disposed) setLoading(false);
+      }
+    }
+
+    void fetchCoupons();
+
+    return () => {
+      disposed = true;
+      controller.abort();
+    };
   }, []);
 
   const onSubmit = async (values: CouponFormValues) => {
@@ -95,10 +116,7 @@ export default function AdminCouponsPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           Coupons
         </h1>
         <Dialog open={open} onOpenChange={setOpen}>
@@ -117,9 +135,7 @@ export default function AdminCouponsPage() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-[var(--color-text-muted)]">
-          Loading…
-        </div>
+        <div className="py-12 text-center text-[var(--color-text-muted)]">Loading…</div>
       ) : items.length === 0 ? (
         <EmptyState
           title="No coupons yet"
@@ -135,15 +151,12 @@ export default function AdminCouponsPage() {
                 <th className="px-4 py-3 font-medium">Value</th>
                 <th className="px-4 py-3 font-medium">Limit</th>
                 <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium text-right">Actions</th>
+                <th className="px-4 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {items.map((c) => (
-                <tr
-                  key={c.id}
-                  className="border-t border-[var(--color-border)]"
-                >
+                <tr key={c.id} className="border-t border-[var(--color-border)]">
                   <td className="px-4 py-3 font-mono text-xs">{c.code}</td>
                   <td className="px-4 py-3">{c.type}</td>
                   <td className="px-4 py-3">{c.value}</td>
@@ -153,11 +166,7 @@ export default function AdminCouponsPage() {
                     <div className="flex justify-end">
                       <ConfirmDialog
                         trigger={
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600"
-                          >
+                          <Button size="sm" variant="outline" className="text-red-600">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         }

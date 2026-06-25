@@ -40,9 +40,33 @@ export default function AdminBrandsPage() {
   };
 
   useEffect(() => {
-    void (async () => {
-      await load();
-    })();
+    const controller = new AbortController();
+    let disposed = false;
+
+    async function fetchBrands() {
+      try {
+        const res = await fetch("/api/v1/brands?limit=100", {
+          signal: controller.signal,
+        });
+        const json = await res.json();
+        if (disposed) return;
+        if (res.ok) setItems(json.data?.items ?? json.data ?? []);
+      } catch (error) {
+        if (disposed || (error instanceof DOMException && error.name === "AbortError")) {
+          return;
+        }
+        toast.error("Failed to load brands");
+      } finally {
+        if (!disposed) setLoading(false);
+      }
+    }
+
+    void fetchBrands();
+
+    return () => {
+      disposed = true;
+      controller.abort();
+    };
   }, []);
 
   const onSubmit = async (values: BrandFormValues) => {
@@ -67,7 +91,7 @@ export default function AdminBrandsPage() {
     toast.success(editing ? "Brand updated" : "Brand created");
     setOpen(false);
     setEditing(null);
-    load();
+    void load();
   };
 
   const onDelete = async (id: number) => {
@@ -77,16 +101,13 @@ export default function AdminBrandsPage() {
       return;
     }
     toast.success("Brand deleted");
-    load();
+    void load();
   };
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           Brands
         </h1>
         <Dialog
@@ -103,9 +124,7 @@ export default function AdminBrandsPage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>
-                {editing ? "Edit brand" : "New brand"}
-              </DialogTitle>
+              <DialogTitle>{editing ? "Edit brand" : "New brand"}</DialogTitle>
             </DialogHeader>
             <BrandForm
               defaultValues={
@@ -126,9 +145,7 @@ export default function AdminBrandsPage() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-[var(--color-text-muted)]">
-          Loading…
-        </div>
+        <div className="py-12 text-center text-[var(--color-text-muted)]">Loading…</div>
       ) : items.length === 0 ? (
         <EmptyState
           title="No brands yet"
@@ -143,23 +160,16 @@ export default function AdminBrandsPage() {
                 <th className="px-4 py-3 font-medium">Slug</th>
                 <th className="px-4 py-3 font-medium">Featured</th>
                 <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium text-right">Actions</th>
+                <th className="px-4 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {items.map((b) => (
-                <tr
-                  key={b.id}
-                  className="border-t border-[var(--color-border)]"
-                >
+                <tr key={b.id} className="border-t border-[var(--color-border)]">
                   <td className="px-4 py-3 font-medium">{b.name}</td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {b.slug}
-                  </td>
+                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">{b.slug}</td>
                   <td className="px-4 py-3">{b.featured ? "Yes" : "—"}</td>
-                  <td className="px-4 py-3">
-                    {b.status ? "Active" : "Hidden"}
-                  </td>
+                  <td className="px-4 py-3">{b.status ? "Active" : "Hidden"}</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
                       <Button
@@ -174,11 +184,7 @@ export default function AdminBrandsPage() {
                       </Button>
                       <ConfirmDialog
                         trigger={
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600"
-                          >
+                          <Button size="sm" variant="outline" className="text-red-600">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         }

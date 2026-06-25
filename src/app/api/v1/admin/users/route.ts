@@ -2,11 +2,11 @@ import type { NextRequest } from "next/server";
 import { desc } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 import { apiSuccess } from "@/lib/utils/api-response";
 
 export async function GET(_req: NextRequest) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("customers.view");
   if ("error" in guard) return guard.error;
   const rows = await db
     .select({

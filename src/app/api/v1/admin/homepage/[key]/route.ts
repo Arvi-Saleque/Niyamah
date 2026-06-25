@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { homepageBlocks } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import {
   HOMEPAGE_BLOCK_KEYS,
@@ -21,11 +21,8 @@ function isValidKey(k: string): k is HomepageBlockKey {
   return (HOMEPAGE_BLOCK_KEYS as readonly string[]).includes(k);
 }
 
-export async function PUT(
-  req: NextRequest,
-  ctx: { params: Promise<{ key: string }> },
-) {
-  const guard = await requireAdmin();
+export async function PUT(req: NextRequest, ctx: { params: Promise<{ key: string }> }) {
+  const guard = await requirePermission("homepage.manage");
   if ("error" in guard) return guard.error;
 
   const { key } = await ctx.params;
@@ -38,23 +35,13 @@ export async function PUT(
 
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
-    return apiError(
-      "VALIDATION_ERROR",
-      "Invalid input.",
-      422,
-      parsed.error.flatten().fieldErrors,
-    );
+    return apiError("VALIDATION_ERROR", "Invalid input.", 422, parsed.error.flatten().fieldErrors);
   }
 
   const existing = await db
     .select()
     .from(homepageBlocks)
-    .where(
-      and(
-        eq(homepageBlocks.storeId, DEFAULT_STORE_ID),
-        eq(homepageBlocks.blockKey, key),
-      ),
-    )
+    .where(and(eq(homepageBlocks.storeId, DEFAULT_STORE_ID), eq(homepageBlocks.blockKey, key)))
     .limit(1);
 
   if (existing[0]) {
@@ -83,11 +70,8 @@ export async function PUT(
 }
 
 /** Reset a block to defaults (deletes the override row). */
-export async function DELETE(
-  _req: NextRequest,
-  ctx: { params: Promise<{ key: string }> },
-) {
-  const guard = await requireAdmin();
+export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ key: string }> }) {
+  const guard = await requirePermission("homepage.manage");
   if ("error" in guard) return guard.error;
 
   const { key } = await ctx.params;
@@ -97,12 +81,7 @@ export async function DELETE(
 
   await db
     .delete(homepageBlocks)
-    .where(
-      and(
-        eq(homepageBlocks.storeId, DEFAULT_STORE_ID),
-        eq(homepageBlocks.blockKey, key),
-      ),
-    );
+    .where(and(eq(homepageBlocks.storeId, DEFAULT_STORE_ID), eq(homepageBlocks.blockKey, key)));
 
   return apiSuccess({ blockKey: key, data: HOMEPAGE_DEFAULTS[key], reset: true });
 }

@@ -38,10 +38,7 @@ export default async function AdminAuditLogsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           Audit logs
         </h1>
         <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
@@ -72,17 +69,13 @@ export default async function AdminAuditLogsPage({
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">
                     {r.createdAt.toLocaleString()}
                   </td>
-                  <td className="px-4 py-3">
-                    {r.actorName ?? r.actorEmail ?? "system"}
-                  </td>
+                  <td className="px-4 py-3">{r.actorName ?? r.actorEmail ?? "system"}</td>
                   <td className="px-4 py-3 font-mono text-xs">{r.action}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">
                     {r.entityType}
                     {r.entityId ? `#${r.entityId}` : ""}
                   </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {r.ip ?? "—"}
-                  </td>
+                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.ip ?? "—"}</td>
                 </tr>
               ))}
             </tbody>

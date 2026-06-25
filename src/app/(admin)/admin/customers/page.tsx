@@ -24,10 +24,7 @@ export default async function AdminCustomersPage() {
 
   return (
     <div>
-      <h1
-        className="mb-6 text-2xl font-semibold"
-        style={{ fontFamily: "var(--font-heading)" }}
-      >
+      <h1 className="mb-6 text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
         Customers
       </h1>
       {rows.length === 0 ? (
@@ -49,10 +46,7 @@ export default async function AdminCustomersPage() {
             </thead>
             <tbody>
               {rows.map((c) => (
-                <tr
-                  key={c.id}
-                  className="border-t border-[var(--color-border)]"
-                >
+                <tr key={c.id} className="border-t border-[var(--color-border)]">
                   <td className="px-4 py-3 font-medium">
                     <Link
                       href={`/admin/customers/${c.id}`}
@@ -61,9 +55,7 @@ export default async function AdminCustomersPage() {
                       {c.name ?? "—"}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {c.email}
-                  </td>
+                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">{c.email}</td>
                   <td className="px-4 py-3">{c.phone ?? "—"}</td>
                   <td className="px-4 py-3">{c.verified ? "Yes" : "No"}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">

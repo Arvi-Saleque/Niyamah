@@ -4,10 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
-import {
-  BlogPostForm,
-  type BlogPostFormValues,
-} from "@/components/admin/blog-post-form";
+import { BlogPostForm, type BlogPostFormValues } from "@/components/admin/blog-post-form";
 import { Button } from "@/components/ui/button";
 
 export default function NewBlogPostPage() {
@@ -47,10 +44,7 @@ export default function NewBlogPostPage() {
             <ArrowLeft className="mr-1 h-4 w-4" /> Back to posts
           </Link>
         </Button>
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           New Blog Post
         </h1>
       </div>

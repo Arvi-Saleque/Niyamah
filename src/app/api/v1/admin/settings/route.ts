@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { storeSettings } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 
 const updateSchema = z.object({
@@ -35,25 +35,20 @@ async function ensureRow() {
 }
 
 export async function GET() {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("settings.view");
   if ("error" in guard) return guard.error;
   const row = await ensureRow();
   return apiSuccess(row);
 }
 
 export async function PATCH(req: NextRequest) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("settings.manage");
   if ("error" in guard) return guard.error;
   const body = await req.json().catch(() => null);
   if (!body) return apiError("INVALID_JSON", "Invalid request body.", 400);
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
-    return apiError(
-      "VALIDATION_ERROR",
-      "Invalid input.",
-      422,
-      parsed.error.flatten().fieldErrors,
-    );
+    return apiError("VALIDATION_ERROR", "Invalid input.", 422, parsed.error.flatten().fieldErrors);
   }
   await ensureRow();
   const [updated] = await db

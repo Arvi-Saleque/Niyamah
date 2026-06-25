@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { banners } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 
 const bannerSchema = z.object({
@@ -17,7 +17,7 @@ const bannerSchema = z.object({
 });
 
 export async function GET() {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("slider.view");
   if ("error" in guard) return guard.error;
   const rows = await db
     .select()
@@ -28,18 +28,13 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("slider.manage");
   if ("error" in guard) return guard.error;
   const body = await req.json().catch(() => null);
   if (!body) return apiError("INVALID_JSON", "Invalid request body.", 400);
   const parsed = bannerSchema.safeParse(body);
   if (!parsed.success) {
-    return apiError(
-      "VALIDATION_ERROR",
-      "Invalid input.",
-      422,
-      parsed.error.flatten().fieldErrors,
-    );
+    return apiError("VALIDATION_ERROR", "Invalid input.", 422, parsed.error.flatten().fieldErrors);
   }
   const data = parsed.data;
   const [created] = await db

@@ -36,10 +36,7 @@ export const userRepository = {
   },
 
   async updatePassword(id: string, passwordHash: string): Promise<void> {
-    await db
-      .update(users)
-      .set({ passwordHash, updatedAt: new Date() })
-      .where(eq(users.id, id));
+    await db.update(users).set({ passwordHash, updatedAt: new Date() }).where(eq(users.id, id));
   },
 
   async markVerified(id: string): Promise<void> {

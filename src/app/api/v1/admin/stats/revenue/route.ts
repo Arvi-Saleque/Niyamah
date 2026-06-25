@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { statsRepository } from "@/modules/commerce/infrastructure/stats.repository";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 
 const PERIOD_DAYS: Record<string, number> = {
   "7d": 7,
@@ -14,17 +14,13 @@ const PERIOD_DAYS: Record<string, number> = {
  * Daily revenue series for the requested window.
  */
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("analytics.view");
   if ("error" in guard) return guard.error;
 
   const period = req.nextUrl.searchParams.get("period") ?? "30d";
   const days = PERIOD_DAYS[period];
   if (!days) {
-    return apiError(
-      "INVALID_PERIOD",
-      "period must be one of: 7d, 30d, 90d.",
-      400,
-    );
+    return apiError("INVALID_PERIOD", "period must be one of: 7d, 30d, 90d.", 400);
   }
 
   const series = await statsRepository.revenueTrend(days);

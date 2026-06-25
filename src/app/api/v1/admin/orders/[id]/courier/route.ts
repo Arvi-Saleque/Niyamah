@@ -6,7 +6,7 @@ import { orderRepository } from "@/modules/commerce/infrastructure/order.reposit
 import { courierDispatchSchema } from "@/lib/validations/commerce";
 import { createSteadfastConsignment } from "@/lib/courier/steadfast";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 import { recordAudit } from "@/lib/audit/record";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
 
@@ -19,17 +19,14 @@ interface Ctx {
  * List existing shipment rows for the order.
  */
 export async function GET(_req: NextRequest, { params }: Ctx) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("orders.dispatch");
   if ("error" in guard) return guard.error;
   const { id } = await params;
   const orderId = Number(id);
   if (!Number.isInteger(orderId) || orderId <= 0)
     return apiError("INVALID_ID", "Invalid order id.", 400);
 
-  const rows = await db
-    .select()
-    .from(shipments)
-    .where(eq(shipments.orderId, orderId));
+  const rows = await db.select().from(shipments).where(eq(shipments.orderId, orderId));
   return apiSuccess({ items: rows });
 }
 
@@ -39,7 +36,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
  * fall back to a "manual" record).
  */
 export async function POST(req: NextRequest, { params }: Ctx) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("orders.dispatch");
   if ("error" in guard) return guard.error;
   const { id } = await params;
   const orderId = Number(id);
@@ -49,26 +46,16 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const body = await req.json().catch(() => ({}));
   const parsed = courierDispatchSchema.safeParse(body ?? {});
   if (!parsed.success) {
-    return apiError(
-      "VALIDATION_ERROR",
-      "Invalid input.",
-      422,
-      parsed.error.flatten().fieldErrors,
-    );
+    return apiError("VALIDATION_ERROR", "Invalid input.", 422, parsed.error.flatten().fieldErrors);
   }
 
   const order = await orderRepository.findByIdAdmin(orderId);
   if (!order) return apiError("NOT_FOUND", "Order not found.", 404);
   if (!order.shippingPhone || !order.shippingName || !order.shippingAddressLine1) {
-    return apiError(
-      "MISSING_SHIPPING_INFO",
-      "Order is missing recipient details.",
-      400,
-    );
+    return apiError("MISSING_SHIPPING_INFO", "Order is missing recipient details.", 400);
   }
 
-  const codAmount =
-    order.payments[0]?.method === "COD" ? Number(order.total) : 0;
+  const codAmount = order.payments[0]?.method === "COD" ? Number(order.total) : 0;
 
   let courierResult: {
     ok: boolean;

@@ -44,9 +44,44 @@ export default function AdminBannersPage() {
   };
 
   useEffect(() => {
-    void (async () => {
-      await load();
-    })();
+    const controller = new AbortController();
+    let disposed = false;
+
+    async function fetchBanners() {
+      try {
+        const res = await fetch("/api/v1/admin/banners", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        const json = await res.json();
+        if (disposed) return;
+        const data: ApiBanner[] = json?.data ?? [];
+        setOriginal(data);
+        setItems(
+          data.map((b) => ({
+            id: String(b.id),
+            title: b.title,
+            image: b.imageUrl,
+            link: b.linkUrl ?? "",
+            isActive: b.status === "active",
+          })),
+        );
+      } catch (error) {
+        if (disposed || (error instanceof DOMException && error.name === "AbortError")) {
+          return;
+        }
+        toast.error("Failed to load banners");
+      } finally {
+        if (!disposed) setLoading(false);
+      }
+    }
+
+    void fetchBanners();
+
+    return () => {
+      disposed = true;
+      controller.abort();
+    };
   }, []);
 
   const save = async () => {
@@ -105,10 +140,7 @@ export default function AdminBannersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1
-            className="text-2xl font-semibold"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
             Banners
           </h1>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">

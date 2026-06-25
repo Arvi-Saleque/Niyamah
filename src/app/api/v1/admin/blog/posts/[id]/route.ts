@@ -2,14 +2,14 @@ import type { NextRequest } from "next/server";
 import { blogRepository } from "@/modules/blog/infrastructure/blog.repository";
 import { blogPostUpdateSchema } from "@/lib/validations/marketing";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 
 interface Ctx {
   params: Promise<{ id: string }>;
 }
 
 export async function GET(_req: NextRequest, { params }: Ctx) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("blog.view");
   if ("error" in guard) return guard.error;
   const { id: idStr } = await params;
   const id = Number(idStr);
@@ -20,7 +20,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Ctx) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("blog.manage");
   if ("error" in guard) return guard.error;
   const { id: idStr } = await params;
   const id = Number(idStr);
@@ -37,7 +37,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
 }
 
 export async function DELETE(_req: NextRequest, { params }: Ctx) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("blog.manage");
   if ("error" in guard) return guard.error;
   const { id: idStr } = await params;
   const id = Number(idStr);

@@ -48,19 +48,13 @@ export default async function AdminBlacklistPage() {
               {items.map((row) => (
                 <tr key={row.id} className="border-t border-[var(--color-border)]">
                   <td className="px-4 py-3">
-                    {row.phone && (
-                      <div className="font-medium">{row.phone}</div>
-                    )}
+                    {row.phone && <div className="font-medium">{row.phone}</div>}
                     {row.email && (
-                      <div className="text-[var(--color-text-secondary)]">
-                        {row.email}
-                      </div>
+                      <div className="text-[var(--color-text-secondary)]">{row.email}</div>
                     )}
                   </td>
-                  <td className="px-4 py-3">
-                    {REASON_LABELS[row.reason] ?? row.reason}
-                  </td>
-                  <td className="px-4 py-3 max-w-md truncate text-[var(--color-text-muted)]">
+                  <td className="px-4 py-3">{REASON_LABELS[row.reason] ?? row.reason}</td>
+                  <td className="max-w-md truncate px-4 py-3 text-[var(--color-text-muted)]">
                     {row.note ?? "—"}
                   </td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">

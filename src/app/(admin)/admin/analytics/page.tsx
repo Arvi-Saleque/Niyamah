@@ -4,12 +4,7 @@ import { orders, orderItems, products, users } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
 import { StatsCard } from "@/components/admin/stats-card";
 import { formatCurrency } from "@/lib/utils";
-import {
-  DollarSign,
-  ShoppingBag,
-  Users,
-  TrendingUp,
-} from "lucide-react";
+import { DollarSign, ShoppingBag, Users, TrendingUp } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -35,9 +30,7 @@ export default async function AdminAnalyticsPage() {
   const [newCustomersRow] = await db
     .select({ c: sql<string>`count(*)` })
     .from(users)
-    .where(
-      sql`${users.role} = 'customer' and ${users.createdAt} >= ${sinceIso}`,
-    );
+    .where(sql`${users.role} = 'customer' and ${users.createdAt} >= ${sinceIso}`);
   const newCustomers30 = Number(newCustomersRow?.c ?? 0);
 
   // Daily revenue (last 30 days)
@@ -53,10 +46,7 @@ export default async function AdminAnalyticsPage() {
     .groupBy(sql`to_char(${orders.createdAt}, 'YYYY-MM-DD')`)
     .orderBy(sql`to_char(${orders.createdAt}, 'YYYY-MM-DD') asc`);
 
-  const maxDaily = daily.reduce(
-    (m, d) => Math.max(m, Number(d.total)),
-    0,
-  );
+  const maxDaily = daily.reduce((m, d) => Math.max(m, Number(d.total)), 0);
 
   // Top products
   const top = await db
@@ -81,9 +71,7 @@ export default async function AdminAnalyticsPage() {
       c: sql<string>`count(*)`,
     })
     .from(orders)
-    .where(
-      sql`${orders.storeId} = ${DEFAULT_STORE_ID} and ${orders.createdAt} >= ${sinceIso}`,
-    )
+    .where(sql`${orders.storeId} = ${DEFAULT_STORE_ID} and ${orders.createdAt} >= ${sinceIso}`)
     .groupBy(orders.status);
 
   const totalProductsRow = await db
@@ -95,44 +83,23 @@ export default async function AdminAnalyticsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           Analytics
         </h1>
-        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-          Last 30 days performance.
-        </p>
+        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">Last 30 days performance.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Revenue (30d)"
-          value={revenue30}
-          isCurrency
-          icon={DollarSign}
-        />
+        <StatsCard title="Revenue (30d)" value={revenue30} isCurrency icon={DollarSign} />
         <StatsCard title="Orders (30d)" value={orders30} icon={ShoppingBag} />
-        <StatsCard
-          title="Avg order value"
-          value={aov}
-          isCurrency
-          icon={TrendingUp}
-        />
-        <StatsCard
-          title="New customers"
-          value={newCustomers30}
-          icon={Users}
-        />
+        <StatsCard title="Avg order value" value={aov} isCurrency icon={TrendingUp} />
+        <StatsCard title="New customers" value={newCustomers30} icon={Users} />
       </div>
 
       <section className="rounded-2xl border border-[var(--color-border)] bg-white p-5">
         <h2 className="mb-4 text-lg font-medium">Daily revenue</h2>
         {daily.length === 0 ? (
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            No orders in this period.
-          </p>
+          <p className="text-sm text-[var(--color-text-secondary)]">No orders in this period.</p>
         ) : (
           <div className="flex h-48 items-end gap-1">
             {daily.map((d) => {
@@ -159,16 +126,14 @@ export default async function AdminAnalyticsPage() {
         <section className="rounded-2xl border border-[var(--color-border)] bg-white p-5">
           <h2 className="mb-4 text-lg font-medium">Top products</h2>
           {top.length === 0 ? (
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              No sales yet.
-            </p>
+            <p className="text-sm text-[var(--color-text-secondary)]">No sales yet.</p>
           ) : (
             <table className="w-full text-sm">
               <thead className="text-left text-[var(--color-text-secondary)]">
                 <tr>
                   <th className="pb-2 font-medium">Product</th>
-                  <th className="pb-2 font-medium text-right">Qty</th>
-                  <th className="pb-2 font-medium text-right">Revenue</th>
+                  <th className="pb-2 text-right font-medium">Qty</th>
+                  <th className="pb-2 text-right font-medium">Revenue</th>
                 </tr>
               </thead>
               <tbody>
@@ -176,9 +141,7 @@ export default async function AdminAnalyticsPage() {
                   <tr key={i} className="border-t border-[var(--color-border)]">
                     <td className="py-2">{t.productName}</td>
                     <td className="py-2 text-right">{Number(t.qty)}</td>
-                    <td className="py-2 text-right">
-                      {formatCurrency(Number(t.revenue))}
-                    </td>
+                    <td className="py-2 text-right">{formatCurrency(Number(t.revenue))}</td>
                   </tr>
                 ))}
               </tbody>
@@ -189,9 +152,7 @@ export default async function AdminAnalyticsPage() {
         <section className="rounded-2xl border border-[var(--color-border)] bg-white p-5">
           <h2 className="mb-4 text-lg font-medium">Orders by status</h2>
           {byStatus.length === 0 ? (
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              No orders.
-            </p>
+            <p className="text-sm text-[var(--color-text-secondary)]">No orders.</p>
           ) : (
             <ul className="space-y-2 text-sm">
               {byStatus.map((s) => (

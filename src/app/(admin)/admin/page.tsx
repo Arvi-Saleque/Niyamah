@@ -1,20 +1,11 @@
+import { getCurrentAdminAccess, hasPermission } from "@/modules/auth/application/get-admin-access";
+import { getFirstAllowedAdminPath } from "@/modules/auth/application/get-first-allowed-path";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { and, eq, sql } from "drizzle-orm";
-import {
-  Package,
-  ShoppingBag,
-  AlertTriangle,
-  RotateCcw,
-  Clock,
-  TrendingUp,
-} from "lucide-react";
+import { Package, ShoppingBag, AlertTriangle, RotateCcw, Clock, TrendingUp } from "lucide-react";
 import { db } from "@/lib/db";
-import {
-  orders,
-  products,
-  inventory,
-  returnRequests,
-} from "@/lib/db/schema";
+import { orders, products, inventory, returnRequests } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
 import { StatsCard } from "@/components/admin/stats-card";
 import { PageHeader } from "@/components/admin/page-header";
@@ -30,6 +21,17 @@ function startOfDay(d: Date) {
 }
 
 export default async function AdminDashboardPage() {
+  const ctx = await getCurrentAdminAccess();
+  if (!ctx) redirect("/login?redirect=/admin");
+  
+  if (!hasPermission(ctx, "dashboard.view")) {
+    const fallback = getFirstAllowedAdminPath(ctx);
+    if (fallback === "/admin") {
+       redirect("/admin/access-denied");
+    }
+    redirect(fallback);
+  }
+
   const now = new Date();
   const todayStart = startOfDay(now);
   const weekStart = startOfDay(new Date(now.getTime() - 6 * 86400000));
@@ -55,21 +57,15 @@ export default async function AdminDashboardPage() {
     db
       .select({ total: sql<string>`coalesce(sum(${orders.total}), 0)` })
       .from(orders)
-      .where(
-        and(isStore, notCancelled, sql`${orders.createdAt} >= ${todayStart}`),
-      ),
+      .where(and(isStore, notCancelled, sql`${orders.createdAt} >= ${todayStart}`)),
     db
       .select({ total: sql<string>`coalesce(sum(${orders.total}), 0)` })
       .from(orders)
-      .where(
-        and(isStore, notCancelled, sql`${orders.createdAt} >= ${weekStart}`),
-      ),
+      .where(and(isStore, notCancelled, sql`${orders.createdAt} >= ${weekStart}`)),
     db
       .select({ total: sql<string>`coalesce(sum(${orders.total}), 0)` })
       .from(orders)
-      .where(
-        and(isStore, notCancelled, sql`${orders.createdAt} >= ${monthStart}`),
-      ),
+      .where(and(isStore, notCancelled, sql`${orders.createdAt} >= ${monthStart}`)),
     db
       .select({ c: sql<number>`count(*)::int` })
       .from(orders)
@@ -77,12 +73,7 @@ export default async function AdminDashboardPage() {
     db
       .select({ c: sql<number>`count(*)::int` })
       .from(orders)
-      .where(
-        and(
-          isStore,
-          sql`${orders.status} in ('PENDING','CONFIRMED','PROCESSING')`,
-        ),
-      ),
+      .where(and(isStore, sql`${orders.status} in ('PENDING','CONFIRMED','PROCESSING')`)),
     db
       .select({ c: sql<number>`count(*)::int` })
       .from(products)
@@ -107,9 +98,7 @@ export default async function AdminDashboardPage() {
         total: sql<string>`coalesce(sum(${orders.total}), 0)`,
       })
       .from(orders)
-      .where(
-        and(isStore, notCancelled, sql`${orders.createdAt} >= ${monthStart}`),
-      )
+      .where(and(isStore, notCancelled, sql`${orders.createdAt} >= ${monthStart}`))
       .groupBy(sql`to_char(${orders.createdAt}, 'YYYY-MM-DD')`)
       .orderBy(sql`to_char(${orders.createdAt}, 'YYYY-MM-DD')`),
     db
@@ -158,9 +147,7 @@ export default async function AdminDashboardPage() {
   const outOfStock = Number(needsAttentionLowStock[0]?.c ?? 0);
 
   // Build a 30-day series, filling missing days with 0.
-  const seriesMap = new Map(
-    seriesRows.map((r) => [r.day, Number(r.total)]),
-  );
+  const seriesMap = new Map(seriesRows.map((r) => [r.day, Number(r.total)]));
   const series: { day: string; total: number }[] = [];
   for (let i = 0; i < 30; i++) {
     const d = new Date(monthStart.getTime() + i * 86400000);
@@ -189,34 +176,11 @@ export default async function AdminDashboardPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <StatsCard
-          title="Revenue Today"
-          value={revenueToday}
-          isCurrency
-          icon={TrendingUp}
-        />
-        <StatsCard
-          title="Revenue 7-day"
-          value={revenueWeek}
-          isCurrency
-          icon={TrendingUp}
-        />
-        <StatsCard
-          title="Revenue 30-day"
-          value={revenueMonth}
-          isCurrency
-          icon={TrendingUp}
-        />
-        <StatsCard
-          title="Orders Today"
-          value={ordersToday}
-          icon={ShoppingBag}
-        />
-        <StatsCard
-          title="Needs action"
-          value={pendingAction}
-          icon={Clock}
-        />
+        <StatsCard title="Revenue Today" value={revenueToday} isCurrency icon={TrendingUp} />
+        <StatsCard title="Revenue 7-day" value={revenueWeek} isCurrency icon={TrendingUp} />
+        <StatsCard title="Revenue 30-day" value={revenueMonth} isCurrency icon={TrendingUp} />
+        <StatsCard title="Orders Today" value={ordersToday} icon={ShoppingBag} />
+        <StatsCard title="Needs action" value={pendingAction} icon={Clock} />
         <StatsCard title="Products" value={totalProducts} icon={Package} />
       </div>
 
@@ -227,27 +191,14 @@ export default async function AdminDashboardPage() {
             Peak {formatCurrency(maxValue)}
           </span>
         </div>
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          className="h-32 w-full"
-          preserveAspectRatio="none"
-        >
-          <polygon
-            fill="var(--color-accent-light)"
-            opacity="0.5"
-            points={areaPoints}
-          />
-          <polyline
-            fill="none"
-            stroke="var(--color-accent)"
-            strokeWidth="2"
-            points={points}
-          />
+        <svg viewBox={`0 0 ${W} ${H}`} className="h-32 w-full" preserveAspectRatio="none">
+          <polygon fill="var(--color-accent-light)" opacity="0.5" points={areaPoints} />
+          <polyline fill="none" stroke="var(--color-accent)" strokeWidth="2" points={points} />
         </svg>
       </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="lg:col-span-2 rounded-2xl border border-[var(--color-border)] bg-white p-5">
+        <section className="rounded-2xl border border-[var(--color-border)] bg-white p-5 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-medium">Recent orders</h2>
             <Link
@@ -258,9 +209,7 @@ export default async function AdminDashboardPage() {
             </Link>
           </div>
           {recentOrders.length === 0 ? (
-            <p className="text-sm text-[var(--color-text-muted)]">
-              No orders yet.
-            </p>
+            <p className="text-sm text-[var(--color-text-muted)]">No orders yet.</p>
           ) : (
             <table className="w-full text-sm">
               <thead className="text-left text-[var(--color-text-muted)]">
@@ -268,15 +217,12 @@ export default async function AdminDashboardPage() {
                   <th className="pb-2 font-medium">Order</th>
                   <th className="pb-2 font-medium">Customer</th>
                   <th className="pb-2 font-medium">Status</th>
-                  <th className="pb-2 font-medium text-right">Total</th>
+                  <th className="pb-2 text-right font-medium">Total</th>
                 </tr>
               </thead>
               <tbody>
                 {recentOrders.map((o) => (
-                  <tr
-                    key={o.id}
-                    className="border-t border-[var(--color-border)]"
-                  >
+                  <tr key={o.id} className="border-t border-[var(--color-border)]">
                     <td className="py-2">
                       <Link
                         href={`/admin/orders/${o.id}`}
@@ -355,7 +301,7 @@ export default async function AdminDashboardPage() {
           </ul>
           {needsAttentionReturns.length > 0 && (
             <div className="mt-5">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
+              <p className="mb-2 text-xs font-semibold tracking-wide text-[var(--color-text-muted)] uppercase">
                 Latest pending returns
               </p>
               <ul className="space-y-1 text-sm">

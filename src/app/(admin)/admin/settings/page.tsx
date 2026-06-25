@@ -5,9 +5,7 @@ import { toast } from "sonner";
 import { SettingsForm, type SettingsFormValues } from "@/components/admin/settings-form";
 
 export default function AdminSettingsPage() {
-  const [defaults, setDefaults] = useState<Partial<SettingsFormValues> | null>(
-    null,
-  );
+  const [defaults, setDefaults] = useState<Partial<SettingsFormValues> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,12 +54,9 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="max-w-3xl space-y-6">
       <div>
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           Settings
         </h1>
         <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
@@ -71,10 +66,7 @@ export default function AdminSettingsPage() {
       {loading ? (
         <p className="text-sm text-[var(--color-text-secondary)]">Loading…</p>
       ) : (
-        <SettingsForm
-          {...(defaults && { defaultValues: defaults })}
-          onSubmit={onSubmit}
-        />
+        <SettingsForm {...(defaults && { defaultValues: defaults })} onSubmit={onSubmit} />
       )}
     </div>
   );

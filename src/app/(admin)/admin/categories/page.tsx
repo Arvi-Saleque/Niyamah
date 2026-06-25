@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import {
-  CategoryForm,
-  type CategoryFormValues,
-} from "@/components/admin/category-form";
+import { CategoryForm, type CategoryFormValues } from "@/components/admin/category-form";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
@@ -43,9 +40,33 @@ export default function AdminCategoriesPage() {
   };
 
   useEffect(() => {
-    void (async () => {
-      await load();
-    })();
+    const controller = new AbortController();
+    let disposed = false;
+
+    async function fetchCategories() {
+      try {
+        const res = await fetch("/api/v1/categories?limit=100", {
+          signal: controller.signal,
+        });
+        const json = await res.json();
+        if (disposed) return;
+        if (res.ok) setItems(json.data?.items ?? json.data ?? []);
+      } catch (error) {
+        if (disposed || (error instanceof DOMException && error.name === "AbortError")) {
+          return;
+        }
+        toast.error("Failed to load categories");
+      } finally {
+        if (!disposed) setLoading(false);
+      }
+    }
+
+    void fetchCategories();
+
+    return () => {
+      disposed = true;
+      controller.abort();
+    };
   }, []);
 
   const onSubmit = async (values: CategoryFormValues) => {
@@ -55,9 +76,7 @@ export default function AdminCategoriesPage() {
       ...(values.description && { description: values.description }),
       ...(values.parentId && { parentId: Number(values.parentId) }),
     };
-    const url = editing
-      ? `/api/v1/categories/${editing.id}`
-      : "/api/v1/categories";
+    const url = editing ? `/api/v1/categories/${editing.id}` : "/api/v1/categories";
     const res = await fetch(url, {
       method: editing ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -87,10 +106,7 @@ export default function AdminCategoriesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           Categories
         </h1>
         <Dialog
@@ -107,9 +123,7 @@ export default function AdminCategoriesPage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>
-                {editing ? "Edit category" : "New category"}
-              </DialogTitle>
+              <DialogTitle>{editing ? "Edit category" : "New category"}</DialogTitle>
             </DialogHeader>
             <CategoryForm
               defaultValues={
@@ -131,9 +145,7 @@ export default function AdminCategoriesPage() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-[var(--color-text-muted)]">
-          Loading…
-        </div>
+        <div className="py-12 text-center text-[var(--color-text-muted)]">Loading…</div>
       ) : items.length === 0 ? (
         <EmptyState
           title="No categories yet"
@@ -148,23 +160,16 @@ export default function AdminCategoriesPage() {
                 <th className="px-4 py-3 font-medium">Slug</th>
                 <th className="px-4 py-3 font-medium">Sort</th>
                 <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium text-right">Actions</th>
+                <th className="px-4 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {items.map((c) => (
-                <tr
-                  key={c.id}
-                  className="border-t border-[var(--color-border)]"
-                >
+                <tr key={c.id} className="border-t border-[var(--color-border)]">
                   <td className="px-4 py-3 font-medium">{c.name}</td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {c.slug}
-                  </td>
+                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">{c.slug}</td>
                   <td className="px-4 py-3">{c.sortOrder ?? 0}</td>
-                  <td className="px-4 py-3">
-                    {c.status ? "Active" : "Hidden"}
-                  </td>
+                  <td className="px-4 py-3">{c.status ? "Active" : "Hidden"}</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
                       <Button
@@ -179,11 +184,7 @@ export default function AdminCategoriesPage() {
                       </Button>
                       <ConfirmDialog
                         trigger={
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600"
-                          >
+                          <Button size="sm" variant="outline" className="text-red-600">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         }

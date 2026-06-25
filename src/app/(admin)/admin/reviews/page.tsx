@@ -32,7 +32,7 @@ const TABS: { label: string; value: "ALL" | ReviewStatus }[] = [
 export default function AdminReviewsPage() {
   const [tab, setTab] = useState<"ALL" | ReviewStatus>("PENDING");
   const [rows, setRows] = useState<AdminReview[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
     setLoading(true);
@@ -44,9 +44,7 @@ export default function AdminReviewsPage() {
       const res = await fetch(url, { cache: "no-store" });
       const json = await res.json();
       const data = json?.data ?? json;
-      const list: AdminReview[] = Array.isArray(data)
-        ? data
-        : (data?.items ?? data?.rows ?? []);
+      const list: AdminReview[] = Array.isArray(data) ? data : (data?.items ?? data?.rows ?? []);
       setRows(list);
     } catch {
       toast.error("Failed to load reviews");
@@ -56,8 +54,40 @@ export default function AdminReviewsPage() {
   };
 
   useEffect(() => {
-    void (async () => { await load(); })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const controller = new AbortController();
+    let disposed = false;
+
+    async function fetchReviews() {
+      try {
+        const url =
+          tab === "ALL"
+            ? "/api/v1/admin/reviews?limit=100"
+            : `/api/v1/admin/reviews?limit=100&status=${tab}`;
+        const res = await fetch(url, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        const json = await res.json();
+        if (disposed) return;
+        const data = json?.data ?? json;
+        const list: AdminReview[] = Array.isArray(data) ? data : (data?.items ?? data?.rows ?? []);
+        setRows(list);
+      } catch (error) {
+        if (disposed || (error instanceof DOMException && error.name === "AbortError")) {
+          return;
+        }
+        toast.error("Failed to load reviews");
+      } finally {
+        if (!disposed) setLoading(false);
+      }
+    }
+
+    void fetchReviews();
+
+    return () => {
+      disposed = true;
+      controller.abort();
+    };
   }, [tab]);
 
   const moderate = async (id: number, status: ReviewStatus) => {
@@ -71,7 +101,7 @@ export default function AdminReviewsPage() {
       return;
     }
     toast.success(`Review ${status.toLowerCase()}`);
-    void (async () => { await load(); })();
+    void load();
   };
 
   const remove = async (id: number) => {
@@ -83,16 +113,13 @@ export default function AdminReviewsPage() {
       return;
     }
     toast.success("Review deleted");
-    void (async () => { await load(); })();
+    void load();
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           Reviews
         </h1>
       </div>
@@ -101,8 +128,12 @@ export default function AdminReviewsPage() {
         {TABS.map((t) => (
           <button
             key={t.value}
-            onClick={() => setTab(t.value)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
+            onClick={() => {
+              if (t.value === tab) return;
+              setLoading(true);
+              setTab(t.value);
+            }}
+            className={`border-b-2 px-4 py-2 text-sm font-medium transition ${
               tab === t.value
                 ? "border-[var(--color-accent)] text-[var(--color-accent)]"
                 : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
@@ -122,7 +153,7 @@ export default function AdminReviewsPage() {
           {rows.map((r) => (
             <div
               key={r.id}
-              className="rounded-2xl border border-[var(--color-border)] bg-white p-4 space-y-3"
+              className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-white p-4"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -138,36 +169,21 @@ export default function AdminReviewsPage() {
               </div>
 
               {r.title && <div className="font-medium">{r.title}</div>}
-              {r.body && (
-                <p className="text-sm text-[var(--color-text-secondary)]">
-                  {r.body}
-                </p>
-              )}
+              {r.body && <p className="text-sm text-[var(--color-text-secondary)]">{r.body}</p>}
 
               <div className="flex flex-wrap gap-2 pt-2">
                 {r.status !== "APPROVED" && (
-                  <Button
-                    size="sm"
-                    onClick={() => moderate(r.id, "APPROVED")}
-                  >
+                  <Button size="sm" onClick={() => moderate(r.id, "APPROVED")}>
                     Approve
                   </Button>
                 )}
                 {r.status !== "REJECTED" && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => moderate(r.id, "REJECTED")}
-                  >
+                  <Button size="sm" variant="outline" onClick={() => moderate(r.id, "REJECTED")}>
                     Reject
                   </Button>
                 )}
                 {r.status !== "PENDING" && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => moderate(r.id, "PENDING")}
-                  >
+                  <Button size="sm" variant="ghost" onClick={() => moderate(r.id, "PENDING")}>
                     Reset to pending
                   </Button>
                 )}

@@ -3,7 +3,7 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { auditLogs, users } from "@/lib/db/schema";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
 
 /**
@@ -14,7 +14,7 @@ import { DEFAULT_STORE_ID } from "@/lib/constants/store";
  * Query: ?page=1&limit=50&entityType=order&actorId=xxx&action=order.dispatch
  */
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("audit.view");
   if ("error" in guard) return guard.error;
 
   const sp = req.nextUrl.searchParams;

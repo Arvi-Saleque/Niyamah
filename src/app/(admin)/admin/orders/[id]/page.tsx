@@ -33,8 +33,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
   ]);
 
   const created = new Date(order.createdAt).toLocaleString();
-  const codAmount =
-    order.payments[0]?.method === "COD" ? Number(order.total) : 0;
+  const codAmount = order.payments[0]?.method === "COD" ? Number(order.total) : 0;
   const canDispatch = ["CONFIRMED", "PROCESSING"].includes(order.status);
 
   return (
@@ -47,31 +46,20 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
         </Button>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1
-              className="text-2xl font-semibold"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
+            <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
               Order #{order.id}
             </h1>
             <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-              Placed {created} ·{" "}
-              {order.shippingName ?? order.guestEmail ?? order.userId ?? "Guest"}
+              Placed {created} · {order.shippingName ?? order.guestEmail ?? order.userId ?? "Guest"}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button asChild variant="outline" size="sm">
-              <a
-                href={`/api/v1/orders/${order.id}/invoice`}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href={`/api/v1/orders/${order.id}/invoice`} target="_blank" rel="noreferrer">
                 <FileText className="mr-1 h-4 w-4" /> Invoice
               </a>
             </Button>
-            <AdminOrderActions
-              orderId={String(order.id)}
-              currentStatus={order.status}
-            />
+            <AdminOrderActions orderId={String(order.id)} currentStatus={order.status} />
           </div>
         </div>
       </div>
@@ -93,9 +81,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                       {formatCurrency(Number(it.unitPrice))}
                     </p>
                   </div>
-                  <p className="font-semibold">
-                    {formatCurrency(Number(it.totalPrice))}
-                  </p>
+                  <p className="font-semibold">{formatCurrency(Number(it.totalPrice))}</p>
                 </div>
               ))}
             </div>
@@ -141,16 +127,11 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               <h2 className="font-semibold">Shipments</h2>
             </div>
             {orderShipments.length === 0 ? (
-              <p className="text-sm text-[var(--color-text-muted)]">
-                No shipments dispatched yet.
-              </p>
+              <p className="text-sm text-[var(--color-text-muted)]">No shipments dispatched yet.</p>
             ) : (
               <ul className="space-y-2 text-sm">
                 {orderShipments.map((s) => (
-                  <li
-                    key={s.id}
-                    className="rounded-lg border border-[var(--color-border)] p-3"
-                  >
+                  <li key={s.id} className="rounded-lg border border-[var(--color-border)] p-3">
                     <div className="flex items-center justify-between">
                       <span className="font-medium capitalize">{s.courier}</span>
                       <StatusBadge status={s.status} />
@@ -158,15 +139,11 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                     <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-[var(--color-text-muted)]">
                       {s.trackingCode && <span>Tracking: {s.trackingCode}</span>}
                       {s.consignmentId && <span>Consignment: {s.consignmentId}</span>}
-                      {s.codAmount && (
-                        <span>COD: {formatCurrency(Number(s.codAmount))}</span>
-                      )}
+                      {s.codAmount && <span>COD: {formatCurrency(Number(s.codAmount))}</span>}
                       <span>Sent {new Date(s.createdAt).toLocaleString()}</span>
                     </div>
                     {s.note && (
-                      <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
-                        {s.note}
-                      </p>
+                      <p className="mt-2 text-xs text-[var(--color-text-secondary)]">{s.note}</p>
                     )}
                   </li>
                 ))}
@@ -177,18 +154,14 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
           <section className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
             <h2 className="mb-4 font-semibold">Status history</h2>
             {order.statusHistory.length === 0 ? (
-              <p className="text-sm text-[var(--color-text-muted)]">
-                No status changes yet.
-              </p>
+              <p className="text-sm text-[var(--color-text-muted)]">No status changes yet.</p>
             ) : (
               <ol className="space-y-3 text-sm">
                 {order.statusHistory.map((h) => (
                   <li key={h.id} className="flex items-start gap-3">
                     <StatusBadge status={h.toStatus} />
                     <div className="flex-1">
-                      <p className="text-[var(--color-text-secondary)]">
-                        {h.note ?? "—"}
-                      </p>
+                      <p className="text-[var(--color-text-secondary)]">{h.note ?? "—"}</p>
                       <p className="text-xs text-[var(--color-text-muted)]">
                         {new Date(h.createdAt).toLocaleString()}
                       </p>
@@ -202,9 +175,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
           <section className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
             <h2 className="mb-4 font-semibold">Payments</h2>
             {order.payments.length === 0 ? (
-              <p className="text-sm text-[var(--color-text-muted)]">
-                No payments recorded.
-              </p>
+              <p className="text-sm text-[var(--color-text-muted)]">No payments recorded.</p>
             ) : (
               <ul className="space-y-2 text-sm">
                 {order.payments.map((p) => (
@@ -215,9 +186,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                     <span>{p.method ?? "—"}</span>
                     <span className="flex items-center gap-3">
                       <StatusBadge status={p.status} />
-                      <span className="font-semibold">
-                        {formatCurrency(Number(p.amount))}
-                      </span>
+                      <span className="font-semibold">{formatCurrency(Number(p.amount))}</span>
                     </span>
                   </li>
                 ))}
@@ -227,9 +196,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
         </div>
 
         <aside className="space-y-6">
-          {canDispatch && (
-            <CourierDispatchPanel orderId={order.id} codAmount={codAmount} />
-          )}
+          {canDispatch && <CourierDispatchPanel orderId={order.id} codAmount={codAmount} />}
 
           <section className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
             <h2 className="mb-4 font-semibold">Summary</h2>
@@ -267,16 +234,14 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               </p>
             )}
             {order.guestEmail && order.shippingName && (
-              <p className="text-sm text-[var(--color-text-muted)]">
-                {order.guestEmail}
-              </p>
+              <p className="text-sm text-[var(--color-text-muted)]">{order.guestEmail}</p>
             )}
           </section>
 
           <section className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
             <h2 className="mb-3 font-semibold">Shipping address</h2>
             {order.shippingAddressLine1 ? (
-              <address className="text-sm not-italic text-[var(--color-text-secondary)]">
+              <address className="text-sm text-[var(--color-text-secondary)] not-italic">
                 {order.shippingAddressLine1}
                 {order.shippingAddressLine2 && (
                   <>
@@ -304,7 +269,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
           {order.note && (
             <section className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
               <h2 className="mb-3 font-semibold">Customer note</h2>
-              <p className="whitespace-pre-wrap text-sm">{order.note}</p>
+              <p className="text-sm whitespace-pre-wrap">{order.note}</p>
             </section>
           )}
         </aside>

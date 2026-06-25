@@ -18,9 +18,7 @@ export class EmailAlreadyTakenError extends Error {
  *
  * Returns the new user's ID.
  */
-export async function registerUserUseCase(
-  input: RegisterInput,
-): Promise<{ userId: string }> {
+export async function registerUserUseCase(input: RegisterInput): Promise<{ userId: string }> {
   const existing = await userRepository.findByEmail(input.email);
   if (existing) {
     throw new EmailAlreadyTakenError();

@@ -1,4 +1,5 @@
 # Niyamah — Complete E-Commerce Template (Version 1)
+
 ### Premium · Admin-Controlled · SaaS-Ready Architecture
 
 ---
@@ -29,25 +30,25 @@ AI features: Excluded from v1, architecture does not block them later
 
 ## Final Tech Stack
 
-| Layer | Decision | Reason |
-|---|---|---|
-| Framework | Next.js 15 App Router + TypeScript (strict) | SSR, SEO, Server Components, API routes |
-| Styling | Tailwind CSS v4 + shadcn/ui + Framer Motion + Lucide Icons | Speed, polish, animations |
-| Database | PostgreSQL | ACID, relational, MVCC — critical for orders and inventory |
-| ORM | Drizzle ORM | Faster runtime, SQL-like control, edge/serverless compatible |
-| Auth | Auth.js v5 (NextAuth v5) | Custom control, RBAC-friendly, open source |
-| UI State | Zustand | Cart drawer, filters, wishlist, quick view state |
-| Server State | TanStack Query | Caching, pagination, infinite scroll, revalidation |
-| Search | Meilisearch | Instant search, typo tolerance, great free tier |
-| Images | Cloudinary | Free CDN tier, transformations, bulk upload |
-| Cache / Rate Limit | Upstash Redis | Rate limiting, sessions, OTP, cart cache, job queue |
-| Background Jobs | Inngest | Serverless event-driven jobs — email, analytics, search sync |
-| Email | Resend | Transactional emails, clean API, free tier |
-| Validation | Zod | End-to-end type-safe validation at every API boundary |
-| Payment (v1) | Cash on Delivery only | Architecture is payment-method-agnostic |
-| Analytics | GA4 + GTM + Meta Pixel + Meta CAPI | Dual browser + server tracking |
-| Hosting | Vercel + Neon PostgreSQL | Serverless, auto-scaling, free tiers |
-| Admin panel | /admin route inside same Next.js app | One codebase, one deployment |
+| Layer              | Decision                                                   | Reason                                                       |
+| ------------------ | ---------------------------------------------------------- | ------------------------------------------------------------ |
+| Framework          | Next.js 15 App Router + TypeScript (strict)                | SSR, SEO, Server Components, API routes                      |
+| Styling            | Tailwind CSS v4 + shadcn/ui + Framer Motion + Lucide Icons | Speed, polish, animations                                    |
+| Database           | PostgreSQL                                                 | ACID, relational, MVCC — critical for orders and inventory   |
+| ORM                | Drizzle ORM                                                | Faster runtime, SQL-like control, edge/serverless compatible |
+| Auth               | Auth.js v5 (NextAuth v5)                                   | Custom control, RBAC-friendly, open source                   |
+| UI State           | Zustand                                                    | Cart drawer, filters, wishlist, quick view state             |
+| Server State       | TanStack Query                                             | Caching, pagination, infinite scroll, revalidation           |
+| Search             | Meilisearch                                                | Instant search, typo tolerance, great free tier              |
+| Images             | Cloudinary                                                 | Free CDN tier, transformations, bulk upload                  |
+| Cache / Rate Limit | Upstash Redis                                              | Rate limiting, sessions, OTP, cart cache, job queue          |
+| Background Jobs    | Inngest                                                    | Serverless event-driven jobs — email, analytics, search sync |
+| Email              | Resend                                                     | Transactional emails, clean API, free tier                   |
+| Validation         | Zod                                                        | End-to-end type-safe validation at every API boundary        |
+| Payment (v1)       | Cash on Delivery only                                      | Architecture is payment-method-agnostic                      |
+| Analytics          | GA4 + GTM + Meta Pixel + Meta CAPI                         | Dual browser + server tracking                               |
+| Hosting            | Vercel + Neon PostgreSQL                                   | Serverless, auto-scaling, free tiers                         |
+| Admin panel        | /admin route inside same Next.js app                       | One codebase, one deployment                                 |
 
 ---
 
@@ -157,6 +158,7 @@ Version 2 activates multi-tenancy by routing through `store_id` — zero schema 
 ### Tables
 
 **Store & Auth**
+
 - `stores` — id, name, slug, domain, plan, status, created_at
 - `store_settings` — store_id, currency, language, timezone, contact_email, etc.
 - `store_themes` — store_id, theme_key, config (JSON)
@@ -169,6 +171,7 @@ Version 2 activates multi-tenancy by routing through `store_id` — zero schema 
 - `role_permissions` — role_id, permission_id
 
 **Catalog**
+
 - `categories` — id, store_id, parent_id (self-ref for nesting), name, slug, image, description, seo_title, seo_description, sort_order, status
 - `brands` — id, store_id, name, slug, logo, description, featured, seo_title, seo_description, status
 - `products` — id, store_id, category_id, brand_id, name, slug, short_description, description, price, sale_price, cost_price, sku, barcode, weight, status (draft/published/archived), featured, best_seller, seo_title, seo_description, og_image, tags, created_at
@@ -180,22 +183,27 @@ Version 2 activates multi-tenancy by routing through `store_id` — zero schema 
 - `product_variant_options` — variant_id, option_value_id
 
 **Inventory**
+
 - `inventory` — id, store_id, variant_id, stock_on_hand, stock_reserved, stock_available, low_stock_threshold, track_stock
 
 **Cart**
+
 - `carts` — id, store_id, user_id (nullable for guest), session_id, created_at, updated_at
 - `cart_items` — id, cart_id, variant_id, quantity, price_snapshot
 
 **Orders**
+
 - `orders` — id, store_id, user_id, guest_email, guest_phone, status, subtotal, discount_amount, shipping_amount, total, coupon_id, coupon_code, note, idempotency_key, created_at
 - `order_items` — id, order_id, variant_id, product_name, variant_label, sku, quantity, unit_price, total_price, image_url
 - `order_status_history` — id, order_id, from_status, to_status, note, actor_id, created_at
 - `addresses` — id, user_id, store_id, label, name, phone, address_line1, address_line2, district, area, city, postal_code, is_default
 
 **Payments**
+
 - `payments` — id, store_id, order_id, method (COD/BKASH/SSLCOMMERZ/STRIPE), status (UNPAID/PENDING/PAID/FAILED/REFUNDED/PARTIALLY_REFUNDED), amount, currency, gateway_transaction_id, gateway_response, created_at
 
 **Commerce**
+
 - `coupons` — id, store_id, code, type (PERCENTAGE/FLAT/FREE_SHIPPING), value, min_order_amount, max_discount_amount, usage_limit, per_user_limit, start_date, end_date, status
 - `coupon_usage` — id, coupon_id, user_id, order_id, used_at
 - `campaigns` — id, store_id, name, slug, description, banner_image, start_date, end_date, coupon_id, status
@@ -204,25 +212,30 @@ Version 2 activates multi-tenancy by routing through `store_id` — zero schema 
 - `wishlist_items` — id, wishlist_id, product_id, variant_id, added_at
 
 **Reviews**
+
 - `reviews` — id, store_id, product_id, user_id, order_id, rating, title, body, status (PENDING/APPROVED/REJECTED), verified_purchase, created_at
 - `review_images` — id, review_id, url
 
 **Blog**
+
 - `blog_categories` — id, store_id, name, slug
 - `blog_tags` — id, store_id, name, slug
 - `blog_posts` — id, store_id, category_id, author_id, title, slug, excerpt, content, featured_image, status, published_at, seo_title, seo_description, og_image
 - `blog_post_tags` — post_id, tag_id
 
 **Media & UI**
+
 - `media_library` — id, store_id, url, public_id, filename, size, type, uploaded_by, created_at
 - `banners` — id, store_id, title, image_url, link_url, position, start_date, end_date, status, sort_order
 - `sliders` — id, store_id, title, items (JSON array of slides)
 
 **Shipping**
+
 - `shipping_zones` — id, store_id, name, districts (array), delivery_days_min, delivery_days_max
 - `shipping_rates` — id, zone_id, name, price, free_above_amount
 
 **System**
+
 - `audit_logs` — id, store_id, actor_id, action, entity_type, entity_id, before (JSON), after (JSON), ip, created_at
 - `notifications` — id, store_id, user_id, type, title, body, read, created_at
 
@@ -318,20 +331,20 @@ POST   /api/v1/auth/reset-password
 
 ## Engineering Patterns in Use
 
-| Pattern | Where applied |
-|---|---|
-| Repository Pattern | All database access — only repositories touch Drizzle |
-| Use Case / Service Pattern | All business logic — one use case per operation |
-| DTO Pattern | All API inputs and outputs typed and validated with Zod |
-| Strategy Pattern | Shipping rate calculation, discount calculation, payment method selection |
-| Observer / Event Pattern | Marketing events (GA4, Meta CAPI), notifications, search sync |
-| Idempotency Pattern | POST /checkout, POST /payments |
-| Inventory Reservation | stock_reserved incremented on checkout, released on cancel |
-| RBAC | All admin and staff routes protected by role and permission checks |
-| Rate Limiting | Login, OTP, checkout, coupon-apply, public API — via Redis token bucket |
-| Audit Logging | Every admin write action logged to audit_logs |
-| API Versioning | All routes under /api/v1/ |
-| Transactional Checkout | Entire order creation wrapped in a single PostgreSQL transaction |
+| Pattern                    | Where applied                                                             |
+| -------------------------- | ------------------------------------------------------------------------- |
+| Repository Pattern         | All database access — only repositories touch Drizzle                     |
+| Use Case / Service Pattern | All business logic — one use case per operation                           |
+| DTO Pattern                | All API inputs and outputs typed and validated with Zod                   |
+| Strategy Pattern           | Shipping rate calculation, discount calculation, payment method selection |
+| Observer / Event Pattern   | Marketing events (GA4, Meta CAPI), notifications, search sync             |
+| Idempotency Pattern        | POST /checkout, POST /payments                                            |
+| Inventory Reservation      | stock_reserved incremented on checkout, released on cancel                |
+| RBAC                       | All admin and staff routes protected by role and permission checks        |
+| Rate Limiting              | Login, OTP, checkout, coupon-apply, public API — via Redis token bucket   |
+| Audit Logging              | Every admin write action logged to audit_logs                             |
+| API Versioning             | All routes under /api/v1/                                                 |
+| Transactional Checkout     | Entire order creation wrapped in a single PostgreSQL transaction          |
 
 ---
 
@@ -372,22 +385,22 @@ If any step from 6a to 6g fails → full rollback.
 
 ### Design System
 
-| Token | Value |
-|---|---|
-| Background | #FAFAF8 (warm white) |
-| Surface | #FFFFFF / #F5F4F1 (cards, panels) |
-| Border | #E8E5DF (soft warm) |
-| Text Primary | #1A1814 (near-black warm) |
-| Text Secondary | #6B655C (warm gray) |
-| Accent | #C9A96E (warm gold — CTAs, badges, highlights) |
-| Error | #D44E4E |
-| Success | #4A8C6F |
-| Heading Font | Playfair Display (editorial headings) |
-| Body Font | Inter or Geist (UI and body) |
-| Base Spacing | 4px scale, generous whitespace |
-| Border Radius | 8px default / 12px cards / 4px small buttons |
-| Shadows | Ultra-subtle warm box shadows only |
-| Animations | Framer Motion — fade-slide-in, smooth drawer, hover lift, accordion |
+| Token          | Value                                                               |
+| -------------- | ------------------------------------------------------------------- |
+| Background     | #FAFAF8 (warm white)                                                |
+| Surface        | #FFFFFF / #F5F4F1 (cards, panels)                                   |
+| Border         | #E8E5DF (soft warm)                                                 |
+| Text Primary   | #1A1814 (near-black warm)                                           |
+| Text Secondary | #6B655C (warm gray)                                                 |
+| Accent         | #C9A96E (warm gold — CTAs, badges, highlights)                      |
+| Error          | #D44E4E                                                             |
+| Success        | #4A8C6F                                                             |
+| Heading Font   | Playfair Display (editorial headings)                               |
+| Body Font      | Inter or Geist (UI and body)                                        |
+| Base Spacing   | 4px scale, generous whitespace                                      |
+| Border Radius  | 8px default / 12px cards / 4px small buttons                        |
+| Shadows        | Ultra-subtle warm box shadows only                                  |
+| Animations     | Framer Motion — fade-slide-in, smooth drawer, hover lift, accordion |
 
 ### Homepage Layout
 
@@ -707,11 +720,11 @@ login                 ← customer logged in
 
 ### Dual Tracking Strategy
 
-| Event trigger | Browser | Server |
-|---|---|---|
-| Page views | GTM + GA4 + Meta Pixel | — |
-| Add to cart | GTM event layer | — |
-| Purchase | GTM event layer | Meta CAPI (server) + GA4 Measurement Protocol |
+| Event trigger | Browser                | Server                                        |
+| ------------- | ---------------------- | --------------------------------------------- |
+| Page views    | GTM + GA4 + Meta Pixel | —                                             |
+| Add to cart   | GTM event layer        | —                                             |
+| Purchase      | GTM event layer        | Meta CAPI (server) + GA4 Measurement Protocol |
 
 Server-side tracking via Inngest job on ORDER_CREATED event — fires after transaction commits.
 
@@ -720,6 +733,7 @@ Server-side tracking via Inngest job on ORDER_CREATED event — fires after tran
 ## Development Phases
 
 ### Phase 1 — Engineering Foundation
+
 - Next.js 15 project scaffold, TypeScript strict, ESLint, Prettier, path aliases
 - Drizzle schema design and migrations, Neon PostgreSQL connection
 - Auth.js v5 — email/password + Google OAuth
@@ -731,6 +745,7 @@ Server-side tracking via Inngest job on ORDER_CREATED event — fires after tran
 - Environment config and feature flags
 
 ### Phase 2 — Core Catalog
+
 - Products CRUD with full variant system (option types + matrix builder)
 - Categories (nested, with parent_id)
 - Brands
@@ -740,6 +755,7 @@ Server-side tracking via Inngest job on ORDER_CREATED event — fires after tran
 - Media library
 
 ### Phase 3 — Commerce Engine
+
 - Guest cart (localStorage + Zustand) and logged-in cart (PostgreSQL)
 - Cart merge on login
 - Transactional checkout use case (full flow with rollback)
@@ -751,6 +767,7 @@ Server-side tracking via Inngest job on ORDER_CREATED event — fires after tran
 - COD risk scoring
 
 ### Phase 4 — Customer Experience
+
 - Customer account dashboard (orders, addresses, profile)
 - Wishlist
 - Reviews + ratings with moderation
@@ -759,6 +776,7 @@ Server-side tracking via Inngest job on ORDER_CREATED event — fires after tran
 - Order tracking page with status timeline
 
 ### Phase 5 — Marketing & SEO
+
 - Coupon system (create, validate, apply, usage tracking)
 - Campaign system with auto-generated landing pages
 - GA4 + GTM + Meta Pixel + Meta CAPI integration
@@ -769,6 +787,7 @@ Server-side tracking via Inngest job on ORDER_CREATED event — fires after tran
 - Abandoned cart tracking (via Redis session + Inngest job)
 
 ### Phase 6 — Polish & SaaS Prep
+
 - Full admin analytics dashboard (Recharts)
 - Audit logs system
 - Shipping zones and rates management
@@ -815,11 +834,12 @@ When ready to go multi-tenant:
 
 Zero schema migrations required for SaaS activation — the data model is already multi-tenant.
 
-Instruction for implemenation 
+Instruction for implemenation
+
 1. must push after each small potion with proper commit messages.
-2. maintain a update.md where after each portion write in which file 
-what you have implemented so that later we can understand the
-work flow and what is done untill then
+2. maintain a update.md where after each portion write in which file
+   what you have implemented so that later we can understand the
+   work flow and what is done untill then
 
 remebember that
 
@@ -834,12 +854,10 @@ Update types/interfaces if needed.
 
 Review this change as a senior software engineer.
 Focus on:
+
 - security issues
 - broken edge cases
 - bad architecture
 - unnecessary code
 - performance problems
 - missing validation
-
-
-

@@ -34,9 +34,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
 
   const where = [eq(products.storeId, DEFAULT_STORE_ID)];
   if (status !== "all") {
-    where.push(
-      eq(products.status, status as (typeof products.$inferSelect)["status"]),
-    );
+    where.push(eq(products.status, status as (typeof products.$inferSelect)["status"]));
   }
   if (q) where.push(ilike(products.name, `%${q}%`));
 
@@ -98,9 +96,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
       />
 
       <form action="/admin/products" method="get" className="mb-3">
-        {status !== "all" && (
-          <input type="hidden" name="status" value={status} />
-        )}
+        {status !== "all" && <input type="hidden" name="status" value={status} />}
         <Input
           name="q"
           placeholder="Search products by name…"
@@ -192,9 +188,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
                   <td className="px-4 py-3">
                     {r.salePrice ? (
                       <>
-                        <span className="font-medium">
-                          {formatCurrency(Number(r.salePrice))}
-                        </span>
+                        <span className="font-medium">{formatCurrency(Number(r.salePrice))}</span>
                         <span className="ml-1 text-xs text-[var(--color-text-muted)] line-through">
                           {formatCurrency(Number(r.price))}
                         </span>

@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import { rateLimit } from "@/lib/redis/rate-limit";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 
 const MAX_BYTES = 8 * 1024 * 1024; // 8 MB
 const ALLOWED_MIME = new Set([
@@ -22,7 +22,7 @@ const ALLOWED_MIME = new Set([
  * Admin-only. Rate-limited 30 uploads / 10 min / IP.
  */
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("media.manage");
   if ("error" in guard) return guard.error;
 
   const limit = await rateLimit(req, "media-upload", 30, 600);

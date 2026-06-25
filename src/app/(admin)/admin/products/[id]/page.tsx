@@ -120,10 +120,7 @@ export default function EditProductPage() {
               <ArrowLeft className="mr-1 h-4 w-4" /> Back
             </Link>
           </Button>
-          <h1
-            className="text-2xl font-semibold"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
             Edit Product
           </h1>
         </div>
@@ -144,18 +141,18 @@ export default function EditProductPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
-            <ProductForm defaultValues={defaults} onSubmit={handleSubmit} onPriceChange={setBasePrice} />
+            <ProductForm
+              defaultValues={defaults}
+              onSubmit={handleSubmit}
+              onPriceChange={setBasePrice}
+            />
           </div>
           <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
-            <VariantManager
-              basePrice={basePrice}
-              variants={variants}
-              onChange={setVariants}
-            />
+            <VariantManager basePrice={basePrice} variants={variants} onChange={setVariants} />
           </div>
         </div>
         <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
+          <h2 className="mb-3 text-sm font-semibold tracking-wide text-[var(--color-text-muted)] uppercase">
             Images
           </h2>
           <ProductImageUploader value={images} onChange={setImages} />

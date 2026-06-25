@@ -10,10 +10,7 @@ const eslintConfig = [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
-      "@typescript-eslint/consistent-type-imports": [
-        "warn",
-        { prefer: "type-imports" },
-      ],
+      "@typescript-eslint/consistent-type-imports": ["warn", { prefer: "type-imports" }],
       "@typescript-eslint/no-explicit-any": "warn",
       "react-hooks/set-state-in-effect": "warn",
       "react-hooks/refs": "warn",

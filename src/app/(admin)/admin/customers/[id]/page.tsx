@@ -33,18 +33,12 @@ export default async function AdminCustomerDetailPage({
     .orderBy(desc(orders.createdAt))
     .limit(50);
 
-  const totalSpent = customerOrders.reduce(
-    (sum, o) => sum + Number(o.total),
-    0,
-  );
+  const totalSpent = customerOrders.reduce((sum, o) => sum + Number(o.total), 0);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1
-          className="text-2xl font-semibold"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
           {customer.name ?? customer.email}
         </h1>
         <Link
@@ -56,9 +50,9 @@ export default async function AdminCustomerDetailPage({
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <section className="md:col-span-1 rounded-2xl border border-[var(--color-border)] bg-white p-6 space-y-3">
+        <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-white p-6 md:col-span-1">
           <h2 className="text-lg font-medium">Profile</h2>
-          <dl className="text-sm space-y-2">
+          <dl className="space-y-2 text-sm">
             <div>
               <dt className="text-[var(--color-text-secondary)]">Email</dt>
               <dd>{customer.email}</dd>
@@ -78,7 +72,7 @@ export default async function AdminCustomerDetailPage({
           </dl>
         </section>
 
-        <section className="md:col-span-2 rounded-2xl border border-[var(--color-border)] bg-white p-6 space-y-4">
+        <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-white p-6 md:col-span-2">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-medium">Orders</h2>
             <div className="text-sm text-[var(--color-text-secondary)]">

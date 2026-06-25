@@ -2,15 +2,14 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const ADMIN_ROLES = new Set(["superadmin", "admin", "manager", "staff"]);
-
 /**
  * Auth proxy:
- *  - /admin/*       → requires logged-in user with an admin-tier role
- *  - /account/*     → requires any logged-in user
- *  - /api/v1/admin  → requires admin role (returns 403 JSON on failure)
+ *  - /admin/*       → requires logged-in user
+ *  - /account/*     → requires logged-in user
+ *  - /api/v1/admin  → requires logged-in user (returns 401 JSON on failure)
  *
  * All other routes pass through unchanged.
+ * Actual RBAC checks (403 Forbidden) are performed inside the route handlers and layouts.
  */
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -24,9 +23,7 @@ export async function proxy(req: NextRequest) {
   }
 
   const token = await getToken(
-    process.env.AUTH_SECRET
-      ? { req, secret: process.env.AUTH_SECRET }
-      : { req },
+    process.env.AUTH_SECRET ? { req, secret: process.env.AUTH_SECRET } : { req },
   );
 
   // Not signed in
@@ -43,26 +40,6 @@ export async function proxy(req: NextRequest) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
-  }
-
-  // Admin authorization
-  if (isAdminPage || isAdminApi) {
-    const role = (token.role as string | undefined) ?? "customer";
-    if (!ADMIN_ROLES.has(role)) {
-      if (isAdminApi) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: "FORBIDDEN",
-              message: "You do not have permission to access this resource.",
-            },
-          },
-          { status: 403 },
-        );
-      }
-      return NextResponse.redirect(new URL("/", req.url));
-    }
   }
 
   return NextResponse.next();

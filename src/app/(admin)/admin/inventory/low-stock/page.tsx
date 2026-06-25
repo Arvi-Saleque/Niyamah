@@ -45,10 +45,7 @@ export default async function AdminLowStockPage() {
         </Link>
       </Button>
 
-      <PageHeader
-        title="Low stock"
-        description="Variants at or below their low-stock threshold."
-      />
+      <PageHeader title="Low stock" description="Variants at or below their low-stock threshold." />
 
       {rows.length === 0 ? (
         <EmptyState

@@ -1,0 +1,51 @@
+name: CI Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      NODE_ENV: "production"
+      NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      AUTH_SECRET: "ci-only-non-production-secret-at-least-32-characters"
+      DATABASE_URL: "postgresql://ci_user:ci_password@127.0.0.1:1/niyamah_ci?sslmode=require"
+      SMS_PROVIDER: "log"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build

@@ -4,9 +4,12 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { homepageBlocks } from "@/lib/db/schema";
 import { DEFAULT_STORE_ID } from "@/lib/constants/store";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requirePermission } from "@/modules/auth/application/get-admin-access";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
-import { NAVIGATION_BLOCK_KEY, NAVIGATION_DEFAULTS } from "@/modules/storefront/navigation-defaults";
+import {
+  NAVIGATION_BLOCK_KEY,
+  NAVIGATION_DEFAULTS,
+} from "@/modules/storefront/navigation-defaults";
 
 const linkSchema = z.object({
   label: z.string().min(1),
@@ -42,8 +45,16 @@ const panelBase = {
 };
 
 const panelSchema = z.discriminatedUnion("template", [
-  z.object({ ...panelBase, template: z.literal("feature-columns"), columns: z.array(featureColumnSchema).min(1) }),
-  z.object({ ...panelBase, template: z.literal("mega-list"), columns: z.array(listColumnSchema).min(1) }),
+  z.object({
+    ...panelBase,
+    template: z.literal("feature-columns"),
+    columns: z.array(featureColumnSchema).min(1),
+  }),
+  z.object({
+    ...panelBase,
+    template: z.literal("mega-list"),
+    columns: z.array(listColumnSchema).min(1),
+  }),
   z.object({ ...panelBase, template: z.literal("image-tiles"), tiles: z.array(tileSchema).min(1) }),
 ]);
 
@@ -53,7 +64,7 @@ const updateSchema = z.object({
 });
 
 export async function PUT(req: NextRequest) {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("navigation.manage");
   if ("error" in guard) return guard.error;
 
   const body = await req.json().catch(() => null);
@@ -61,12 +72,7 @@ export async function PUT(req: NextRequest) {
 
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
-    return apiError(
-      "VALIDATION_ERROR",
-      "Invalid navigation payload.",
-      422,
-      parsed.error.flatten(),
-    );
+    return apiError("VALIDATION_ERROR", "Invalid navigation payload.", 422, parsed.error.flatten());
   }
 
   const existing = await db
@@ -107,7 +113,7 @@ export async function PUT(req: NextRequest) {
 
 /** Reset the navigation menu to built-in defaults (deletes the override row). */
 export async function DELETE() {
-  const guard = await requireAdmin();
+  const guard = await requirePermission("navigation.manage");
   if ("error" in guard) return guard.error;
 
   await db
