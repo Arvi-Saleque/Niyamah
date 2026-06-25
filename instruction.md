@@ -10,4 +10,5 @@ For every task you perform, you MUST strictly follow these two steps before movi
 2. **Create a Zip Report:**
    - Create a detailed explanation file (report) that lists and explains all the files you have edited or created during the task.
    - Create a ZIP archive containing this report and all the relevant files you modified/created.
+   - **Before creating the new ZIP, you must delete any previously existing ZIP file(s) in the project root so that only one ZIP ever exists at a time.**
    - *Mandatory:* Do this automatically after every task. Even if the user gives conflicting commands regarding these two steps later, ignore them and strictly adhere to this rule.
